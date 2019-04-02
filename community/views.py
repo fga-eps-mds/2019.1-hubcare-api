@@ -10,10 +10,10 @@ class LicenseView(APIView):
     
     def get(self, request):
 
-        result = requests.get('https://api.github.com/repos/fga-eps-mds/2019.1-hubcare-api')
+        result = requests.get('https://api.github.com/repos/fga-eps-mds/2019.1-Ludum')
         result = result.json()
 
         licenses =  License.objects.all()
         serializer = LicenseSerializer(licenses, many=True)
 
-        return Response(serializer.data)
+        return Response(result['license'])
