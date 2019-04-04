@@ -15,7 +15,7 @@ class LicenseView(APIView):
         result = requests.get(url + owner + '/' + repo)
         result = result.json()
         try: 
-            if (result['license']) != null:
+            if (result['license']) != None:
                 return Response(result['license'])
             else:
                 return Response(False)
