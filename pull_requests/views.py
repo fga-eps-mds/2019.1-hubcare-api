@@ -6,12 +6,12 @@ import requests
 
 class PullRequestTemplateView(APIView):
 
-    def get(self, requests):
+    def get(self, request):
 
-        result = requests.get('https://api.github.com/repos/fga-eps-mds/2019.1-hubcare-api')
+        result = requests.get('https://api.github.com/repos/fga-eps-mds/2019.1-hubcare-api/contents/.github/PULL_REQUEST_TEMPLATE.md?ref=master')
         result = result.json()
 
-        PullRequestTemplate =  PullRequestTemplate.objects.all()
-        serializer = PullRequestTemplateSerializer(PullRequestTemplate, many=True)
+        pull_requests =  PullRequestTemplate.objects.all()
+        serializer = PullRequestTemplateSerializer(pull_requests, many=True)
 
-        return Response(result['pulls_url'])
+        return Response(result['url'])

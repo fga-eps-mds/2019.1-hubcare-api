@@ -1,5 +1,6 @@
 from django.db import models
 
 class PullRequestTemplate(models.Model):
-
-    pulls_url = models.CharField(max_length = 150)
+    
+    url = models.CharField(max_length = 200)
+    html_url = models.CharField(max_length = 200)
