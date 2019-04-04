@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import LicenseSerializer
@@ -8,12 +9,17 @@ import requests
 
 class LicenseView(APIView):
     
-    def get(self, request):
-
-        result = requests.get('https://api.github.com/repos/fga-eps-mds/2019.1-Ludum')
+    def get(self, request, owner, repo):
+        print(repo)
+        url = 'https://api.github.com/repos/'
+        result = requests.get(url + owner + '/' + repo)
         result = result.json()
+        try: 
+            if (result['license']) != null:
+                return Response(result['license'])
+            else:
+                return Response(False)
+        except:
+            raise Http404
 
-        licenses =  License.objects.all()
-        serializer = LicenseSerializer(licenses, many=True)
-
-        return Response(result['license'])
+      
