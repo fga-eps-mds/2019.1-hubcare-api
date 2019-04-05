@@ -9,7 +9,7 @@
 
 stages:
 - test
-# - release
+- release
 # - deploy
 
 # Stage I
@@ -35,3 +35,27 @@ test:
     - coverage report
   after_script:
     - coveralls
+
+# Stage II
+# Release Phase
+# In this phase, we package our code using docker
+release:
+  stage: release
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    # Build our image using docker
+    - docker build . -t cjjcastro/hubcare-api:latest
+
+    # Configure container registry to push using docker
+    - docker login -p $DOCKERPASSWORD -u $DOCKERLOGIN
+
+    # Push the image using docker
+    - docker push cjjcastro/hubcare-api:latest
+
+    # The tag, only master indicates that whenever code is pushed to master branch,
+    # only then run the pipeline
+  environment: master
+  only:
+    - master
