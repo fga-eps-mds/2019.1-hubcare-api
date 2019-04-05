@@ -16,10 +16,9 @@ stages:
 # Testing Phase:
 # This is where the main code is tested.
 # Other options like code coverage, etc are also written in this phase
-test:
+unit_test:
   stage: test
-  # This repo includes python3, pip3 so that I need not
-  # setup python and postgres separately.
+  # This repo includes python3, pip3
   image: python:3-alpine
   before_script:
     # Installing requirements
@@ -27,11 +26,9 @@ test:
     - pip install -r requirements.txt
   script:
     # Command to test our application
-    - pip install -r requirements.txt
     - python manage.py makemigrations
     - python manage.py migrate
-    - python manage.py test
-    - coverage run --source='.' manage.py test
+    - coverage run --source='.' --omit=*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py manage.py test
     - coverage report
   after_script:
     - coveralls
@@ -39,23 +36,32 @@ test:
 # Stage II
 # Release Phase
 # In this phase, we package our code using docker
-release:
+.release:
   stage: release
   image: docker:latest
   services:
     - docker:dind
   script:
     # Build our image using docker
-    - docker build . -t cjjcastro/hubcare-api:latest
+    - docker build . -t cjjcastro/hubcare-api:$DOCKERTAG
 
     # Configure container registry to push using docker
     - docker login -p $DOCKERPASSWORD -u $DOCKERLOGIN
 
     # Push the image using docker
-    - docker push cjjcastro/hubcare-api:latest
+    - docker push cjjcastro/hubcare-api:$DOCKERTAG
 
     # The tag, only master indicates that whenever code is pushed to master branch,
     # only then run the pipeline
-  environment: master
-  only:
+
+release_production:
+  extends: .release
+  environment: production
+  only: 
     - master
+
+release_development:
+  extends: .release
+  environment: development
+  only: 
+    - devel
