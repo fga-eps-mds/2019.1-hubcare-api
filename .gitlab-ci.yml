@@ -1,0 +1,36 @@
+# Gitlab CI yml file
+
+# This is the major part of the code which explains the stages present in our pipeline.
+# In a django application we have various stages which include testing, packing the code,
+# performing migrations, collecting static files and running the application.
+# The various stages are broadly classified into 3 main categories:
+
+# 1. Test       2. Release      3. Deploy
+
+stages:
+- test
+# - release
+# - deploy
+
+# Stage I
+# Testing Phase:
+# This is where the main code is tested.
+# Other options like code coverage, etc are also written in this phase
+test:
+  stage: test
+  # This repo includes python3, pip3 so that I need not
+  # setup python and postgres separately.
+  image: python:3-alpine
+  before_script:
+    # Installing requirements
+    - pip install -r requirements.txt
+  script:
+    # Command to test our application
+    - pip install -r requirements.txt
+    - python manage.py makemigrations
+    - python manage.py migrate
+    - python manage.py test
+    - coverage run --source='.' manage.py test
+    - coverage report
+  after_script:
+    - coveralls
