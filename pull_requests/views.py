@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import PullRequestTemplateSerializer
@@ -6,12 +7,17 @@ import requests
 
 class PullRequestTemplateView(APIView):
 
-    def get(self, request):
+    def get(self, request, owner, repo):
 
-        result = requests.get('https://api.github.com/repos/fga-eps-mds/2019.1-hubcare-api/contents/.github/PULL_REQUEST_TEMPLATE.md?ref=master')
+        url1 = 'https://api.github.com/repos/'
+        url2 = '/contents/.github/PULL_REQUEST_TEMPLATE.md?ref=master'
+        result = requests.get(url1 + owner + '/' + repo + url2)
         result = result.json()
 
-        pull_requests =  PullRequestTemplate.objects.all()
-        serializer = PullRequestTemplateSerializer(pull_requests, many=True)
-
-        return Response(result['url'])
+        try:
+            if(result['html_url']) != None:
+                return Response(True)
+            else:
+                return Response(False)
+        except:
+            raise Http404
