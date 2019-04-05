@@ -23,6 +23,7 @@ test:
   image: python:3-alpine
   before_script:
     # Installing requirements
+    - apk add --no-cache git
     - pip install -r requirements.txt
   script:
     # Command to test our application
