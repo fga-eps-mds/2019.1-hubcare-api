@@ -5,6 +5,7 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/956d64084dec1bc50ad3/maintainability)](https://codeclimate.com/github/fga-eps-mds/2019.1-hubcare-api/maintainability)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/fga-eps-mds/2019.1-hubcare-api.svg)](http://isitmaintained.com/project/fga-eps-mds/2019.1-hubcare-api "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/fga-eps-mds/2019.1-hubcare-api.svg)](http://isitmaintained.com/project/fga-eps-mds/2019.1-hubcare-api "Percentage of issues still open")
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 The Hubcare is an open-source project to manage if a repository is good or not to a newcomer, either a passing visitor, someone who looks for contributions or someone who just is interested in the software. If you are interested in the documentation, just go to [Hubcare Docs](https://fga-eps-mds.github.io/2019.1-hubcare-docs/)
 
