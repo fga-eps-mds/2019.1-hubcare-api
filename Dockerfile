@@ -3,8 +3,8 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /code
 WORKDIR /code
 COPY requirements.txt /code/
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt && apk add bash
 COPY . /code/
-CMD ["python3", "manage.py", "makemigrations"]
-CMD ["python3", "manage.py", "migrate", "--run-syncdb"]
-CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD bash -c "python3 manage.py makemigrations && \
+             python3 manage.py migrate --run-syncdb && \
+             python3 manage.py runserver 0.0.0.0:8000"
