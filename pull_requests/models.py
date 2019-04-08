@@ -2,5 +2,7 @@ from django.db import models
 
 class PullRequestTemplate(models.Model):
     
-    url = models.CharField(max_length = 200)
-    html_url = models.CharField(max_length = 200)
+    owner = models.CharField(max_length= 200)  
+    repo = models.CharField(max_length= 200)
+    has_pull_request_template = models.BooleanField(default=False)
+    date = models.DateField(default=None)
