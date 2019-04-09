@@ -16,7 +16,8 @@ class LicenseView(APIView):
         
         license_serializer = LicenseSerializer(all_license, many=True)
           
-        if (license_serializer.data == [] or license_serializer.data[0].date < date.today()):
+        #or license_serializer.data[0].date < date.today()
+        if (license_serializer.data == []):
             
             url = 'https://api.github.com/repos/'
             result = requests.get(url + owner + '/' + repo)
@@ -26,9 +27,8 @@ class LicenseView(APIView):
                 raise Http404
             elif (github_data['license']!= None):
                 License.objects.create(owner=owner,repo=repo,have_license=True,date=date.today())
-                
             else:
-                License.objects.create(owner=owner,repo=repo,have_license=False)
+                License.objects.create(owner=owner,repo=repo,have_license=False,date=date.today())
         
         license = License.objects.all().filter(owner=owner,repo=repo)
         license_serialized = LicenseSerializer(license, many=True)   

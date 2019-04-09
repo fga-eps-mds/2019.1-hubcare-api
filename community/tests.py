@@ -13,7 +13,9 @@ class LicenseTest(TestCase):
     def test_details(self):
         request = self.factory.get('/community/license/cleber/cremilda')
 
-        request.license = self.license
+        # request.license = self.license
 
-        response = LicenseView().get(request,owner='cleber',repo='cremilda')
+        # response = LicenseView().get(request,owner='cleber',repo='cremilda')
+        # response = LicenseView(request)
+        response = LicenseView.as_view()(request, 'cleber', 'cremilda')
         self.assertEqual(response.status_code, 200)
