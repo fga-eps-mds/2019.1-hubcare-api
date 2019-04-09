@@ -1,6 +1,6 @@
 from django.test import RequestFactory, TestCase
-from .models import License
-from .views import LicenseView
+from community.Models.LicenseModel import License
+from community.Views.LicenseView import LicenseView
 from datetime import date
 
 class LicenseTest(TestCase):
