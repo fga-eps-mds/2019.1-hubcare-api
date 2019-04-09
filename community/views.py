@@ -5,6 +5,7 @@ from .models import Readme
 import requests
 from datetime import date
 
+'''
 class ReadmeView(APIView):
 
     def get(self, request, owner, repo):
@@ -21,8 +22,8 @@ class ReadmeView(APIView):
             print('falhou')
         
         url = 'https://api.github.com/repos/'
-        result = requests.get(url + owner + '/' + repo + '/contents/README.md')
-        result = result.json()
+        github_request = requests.get(url + owner + '/' + repo + '/contents/README.md')
+        github_request = github_request.json()
 
         try:
             if(result['size'] > 50):
@@ -30,3 +31,21 @@ class ReadmeView(APIView):
 
         except:
             return Response(False)
+'''
+class ReadmeView(APIView):
+    def get(self, request, owner, repo):
+        readme = Readme.objects.all().filter(owner=owner, repo=repo)
+
+        # readme_serialized = ReadmeSerializer(readme, many=True)
+        if(readme == []):
+            # if readme[0].readme == True:
+            github_request = requests.get("https://api.github.com/repos/" + \
+                owner + "/" + repo + "/contents/README.md")
+            print(github_request.json())
+            if((github_request.status_code == 200) and (result['size'] > 30)):
+                Readme.objects.create(owner=owner, repo=repo, readme=True, date=datetime.now())
+            else:
+                Readme.objects.create(owner=owner, repo=repo, readme=False)
+        readme = Readme.objects.all().filter(owner=owner, repo=repo)
+        readme_serialized = ReadmeSerializer(readme, many=True)
+        return Response(readme_serialized.data)
