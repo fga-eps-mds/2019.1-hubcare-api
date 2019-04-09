@@ -4,4 +4,5 @@ pytz==2018.9
 coverage==4.0.3
 coveralls==1.7.0
 PyYAML==5.1
-
+requests==2.21.0
+pycodestyle==2.5.0
