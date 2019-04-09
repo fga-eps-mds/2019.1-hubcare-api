@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from community.Models.LicenseModel import License
+from community.models.license_model import License
 
 class LicenseSerializer(serializers.ModelSerializer):
 

@@ -1,8 +1,8 @@
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from community.Serializers.LicenseSerializer import LicenseSerializer
-from community.Models.LicenseModel import License
+from community.serializers.license_serializer import LicenseSerializer
+from community.models.license_model import License
 import requests
 from datetime import date
 
