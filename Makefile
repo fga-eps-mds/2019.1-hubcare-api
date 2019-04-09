@@ -1,7 +1,7 @@
 ############################# Makefile ##########################
 build:
 	sudo docker-compose build
-	
+
 up:
 	sudo docker-compose up
 
@@ -14,9 +14,9 @@ test:
 
 coverage:
 	sudo docker-compose up -d
-	docker-compose exec hubcareapi coverage run --source='.' --omit=*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py manage.py test
-	docker-compose exec hubcareapi coverage report
+	sudo docker-compose exec hubcareapi coverage run --source='.' --omit=*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py manage.py test
+	sudo docker-compose exec hubcareapi coverage report
 	
 style:
 	sudo docker-compose up -d
-	docker-compose exec hubcareapi pycodestyle .
+	sudo docker-compose exec hubcareapi pycodestyle .
