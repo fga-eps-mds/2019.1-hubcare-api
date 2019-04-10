@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Readme
+from community.models.models import Readme
 
 class ReadmeSerializer(serializers.ModelSerializer):
     class Meta:
