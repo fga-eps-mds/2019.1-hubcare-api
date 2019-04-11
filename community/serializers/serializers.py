@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from community.models.models import Readme
+from community.models.readme_model import Readme
 
 class ReadmeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Readme
-        fields = '__all__'
+        fields = '__all__' #[todos, da, model]
