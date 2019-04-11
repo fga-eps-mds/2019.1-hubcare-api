@@ -8,9 +8,10 @@ from datetime import date
 
 
 class LicenseView(APIView):
-
     def get(self, request, owner, repo):
-
+        '''
+        return if a repository have a license or not
+        '''
         all_license = License.objects.all().filter(owner=owner, repo=repo)
 
         license_serializer = LicenseSerializer(all_license, many=True)
@@ -40,5 +41,4 @@ class LicenseView(APIView):
 
         license = License.objects.all().filter(owner=owner, repo=repo)
         license_serialized = LicenseSerializer(license, many=True)
-        print(license_serialized.data)
         return Response(license_serialized.data[0])

@@ -5,25 +5,40 @@ from datetime import date
 from unittest import mock
 
 
-# This method will be used by the mock to replace requests.get
 def mocked_requests_get(*args, **kwargs):
+    '''
+    This method will be used by the mock to replace requests.get
+    '''
     class MockResponse:
+        '''
+        define response to mock request
+        '''
         def __init__(self, json_data, status_code):
             self.json_data = json_data
             self.status_code = status_code
 
         def json(self):
+            '''
+            return all datas in object
+            '''
             return self.json_data
 
-    # if args[0] == 'http://someurl.com/test.json':
-    #     return MockResponse({"key1": "value1"}, 200)
-    # elif args[0] == 'http://someotherurl.com/anothertest.json':
-    #     return MockResponse({"key2": "value2"}, 200)
+    if args[0] == 'https://api.github.com/repos/test/repo_test':
+        return MockResponse({"license": "value1"}, 200)
+    elif args[0] == 'https://api.github.com/repos/test/no_license':
+        return MockResponse({"license": None}, 200)
 
     return MockResponse(None, 404)
 
-class LicenseTest(TestCase):
+
+class LicenseViewTest(TestCase):
+    '''
+    test all methods to view class
+    '''
     def setUp(self):
+        '''
+        setup test configs
+        '''
         self.factory = RequestFactory()
         self.license = License.objects.create(
             owner='cleber',
@@ -32,13 +47,46 @@ class LicenseTest(TestCase):
             date=date.today(),
         )
 
-    @mock.patch('community.views.license_view.requests.get', side_effect=mocked_requests_get)
-    def test_RepositoryExistence(self, mock_get):
+    @mock.patch('community.views.license_view.requests.get',
+                side_effect=mocked_requests_get)
+    def test_repository_not_existence(self, mock_get):
+        '''
+        test if not exist repository in github api
+        '''
         request = self.factory.get('/community/license/cleber/desenho')
         response = LicenseView.as_view()(request, 'cleber', 'desenho')
         self.assertEqual(response.status_code, 404)
 
-    def test_LicenseTrue(self):
+    def test_exists_in_db(self):
+        '''
+        test if a license exists in local db
+        '''
         request = self.factory.get('/community/license/cleber/cremilda')
         response = LicenseView.as_view()(request, 'cleber', 'cremilda')
         self.assertEqual(response.status_code, 200)
+
+    @mock.patch('community.views.license_view.requests.get',
+                side_effect=mocked_requests_get)
+    def test_license_exists(self, mock_get):
+        '''
+        test if a license exists in github api
+        '''
+        request = self.factory.get('community/license/test/repo_test')
+        response = LicenseView.as_view()(request, 'test', 'repo_test')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['owner'], 'test')
+        self.assertEqual(response.data['repo'], 'repo_test')
+        self.assertEqual(response.data['have_license'], True)
+
+    @mock.patch('community.views.license_view.requests.get',
+                side_effect=mocked_requests_get)
+    def test_license_not_exists(self, mock_get):
+        '''
+        test if a license not exists in github api
+        '''
+        request = self.factory.get('community/license/test/no_license')
+        response = LicenseView.as_view()(request, 'test', 'no_license')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['owner'], 'test')
+        self.assertEqual(response.data['repo'], 'no_license')
+        self.assertEqual(response.data['have_license'], False)
