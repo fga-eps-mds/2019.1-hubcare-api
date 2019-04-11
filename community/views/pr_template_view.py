@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Community
-from .serializers import CommunitySerializer
+from community.models.pr_template_model import Community
+from community.serializers.pr_template_serializer import CommunitySerializer
 from datetime import date
 import requests
 
@@ -22,6 +22,4 @@ class PullRequestTemplateView(APIView):
         
         community = Community.objects.all().filter(owner=owner, repo=repo)
         community_serializer = CommunitySerializer(community, many=True)    
-        return Response(community_serializer.data)
-
-
+        return Response(community_serializer.data[0])

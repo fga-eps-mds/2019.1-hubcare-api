@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Community
+from community.models.pr_template_model import Community
 
 class CommunitySerializer(serializers.ModelSerializer):
 

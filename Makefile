@@ -14,7 +14,7 @@ test:
 
 coverage:
 	sudo docker-compose up -d
-	sudo docker-compose exec hubcareapi coverage run --source='.' --omit=*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py manage.py test
+	sudo docker-compose exec hubcareapi coverage run --source='.' --omit=*/tests/*,*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py manage.py test
 	sudo docker-compose exec hubcareapi coverage report
 	
 style:
