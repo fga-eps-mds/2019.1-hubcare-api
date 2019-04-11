@@ -5,4 +5,5 @@ from django.db import models
 class HelpWanted(models.Model):
     total_issues = models.IntegerField(default=0)
     help_wanted_issues = models.IntegerField(default=0)
-    
+    owner = models.CharField(max_length=100)
+    repo = models.CharField(max_length=100)
