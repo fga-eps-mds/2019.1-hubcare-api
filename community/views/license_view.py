@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from community.serializers.license_serializer import LicenseSerializer
 from community.models.license_model import License
+from datetime import datetime, timezone
 import requests
-from datetime import date
 
 
 class LicenseView(APIView):
@@ -13,7 +13,7 @@ class LicenseView(APIView):
         return if a repository have a license or not
         '''
         all_license = License.objects.all().filter(owner=owner, repo=repo)
-        # print(all_license[0])
+
         if (not all_license):
 
             url = 'https://api.github.com/repos/'
@@ -27,16 +27,16 @@ class LicenseView(APIView):
                     owner=owner,
                     repo=repo,
                     have_license=True,
-                    date=date.today()
+                    date_time=datetime.now(timezone.utc)
                 )
             else:
                 License.objects.create(
                     owner=owner,
                     repo=repo,
                     have_license=False,
-                    date=date.today()
+                    date_time=datetime.now(timezone.utc)
                 )
-        elif(check_date(all_license)):
+        elif(check_datetime(all_license)):
             url = 'https://api.github.com/repos/'
             result = requests.get(url + owner + '/' + repo)
             github_data = result.json()
@@ -48,14 +48,14 @@ class LicenseView(APIView):
                     owner=owner,
                     repo=repo,
                     have_license=True,
-                    date=date.today()
+                    date_time=datetime.now(timezone.utc)
                 )
             else:
                 License.objects.filter(owner=owner, repo=repo).update(
                     owner=owner,
                     repo=repo,
                     have_license=False,
-                    date=date.today()
+                    date_time=datetime.now(timezone.utc)
                 )
 
         license = License.objects.all().filter(owner=owner, repo=repo)
@@ -63,7 +63,7 @@ class LicenseView(APIView):
         return Response(license_serialized.data[0])
 
 
-def check_date(license):
-    if(license and license[0].date < date.today()):
+def check_datetime(license):
+    if(license and (datetime.now(timezone.utc) - license[0].date_time).days >= 1):
         return True
     return False

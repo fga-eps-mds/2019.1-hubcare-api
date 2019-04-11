@@ -1,7 +1,7 @@
 from django.test import RequestFactory, TestCase
 from community.models.license_model import License
 from community.views.license_view import LicenseView
-from datetime import date
+from datetime import datetime, timezone
 from unittest import mock
 
 
@@ -48,25 +48,25 @@ class LicenseViewTest(TestCase):
             owner='cleber',
             repo='cremilda',
             have_license=True,
-            date=date.today(),
+            date_time=datetime.now(timezone.utc),
         )
         self.license2 = License.objects.create(
             owner='test',
             repo='old_license',
             have_license=True,
-            date='2018-12-12'
+            date_time=datetime(2018, 4, 10, 16, 29, 43, 79043)
         )
         self.license3 = License.objects.create(
             owner='test',
             repo='old_license_false',
             have_license=False,
-            date='2018-12-12'
+            date_time=datetime(2018, 4, 10, 16, 29, 43, 79043)
         )
         self.license4 = License.objects.create(
             owner='brian',
             repo='mds',
             have_license=False,
-            date='2018-12-12'
+            date_time=datetime(2018, 4, 10, 16, 29, 43, 79043)
         )
 
     @mock.patch('community.views.license_view.requests.get',
@@ -115,7 +115,7 @@ class LicenseViewTest(TestCase):
 
     @mock.patch('community.views.license_view.requests.get',
                 side_effect=mocked_requests_get)
-    def test_check_date_out(self, mock_get):
+    def test_check_datetime_out(self, mock_get):
         '''
         test if not exist repository in github api yet
         '''
@@ -125,9 +125,9 @@ class LicenseViewTest(TestCase):
 
     @mock.patch('community.views.license_view.requests.get',
                 side_effect=mocked_requests_get)
-    def test_check_date(self, mock_get):
+    def test_check_datetime(self, mock_get):
         '''
-        test the license old date with license
+        test the license old datetime with license
         '''
         request = self.factory.get('community/license/test/old_license')
         response = LicenseView.as_view()(request, 'test', 'old_license')
@@ -135,13 +135,13 @@ class LicenseViewTest(TestCase):
         self.assertEqual(response.data['owner'], 'test')
         self.assertEqual(response.data['repo'], 'old_license')
         self.assertEqual(response.data['have_license'], True)
-        self.assertEqual(response.data['date'], str(date.today()))
+        self.assertEqual(str(datetime.strptime(response.data['date_time'][0:10], "%Y-%m-%d").date()), str(datetime.now(timezone.utc).date()))
 
     @mock.patch('community.views.license_view.requests.get',
                 side_effect=mocked_requests_get)
-    def test_check_date_false(self, mock_get):
+    def test_check_datetime_false(self, mock_get):
         '''
-        test the license old date without license
+        test the license old datetime without license
         '''
         request = self.factory.get('community/license/test/old_license_false')
         response = LicenseView.as_view()(request, 'test', 'old_license_false')
@@ -149,4 +149,4 @@ class LicenseViewTest(TestCase):
         self.assertEqual(response.data['owner'], 'test')
         self.assertEqual(response.data['repo'], 'old_license_false')
         self.assertEqual(response.data['have_license'], False)
-        self.assertEqual(response.data['date'], str(date.today()))
+        self.assertEqual(str(datetime.strptime(response.data['date_time'][0:10], "%Y-%m-%d").date()), str(datetime.now(timezone.utc).date()))
