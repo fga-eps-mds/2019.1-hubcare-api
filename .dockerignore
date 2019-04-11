@@ -4,7 +4,6 @@
 .github
 
 # Text files
-**/*.txt
 **/*.md
 LICENSE
 

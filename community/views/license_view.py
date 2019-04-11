@@ -13,10 +13,8 @@ class LicenseView(APIView):
         return if a repository have a license or not
         '''
         all_license = License.objects.all().filter(owner=owner, repo=repo)
-
-        license_serializer = LicenseSerializer(all_license, many=True)
-
-        if (license_serializer.data == []):
+        # print(all_license[0])
+        if (not all_license):
 
             url = 'https://api.github.com/repos/'
             result = requests.get(url + owner + '/' + repo)
@@ -38,7 +36,34 @@ class LicenseView(APIView):
                     have_license=False,
                     date=date.today()
                 )
+        elif(check_date(all_license)):
+            url = 'https://api.github.com/repos/'
+            result = requests.get(url + owner + '/' + repo)
+            github_data = result.json()
+
+            if (result.status_code == 404):
+                raise Http404
+            elif (github_data['license'] != None):
+                License.objects.filter(owner=owner, repo=repo).update(
+                    owner=owner,
+                    repo=repo,
+                    have_license=True,
+                    date=date.today()
+                )
+            else:
+                License.objects.filter(owner=owner, repo=repo).update(
+                    owner=owner,
+                    repo=repo,
+                    have_license=False,
+                    date=date.today()
+                )
 
         license = License.objects.all().filter(owner=owner, repo=repo)
         license_serialized = LicenseSerializer(license, many=True)
         return Response(license_serialized.data[0])
+
+
+def check_date(license):
+    if(license and license[0].date < date.today()):
+        return True
+    return False

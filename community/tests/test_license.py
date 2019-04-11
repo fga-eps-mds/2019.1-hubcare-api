@@ -27,6 +27,10 @@ def mocked_requests_get(*args, **kwargs):
         return MockResponse({"license": "value1"}, 200)
     elif args[0] == 'https://api.github.com/repos/test/no_license':
         return MockResponse({"license": None}, 200)
+    elif args[0] == 'https://api.github.com/repos/test/old_license':
+        return MockResponse({"license": "value1"}, 200)
+    elif args[0] == 'https://api.github.com/repos/test/old_license_false':
+        return MockResponse({"license": None}, 200)
 
     return MockResponse(None, 404)
 
@@ -45,6 +49,24 @@ class LicenseViewTest(TestCase):
             repo='cremilda',
             have_license=True,
             date=date.today(),
+        )
+        self.license2 = License.objects.create(
+            owner='test',
+            repo='old_license',
+            have_license=True,
+            date='2018-12-12'
+        )
+        self.license3 = License.objects.create(
+            owner='test',
+            repo='old_license_false',
+            have_license=False,
+            date='2018-12-12'
+        )
+        self.license4 = License.objects.create(
+            owner='brian',
+            repo='mds',
+            have_license=False,
+            date='2018-12-12'
         )
 
     @mock.patch('community.views.license_view.requests.get',
@@ -90,3 +112,41 @@ class LicenseViewTest(TestCase):
         self.assertEqual(response.data['owner'], 'test')
         self.assertEqual(response.data['repo'], 'no_license')
         self.assertEqual(response.data['have_license'], False)
+
+    @mock.patch('community.views.license_view.requests.get',
+                side_effect=mocked_requests_get)
+    def test_check_date_out(self, mock_get):
+        '''
+        test if not exist repository in github api yet
+        '''
+        request = self.factory.get('/community/license/brian/mds')
+        response = LicenseView.as_view()(request, 'brian', 'mds')
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch('community.views.license_view.requests.get',
+                side_effect=mocked_requests_get)
+    def test_check_date(self, mock_get):
+        '''
+        test the license old date with license
+        '''
+        request = self.factory.get('community/license/test/old_license')
+        response = LicenseView.as_view()(request, 'test', 'old_license')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['owner'], 'test')
+        self.assertEqual(response.data['repo'], 'old_license')
+        self.assertEqual(response.data['have_license'], True)
+        self.assertEqual(response.data['date'], str(date.today()))
+
+    @mock.patch('community.views.license_view.requests.get',
+                side_effect=mocked_requests_get)
+    def test_check_date_false(self, mock_get):
+        '''
+        test the license old date without license
+        '''
+        request = self.factory.get('community/license/test/old_license_false')
+        response = LicenseView.as_view()(request, 'test', 'old_license_false')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['owner'], 'test')
+        self.assertEqual(response.data['repo'], 'old_license_false')
+        self.assertEqual(response.data['have_license'], False)
+        self.assertEqual(response.data['date'], str(date.today()))
