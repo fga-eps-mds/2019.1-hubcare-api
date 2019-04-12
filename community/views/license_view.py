@@ -64,6 +64,7 @@ class LicenseView(APIView):
 
 
 def check_datetime(license):
-    if(license and (datetime.now(timezone.utc) - license[0].date_time).days >= 1):
+    datetime_now = datetime.now(timezone.utc)
+    if(license and (datetime_now - license[0].date_time).days >= 1):
         return True
     return False

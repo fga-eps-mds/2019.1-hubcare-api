@@ -135,7 +135,10 @@ class LicenseViewTest(TestCase):
         self.assertEqual(response.data['owner'], 'test')
         self.assertEqual(response.data['repo'], 'old_license')
         self.assertEqual(response.data['have_license'], True)
-        self.assertEqual(str(datetime.strptime(response.data['date_time'][0:10], "%Y-%m-%d").date()), str(datetime.now(timezone.utc).date()))
+        response_data = response.data['date_time']
+        date_strp = datetime.strptime(response_data[0:10], "%Y-%m-%d").date()
+        self.assertEqual(str(date_strp),
+                         str(datetime.now(timezone.utc).date()))
 
     @mock.patch('community.views.license_view.requests.get',
                 side_effect=mocked_requests_get)
@@ -149,4 +152,7 @@ class LicenseViewTest(TestCase):
         self.assertEqual(response.data['owner'], 'test')
         self.assertEqual(response.data['repo'], 'old_license_false')
         self.assertEqual(response.data['have_license'], False)
-        self.assertEqual(str(datetime.strptime(response.data['date_time'][0:10], "%Y-%m-%d").date()), str(datetime.now(timezone.utc).date()))
+        response_data = response.data['date_time']
+        date_strp = datetime.strptime(response_data[0:10], "%Y-%m-%d").date()
+        self.assertEqual(str(date_strp),
+                         str(datetime.now(timezone.utc).date()))
