@@ -6,16 +6,16 @@ from issues.serializers.help_wanted_serializers import HelpWantedSerializer
 from datetime import datetime, timezone
 import requests
 import json
+from issues import constants
 
-# Create your views here.
 
 class HelpWantedView(APIView):
     def get(self,request,owner,repo):
-        """
+        '''
         returns help wanted issue rate
-        """
+        '''
 
-        url = 'https://api.github.com/repos/' + owner + '/' + repo + '/issues'
+        url = constants.main_url + owner + '/' + repo + '/issues'
         help_wanted = HelpWanted.objects.all().filter(owner=owner, repo=repo)
         if(not help_wanted):
             issues = requests.get(url)
@@ -42,45 +42,45 @@ class HelpWantedView(APIView):
         return Response(self.get_metric(owner,repo))
 
     def count_issues(self,issues):
-        """
+        '''
         counts the number of all issues and all issues with help wanted label
-        """
+        '''
 
         total_issues = 0
         help_wanted_issues = 0
         for i in issues:
             total_issues += 1
-            labels = i["labels"]
+            labels = i['labels']
             help_wanted_issues += self.check_help_wanted(labels)
         return total_issues, help_wanted_issues
 
     def check_help_wanted(self,labels):
-        """
+        '''
         verifies if there is a help wanted label in labels
-        """
+        '''
 
         for i in labels:
-            name = i["name"].upper()
-            if name == "HELPWANTED" or name == "HELP_WANTED" or name == "HELP WANTED":
+            name = i['name'].upper().replace(' ','')
+            if name in constants.labels_help_wanted:
                 return 1
         return 0
 
     def get_metric(self,owner,repo):
-        """
+        '''
         returns the metric of the repository
-        """
+        '''
 
         help_wanted = HelpWanted.objects.all().filter(owner=owner,repo=repo)[0]
         rate = help_wanted.help_wanted_issues/help_wanted.total_issues
-        rate = "{\"rate\":\"" + str(rate) + "\"}"
+        rate = '{"rate":\"' + str(rate) + '"}'
         rate_json = json.loads(rate)
         return rate_json
 
 def check_datetime(help_wanted):
-    """
+    '''
     verifies if the time difference between the last update and now is 
     greater than 24 hours
-    """
+    '''
 
     datetime_now = datetime.now(timezone.utc)
     if((datetime_now - help_wanted.date_time).days >= 1):
