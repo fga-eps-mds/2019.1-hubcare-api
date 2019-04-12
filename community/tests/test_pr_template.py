@@ -22,35 +22,45 @@ def mocked_reques_get(*args, **kwargs):
             '''
             return self.json_data
 
-    if args[0] == 'https://api.github.com/repos/fga-eps-mds/2019.1-hubcare-api/contents/.github/PULL_REQUEST_TEMPLATE.md':
+    url1 = 'https://api.github.com/repos/fga-eps-mds/2019.1-hubcare-api/'
+    url2 = 'contents/.github/PULL_REQUEST_TEMPLATE.md'
+    if args[0] == url1 + url2:
         return MockReponse({'PULL_REQUEST_TEMPLATE': 'name'}, 200)
 
     return MockReponse(None, 404)
 
-   
-class TestCommunity(TestCase):
 
+class TestCommunity(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        
-    @mock.patch('community.views.pr_template_view.requests.get', side_effect=mocked_reques_get) 
-    def test_pull_request_template_exists(self, mock_get):
-        request = self.factory.get('/pull_request_template/fga-eps-mds/2019.1-hubcare-api')
 
-        response = PullRequestTemplateView.as_view()(request, 'fga-eps-mds', '2019.1-hubcare-api')
+    @mock.patch('community.views.pr_template_view.requests.get',
+                side_effect=mocked_reques_get)
+    def test_pull_request_template_exists(self, mock_get):
+        url = '/pull_request_template/fga-eps-mds/2019.1-hubcare-api'
+        request = self.factory.get(url)
+
+        response = PullRequestTemplateView.as_view()(
+                                                    request,
+                                                    'fga-eps-mds',
+                                                    '2019.1-hubcare-api')
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['owner'], 'fga-eps-mds')       
-        self.assertEqual(response.data['repo'], '2019.1-hubcare-api')       
-        self.assertEqual(response.data['pull_request_template'], True)       
+        self.assertEqual(response.data['owner'], 'fga-eps-mds')
+        self.assertEqual(response.data['repo'], '2019.1-hubcare-api')
+        self.assertEqual(response.data['pull_request_template'], True)
 
-    @mock.patch('community.views.pr_template_view.requests.get', side_effect=mocked_reques_get) 
+    @mock.patch('community.views.pr_template_view.requests.get',
+                side_effect=mocked_reques_get)
     def test_pull_request_template_not_exists(self, mock_get):
         request = self.factory.get('/pull_request_template/test/repo_test')
 
-        response = PullRequestTemplateView.as_view()(request, 'test', 'repo_test')
+        response = PullRequestTemplateView.as_view()(
+                request,
+                'test',
+                'repo_test')
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['owner'], 'test')       
-        self.assertEqual(response.data['repo'], 'repo_test')       
-        self.assertEqual(response.data['pull_request_template'], False)       
+        self.assertEqual(response.data['owner'], 'test')
+        self.assertEqual(response.data['repo'], 'repo_test')
+        self.assertEqual(response.data['pull_request_template'], False)
