@@ -20,13 +20,7 @@ class HelpWantedView(APIView):
         if(not help_wanted):
             issues = requests.get(url)
             issues = issues.json()
-            total_issues = 0
-            help_wanted_issues = 0
-            for i in issues:
-                total_issues += 1
-                labels = i["labels"]
-                help_wanted_issues += self.check_help_wanted(labels) 
-
+            total_issues, help_wanted_issues = self.count_issues(issues)
             HelpWanted.objects.create(
                 owner=owner,
                 repo=repo,
@@ -34,8 +28,31 @@ class HelpWantedView(APIView):
                 help_wanted_issues=help_wanted_issues,
                 date_time=datetime.now(timezone.utc)
             )
+        elif check_datetime(help_wanted[0]):
+            help_wanted = HelpWanted.objects.get(owner=owner,repo=repo)
+            issues = requests.get(url)
+            issues = issues.json()
+            total_issues, help_wanted_issues = self.count_issues(issues)
+            HelpWanted.objects.filter(owner=owner,repo=repo).update(
+                total_issues=total_issues,
+                help_wanted_issues=help_wanted_issues,
+                date_time=datetime.now(timezone.utc)
+            )            
+
         return Response(self.get_metric(owner,repo))
 
+    def count_issues(self,issues):
+        """
+        counts the number of all issues and all issues with help wanted label
+        """
+
+        total_issues = 0
+        help_wanted_issues = 0
+        for i in issues:
+            total_issues += 1
+            labels = i["labels"]
+            help_wanted_issues += self.check_help_wanted(labels)
+        return total_issues, help_wanted_issues
 
     def check_help_wanted(self,labels):
         """
@@ -52,8 +69,20 @@ class HelpWantedView(APIView):
         """
         returns the metric of the repository
         """
+
         help_wanted = HelpWanted.objects.all().filter(owner=owner,repo=repo)[0]
         rate = help_wanted.help_wanted_issues/help_wanted.total_issues
         rate = "{\"rate\":\"" + str(rate) + "\"}"
         rate_json = json.loads(rate)
         return rate_json
+
+def check_datetime(help_wanted):
+    """
+    verifies if the time difference between the last update and now is 
+    greater than 24 hours
+    """
+
+    datetime_now = datetime.now(timezone.utc)
+    if((datetime_now - help_wanted.date_time).days >= 1):
+        return True
+    return False
