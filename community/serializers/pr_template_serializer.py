@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from community.models.pr_template_model import Community
+from community.models.pr_template_model import PullRequestTemplate
 
 
-class CommunitySerializer(serializers.ModelSerializer):
+class PullRequestTemplateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Community
+        model = PullRequestTemplate
         fields = '__all__'
