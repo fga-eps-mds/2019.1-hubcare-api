@@ -15,22 +15,23 @@ class CommitMonthView(APIView):
 
         if (serialized.data != []):
             url = 'https://api.github.com/repos/'
-            github_request = requests.get(url + owner +
-                                          '/' + repo + '/stats/participation')
+            url2 = '/stats/participation'
+            github_request = requests.get(url + owner + '/' + repo + url2)
             github_data = github_request.json()
 
-            commit = Commit.objects.create(owner=owner,
-                                           repo=repo,
-                                           date=date.today()
-                                           )
+            commit = Commit.objects.create(
+                owner=owner,
+                repo=repo,
+                date=date.today()
+            )
 
             week_number = 52
             for i in range(0, 52, 1):
                 commit_week = CommitWeek.objects.create(
-                                                week=week_number,
-                                                quantity=github_data['all'][i],
-                                                commit=commit
-                                                        )
+                    week=week_number,
+                    quantity=github_data['all'][i],
+                    commit=commit
+                )
                 week_number = week_number - 1
 
         commit = Commit.objects.all().filter(owner=owner, repo=repo)
