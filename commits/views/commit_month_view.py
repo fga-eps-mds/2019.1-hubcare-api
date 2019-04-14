@@ -7,7 +7,7 @@ from datetime import date
 from commits.serializers import CommitSerializer, CommitWeekSerializer
 
 
-class CommitYearView(APIView):
+class CommitMonthView(APIView):
 
     def get(self, request, owner, repo):
         commit = Commit.objects.all().filter(owner=owner, repo=repo)
@@ -34,11 +34,19 @@ class CommitYearView(APIView):
 
         commits_week = CommitWeekSerializer(commits_week, many=True)
 
-        soma = 0
+        sum = 0
 
         for i in range(-5, -1, 1):
-            soma += commits_week.data[i]['quantity']
-        return Response(soma)
+            sum += commits_week.data[i]['quantity']
+        
+        data = {"owner": owner,
+                "repo": repo,
+                "sum": sum,
+               }
+        
+        return Response(data)
+
+        
 
 
         #return Response(commits_week.data[-5:-1])

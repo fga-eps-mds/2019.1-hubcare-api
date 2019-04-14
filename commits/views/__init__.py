@@ -1,1 +1,1 @@
-from .commit_year_view import CommitYearView
+from .commit_month_view import CommitMonthView

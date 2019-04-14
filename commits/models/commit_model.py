@@ -17,8 +17,4 @@ class CommitWeek(models.Model):
     week = models.IntegerField()
     quantity = models.IntegerField()
     commit = models.ForeignKey(Commit, on_delete=models.CASCADE)
-
-class CommitMonth(models.Model):
-    date = models.DateField(default=None)
-    quantity = models.IntegerField()
-    commit = models.ForeignKey(Commit, on_delete=models.CASCADE)
+    

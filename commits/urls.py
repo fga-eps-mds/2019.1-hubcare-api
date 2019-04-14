@@ -1,6 +1,6 @@
 from django.urls import path
-from commits.views import CommitYearView
+from commits.views import CommitMonthView
 
 urlpatterns = [
-    path('commit_year/<str:owner>/<str:repo>/', CommitYearView.as_view()),
+    path('commit_month/<str:owner>/<str:repo>/', CommitMonthView.as_view()),
 ]
