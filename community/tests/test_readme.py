@@ -3,6 +3,7 @@ from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase
 from community.models.readme_model import Readme
 
+
 class ReadmeTest(APITestCase):
     def readme_exists(self):
         factory = APIRequestFactory()
