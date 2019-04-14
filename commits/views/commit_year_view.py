@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from commits.models import Commit, CommitWeek 
+from commits.models import Commit, CommitWeek
 import requests
 from datetime import date
 from commits.serializers import CommitSerializer, CommitWeekSerializer
@@ -27,12 +27,18 @@ class CommitYearView(APIView):
                                           commit=commit
                                           )
                 week_number = week_number - 1
-
-        commit = Commit.objects.all().filter(owner=owner, repo=repo)  
         
-        commits_week = CommitWeek.objects.all().filter(commit=commit[0])
+        commit = Commit.objects.all().filter(owner=owner, repo=repo)
+        
+        commits_week = CommitWeek.objects.all().filter(commit=commit.first())
 
         commits_week = CommitWeekSerializer(commits_week, many=True)
-        
-        return Response(commits_week.data)
 
+        soma = 0
+
+        for i in range(-5, -1, 1):
+            soma += commits_week.data[i]['quantity']
+        return Response(soma)
+
+
+        #return Response(commits_week.data[-5:-1])
