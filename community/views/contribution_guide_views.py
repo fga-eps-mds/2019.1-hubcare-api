@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from community.models.contribution_guide_model import ContributionGuide
-from community.serializers.contribution_guide_serializer import ContributionGuideSerializer
+from community.serializers.contribution_guide_serializer \
+    import ContributionGuideSerializer
 from datetime import date
 import requests
 

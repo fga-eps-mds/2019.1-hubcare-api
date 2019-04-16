@@ -1,6 +1,7 @@
 from django.urls import path
 from community.views.contribution_guide_views import ContributionGuideView
 
+aux = 'contribution_guide/<str:owner>/<str:repo>/'
 urlpatterns = [
-              path('contribution_guide/<str:owner>/<str:repo>/', ContributionGuideView.as_view())
-              ]
+    path(aux, ContributionGuideView.as_view())
+]
