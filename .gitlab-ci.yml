@@ -31,7 +31,7 @@ unit_test:
   extends: .test
   script:
     # Command to test our application
-    - coverage run --source='.' --omit=*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py manage.py test
+    - coverage run --source='.' --omit=*/tests/*,*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py manage.py test
     - coverage report
     - coveralls
 

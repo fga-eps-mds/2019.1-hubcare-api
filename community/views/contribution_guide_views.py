@@ -13,7 +13,7 @@ class ContributionGuideView(APIView):
         contribution_guide = ContributionGuide.objects.all().filter(
             owner=owner,
             repo=repo
-            )
+        )
         serialized = ContributionGuideSerializer(contribution_guide, many=True)
 
         if(serialized.data == []):
@@ -24,22 +24,22 @@ class ContributionGuideView(APIView):
 
             if(github_request.status_code == 200):
                 ContributionGuide.objects.create(
-                                                owner=owner,
-                                                repo=repo,
-                                                contribution_guide=True,
-                                                date=date.today()
-                                                )
+                    owner=owner,
+                    repo=repo,
+                    contribution_guide=True,
+                    date=date.today()
+                )
             else:
                 ContributionGuide.objects.create(
-                                                owner=owner,
-                                                repo=repo,
-                                                contribution_guide=False,
-                                                date=date.today()
-                                                )
+                    owner=owner,
+                    repo=repo,
+                    contribution_guide=False,
+                    date=date.today()
+                )
 
         contribution_guide = ContributionGuide.objects.all().filter(
-                                                                   owner=owner,
-                                                                   repo=repo
-                                                                   )
+            owner=owner,
+            repo=repo
+        )
         serialized = ContributionGuideSerializer(contribution_guide, many=True)
         return Response(serialized.data)
