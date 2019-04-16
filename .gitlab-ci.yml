@@ -16,7 +16,7 @@ stages:
 # Testing Phase:
 # This is where the main code is tested.
 # Other options like code coverage, etc are also written in this phase
-unit_test:
+.test:
   stage: test
   # This repo includes python3, pip3
   image: python:3-alpine
@@ -24,14 +24,21 @@ unit_test:
     # Installing requirements
     - apk add --no-cache git
     - pip install -r requirements.txt
-  script:
-    # Command to test our application
     - python manage.py makemigrations
     - python manage.py migrate
-    - coverage run --source='.' --omit=*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py manage.py test
+  
+unit_test:
+  extends: .test
+  script:
+    # Command to test our application
+    - coverage run --source='.' --omit=*/tests/*,*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py manage.py test
     - coverage report
-  after_script:
     - coveralls
+
+codestyle:
+  extends: .test
+  script:
+    - pycodestyle .
 
 # Stage II
 # Release Phase

@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class DifferentsAuthors(models.Model):
     owner = models.CharField(max_length=30)
     repo = models.CharField(max_length=30)
