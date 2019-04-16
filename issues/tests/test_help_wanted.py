@@ -49,5 +49,12 @@ class HelpWantedTest(TestCase):
         response = HelpWantedView.as_view()(request, 'fga-eps-mds', '2019.1-hubcare-api')
         self.assertEqual(response.status_code, 404)
 
-    
+    def test_exists_in_db(self):
+        '''
+        test if a HelpWanted exists in local db
+        '''
+        request = self.factory.get('/issues/help_wanted/jaco/desenho')
+        response = HelpWantedView.as_view()(request, 'jaco', 'desenho')
+        self.assertEqual(response.status_code, 200)
+
 
