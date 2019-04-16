@@ -14,12 +14,15 @@ class HelpWantedView(APIView):
         '''
         returns help wanted issue rate
         '''
-
-        url = constants.main_url + owner + '/' + repo + '/issues'
         help_wanted = HelpWanted.objects.all().filter(owner=owner, repo=repo)
         if(not help_wanted):
-            issues = requests.get(url)
-            issues = issues.json()
+            url = constants.main_url + owner + '/' + repo + '/issues'
+            result = requests.get(url)
+            issues = result.json()
+
+            if(result.status_code== 404 ):
+                raise Http404
+            
             total_issues, help_wanted_issues = self.count_issues(issues)
             HelpWanted.objects.create(
                 owner=owner,
@@ -30,14 +33,18 @@ class HelpWantedView(APIView):
             )
         elif check_datetime(help_wanted[0]):
             help_wanted = HelpWanted.objects.get(owner=owner,repo=repo)
-            issues = requests.get(url)
+            result = requests.get(url)
             issues = issues.json()
-            total_issues, help_wanted_issues = self.count_issues(issues)
-            HelpWanted.objects.filter(owner=owner,repo=repo).update(
-                total_issues=total_issues,
-                help_wanted_issues=help_wanted_issues,
-                date_time=datetime.now(timezone.utc)
-            )            
+
+            if(result.status_code== 404 ):
+                raise Http404
+            else:
+                total_issues, help_wanted_issues = self.count_issues(issues)
+                HelpWanted.objects.filter(owner=owner,repo=repo).update(
+                    total_issues=total_issues,
+                    help_wanted_issues=help_wanted_issues,
+                    date_time=datetime.now(timezone.utc)
+                )            
 
         return Response(self.get_metric(owner,repo))
 
