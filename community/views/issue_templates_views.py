@@ -3,13 +3,13 @@ from rest_framework.response import Response
 from community.models.issue_templates_model import IssueTemplates
 from community.serializers.issue_templates_serializer \
     import IssueTemplatesSerializer
-from datetime import datetime, timezone
+from datetime import date
 import requests
 
 
 class IssueTemplatesView(APIView):
 
-    def get(self, request, owner, repo, format=None):
+    def get(self, request, owner, repo):
         issue_templates = IssueTemplates.objects.all().filter(
             owner=owner,
             repo=repo
@@ -31,14 +31,14 @@ class IssueTemplatesView(APIView):
                     owner=owner,
                     repo=repo,
                     issue_templates=True,
-                    date=datetime.now(timezone.utc)
+                    date=date.today()
                 )
             else:
                 IssueTemplates.objects.create(
                     owner=owner,
                     repo=repo,
                     issue_templates=False,
-                    date=datetime.now(timezone.utc)
+                    date=date.today()
                 )
 
         issue_templates = IssueTemplates.objects.all().filter(
