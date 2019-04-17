@@ -14,15 +14,12 @@ class IssueTemplatesView(APIView):
             owner=owner,
             repo=repo
         )
-        issue_serialized = IssueTemplatesSerializer(
-            issue_templates,
-            many=True
-        )
+        issue_serialized = IssueTemplatesSerializer(issue_templates, many=True)
 
         if(issue_serialized == []):
 
             url1 = 'https://api.github.com/repos/'
-            url2 = '/contents/.github/ISSUE_TEMPLATE.md'
+            url2 = '/contents/.github/ISSUE_TEMPLATE'
             result = url1 + owner + '/' + repo + url2
             github_request = requests.get(result)
 
