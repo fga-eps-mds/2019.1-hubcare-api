@@ -78,7 +78,7 @@ class HelpWantedView(APIView):
             owner=owner,
             repo=repo
         )[0]
-        rate = help_wanted.help_wanted_issues/help_wanted.total_issues
+        rate = help_wanted.help_wanted_issues / help_wanted.total_issues
         rate = '{"rate":\"' + str(rate) + '"}'
         rate_json = json.loads(rate)
         return rate_json
