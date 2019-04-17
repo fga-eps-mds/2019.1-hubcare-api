@@ -1,4 +1,3 @@
-from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from issues.models.help_wanted_models import HelpWanted
@@ -15,14 +14,9 @@ class HelpWantedView(APIView):
         returns help wanted issue rate
         '''
         help_wanted = HelpWanted.objects.all().filter(owner=owner, repo=repo)
+        url = constants.main_url + owner + '/' + repo
         if(not help_wanted):
-            url = constants.main_url + owner + '/' + repo + '/issues'
-            result = requests.get(url)
-            issues = result.json()
-
-            if(result.status_code == 404):
-                raise Http404
-            total_issues, help_wanted_issues = self.count_issues(issues)
+            total_issues, help_wanted_issues = self.get_total_helpwanted(url)
             HelpWanted.objects.create(
                 owner=owner,
                 repo=repo,
@@ -32,53 +26,76 @@ class HelpWantedView(APIView):
             )
         elif check_datetime(help_wanted[0]):
             help_wanted = HelpWanted.objects.get(owner=owner, repo=repo)
-            result = requests.get(url)
-            issues = issues.json()
-
-            if(result.status_code == 404):
-                raise Http404
-            else:
-                total_issues, help_wanted_issues = self.count_issues(issues)
-                HelpWanted.objects.filter(owner=owner, repo=repo).update(
-                    total_issues=total_issues,
-                    help_wanted_issues=help_wanted_issues,
-                    date_time=datetime.now(timezone.utc)
-                )
+            total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+            HelpWanted.objects.filter(owner=owner, repo=repo).update(
+                total_issues=total_issues,
+                help_wanted_issues=help_wanted_issues,
+                date_time=datetime.now(timezone.utc)
+            )
 
         return Response(self.get_metric(owner, repo))
 
-    def count_issues(self, issues):
+    def get_total_helpwanted(self, url):
         '''
-        counts the number of all issues and all issues with help wanted label
+        returns the number of all issues and the issues with
+        help wanted label
         '''
         total_issues = 0
         help_wanted_issues = 0
-        for i in issues:
-            total_issues += 1
-            labels = i['labels']
-            help_wanted_issues += self.check_help_wanted(labels)
+        info_repo = requests.get(url).json()
+        total_issues = info_repo["open_issues_count"]
+        page = '&page=1'
+        label_url = url + constants.label_help_espace_wanted
+        result = requests.get(label_url + page).json()
+
+        '''
+        checks possibilities for different aliases of help wanted
+        '''
+        if result:
+            help_wanted_issues = self.count_all_helpwanted(label_url, result)
+        else:
+            label_url = url + constants.label_helpwanted
+            result = requests.get(label_url + page).json()
+            if result:
+                help_wanted_issues = self.count_all_helpwanted(
+                    label_url,
+                    result
+                )
+            else:
+                label_url = url + constants.label_help_wanted
+                result = requests.get(label_url + page).json()
+                if result:
+                    help_wanted_issues = self.count_all_helpwanted(
+                        label_url,
+                        result
+                    )
         return total_issues, help_wanted_issues
 
-    def check_help_wanted(self, labels):
+    def count_all_helpwanted(self, url, result):
         '''
-        verifies if there is a help wanted label in labels
+        returns the number of help wanted issues in all pages
         '''
-        for i in labels:
-            name = i['name'].upper().replace(' ', '')
-            if name in constants.labels_help_wanted:
-                return 1
-        return 0
+        count = 1
+        page = '&page='
+        help_wanted_issues = 0
+        while result:
+            count += 1
+            help_wanted_issues += len(result)
+            result = requests.get(url + page + str(count)).json()
+        return help_wanted_issues
 
     def get_metric(self, owner, repo):
         '''
         returns the metric of the repository
         '''
-
         help_wanted = HelpWanted.objects.all().filter(
             owner=owner,
             repo=repo
         )[0]
-        rate = help_wanted.help_wanted_issues / help_wanted.total_issues
+        if help_wanted.total_issues != 0:
+            rate = help_wanted.help_wanted_issues / help_wanted.total_issues
+        else:
+            rate = 0.0
         rate = '{"rate":\"' + str(rate) + '"}'
         rate_json = json.loads(rate)
         return rate_json
