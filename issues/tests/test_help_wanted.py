@@ -24,7 +24,6 @@ def mocked_requests_get(*args, **kwargs):
             '''
             return self.json_data
 
-
     return MockResponse(None, 404)
 
 
@@ -36,7 +35,7 @@ class HelpWantedTest(TestCase):
             repo='desenho',
             total_issues='10',
             help_wanted_issues='1',
-            date_time=datetime.now(timezone.utc)  
+            date_time=datetime.now(timezone.utc)
         )
 
     @mock.patch('issues.views.help_wanted_views.requests.get',
@@ -45,8 +44,13 @@ class HelpWantedTest(TestCase):
         '''
         test if not exist repository in github api
         '''
-        request = self.factory.get('/issues/help_wanted/fga-eps-mds/2019.1-hubcare-api')
-        response = HelpWantedView.as_view()(request, 'fga-eps-mds', '2019.1-hubcare-api')
+        url = '/issues/help_wanted/fga-eps-mds/2019.1-hubcare-api'
+        request = self.factory.get(url)
+        response = HelpWantedView.as_view()(
+            request,
+            'fga-eps-mds',
+            '2019.1-hubcare-api'
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_exists_in_db(self):
@@ -56,5 +60,3 @@ class HelpWantedTest(TestCase):
         request = self.factory.get('/issues/help_wanted/jaco/desenho')
         response = HelpWantedView.as_view()(request, 'jaco', 'desenho')
         self.assertEqual(response.status_code, 200)
-
-
