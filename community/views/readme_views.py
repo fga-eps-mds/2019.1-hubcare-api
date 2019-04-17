@@ -12,36 +12,28 @@ class ReadmeView(APIView):
 
         readme = Readme.objects.all().filter(owner=owner, repo=repo)
         serialized = ReadmeSerializer(readme, many=True)
-        url_test = """https://developer.github.com/v3/repos
-                      /contents/#get-the-readme"""
-        url = 'https://api.github.com/repos/'
 
         if (serialized.data == []):
-            github_request = requests.get(url + owner + '/' + repo + '/readme')
-            github_data = github_request.json()
 
-            try:
-                if(github_data['documentation_url'] == url_test):
-                    Readme.objects.create(owner=owner,
-                                          repo=repo,
-                                          readme=False,
-                                          date=date.today()
-                                          )
+            url = 'https://api.github.com/repos/'
+            url2 = '/contents/README.md'
+            github_request = requests.get(url + owner + '/' + repo + url2)
 
-            except AttributeError:
-                print('not found')
-            try:
-                if(github_data['name'] is not None):
-                    Readme.objects.create(
-                        owner=owner,
-                        repo=repo,
-                        readme=True,
-                        date=date.today()
-                    )
-            except AttributeError:
-                print('not found')
+            if(github_request.status_code == 200):
+                Readme.objects.create(
+                    owner=owner,
+                    repo=repo,
+                    readme=True,
+                    date=date.today()
+                )
+            else:
+                Readme.objects.create(
+                    owner=owner,
+                    repo=repo,
+                    readme=False,
+                    date=date.today()
+                )
 
         readme = Readme.objects.all().filter(owner=owner, repo=repo)
         serialized = ReadmeSerializer(readme, many=True)
-        print(serialized.data)
-        return Response(serialized.data[0])
+        return Response(serialized.data)
