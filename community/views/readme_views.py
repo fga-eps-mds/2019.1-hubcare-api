@@ -1,7 +1,7 @@
 from django.http import Http404, HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from community.serializers.readme_serializers import ReadmeSerializer
+from community.serializers.readme_serializer import ReadmeSerializer
 from community.models.readme_model import Readme
 import requests
 from datetime import date
