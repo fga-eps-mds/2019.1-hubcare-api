@@ -9,5 +9,3 @@ urlpatterns = [
          DifferentsAuthorsView.as_view()),
     path('commit_month/<str:owner>/<str:repo>/', CommitMonthView.as_view())
 ]
-
-

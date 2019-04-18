@@ -17,11 +17,9 @@ class DifferentsAuthorsView(APIView):
         )
         differentsauthors_serialized = DifferentsAuthorsSerializers(
             differentsauthors,
-            many=True
-            )
+            many=True)
         github_request = requests.get(
-         'https://api.github.com/repos/' + owner + '/' + repo + '/commits'
-         )
+            'https://api.github.com/repos/' + owner + '/' + repo + '/commits')
         github_data = github_request.json()
         present = datetime.datetime.today()
         days = datetime.timedelta(days=30)
@@ -39,8 +37,7 @@ class DifferentsAuthorsView(APIView):
             commitsDay = present - days
             if((past > commitsDay)):
                 commitsLastThirtyDays.append(
-                    commit['commit']['committer']['date'].split('T')[0]
-                    )
+                    commit['commit']['committer']['date'].split('T')[0])
                 authorsCommits.append(commit['commit']['author']['email'])
         authorsDistintCommits = set(authorsCommits)
         for author in authorsDistintCommits:
