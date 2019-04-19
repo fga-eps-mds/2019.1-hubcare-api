@@ -4,7 +4,8 @@ from community.serializers.repository_description_serializer \
     import DescriptionSerializer
 from community.models.repository_description_model import RepositoryDescription
 import requests
-from datetime import date
+from datetime import datetime, timezone
+from hubcareapi.date_check import date_check
 
 
 class DescriptionView(APIView):
@@ -14,12 +15,12 @@ class DescriptionView(APIView):
             owner=owner,
             repo=repo
         )
-        serialized = DescriptionSerializer(description, many=True)
 
-        if (serialized.data == []):
+        if (not description):
 
             url = 'https://api.github.com/repos/'
             github_request = requests.get(url + owner + '/' + repo)
+
             github_data = github_request.json()
 
             if(github_request.status_code == 200):
@@ -28,14 +29,34 @@ class DescriptionView(APIView):
                         owner=owner,
                         repo=repo,
                         description=True,
-                        date=date.today()
+                        date=datetime.now(timezone.utc)
                     )
                 elif(github_data['description'] == None):
                     RepositoryDescription.objects.create(
                         owner=owner,
                         repo=repo,
                         description=False,
-                        date=date.today()
+                        date=datetime.now(timezone.utc)
+                    )
+        elif(date_check(description)):
+            url = 'https://api.github.com/repos/'
+            github_request = requests.get(url + owner + '/' + repo)
+            github_data = github_request.json()
+
+            if(github_request.status_code == 200):
+                if(github_data['description'] != None):
+                    RepositoryDescription.objects.filter().update(
+                        owner=owner,
+                        repo=repo,
+                        description=True,
+                        date=datetime.now(timezone.utc)
+                    )
+                elif(github_data['description'] == None):
+                    RepositoryDescription.objects.filter().update(
+                        owner=owner,
+                        repo=repo,
+                        description=False,
+                        date=datetime.now(timezone.utc)
                     )
 
         description = RepositoryDescription.objects.all().filter(
@@ -43,4 +64,4 @@ class DescriptionView(APIView):
             repo=repo
         )
         serialized = DescriptionSerializer(description, many=True)
-        return Response(serialized.data[0])
+        return Response(serialized.data)
