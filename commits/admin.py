@@ -1,3 +1,4 @@
 from django.contrib import admin
+from commits.models.contributors_models import DifferentsAuthors
 
-# Register your models here.
+admin.site.register(DifferentsAuthors)
