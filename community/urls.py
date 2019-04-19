@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import ReadmeView
+from community.views.code_of_conduct_views import CodeOfConductView
 from community.views.contribution_guide_views import ContributionGuideView
 from community.views.issue_templates_views import IssueTemplatesView
 from community.views.pr_template_view import PullRequestTemplateView
@@ -8,8 +9,10 @@ from community.views.license_view import LicenseView
 
 aux = 'contribution_guide/<str:owner>/<str:repo>/'
 url_issue = 'issue_templates/<str:owner>/<str:repo>/'
+url_code_of_conduct = 'code_of_conduct/<str:owner>/<str:repo>/'
 
 urlpatterns = [
+    path(url_code_of_conduct, CodeOfConductView.as_view()),
     path(url_issue, IssueTemplatesView.as_view()),
     path('pull_request_template/<str:owner>/<str:repo>',
          PullRequestTemplateView.as_view()),
