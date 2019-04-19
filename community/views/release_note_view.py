@@ -4,7 +4,7 @@ from community.models.release_note_models \
     import ReleaseNoteCheck
 from community.serializers.release_note_serializers \
     import ReleaseNoteCheckSerializers
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 import requests
 
 
