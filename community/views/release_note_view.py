@@ -29,12 +29,11 @@ class ReleaseNoteCheckView(APIView):
         releaseLastNinetyDays = []
 
         if(github_data != []):
-            releaseDate = datetime.strptime(github_data[0]['created_at'],"%Y-%m-%dT%H:%M:%SZ")
+            releaseDate = datetime.strptime(
+                github_data[0]['created_at'], "%Y-%m-%dT%H:%M:%SZ")
             if(releaseDate > releaseDays):
                 return Response(True)
             else:
                 return Response(False)
         else:
             return Response(False)
-
-        
