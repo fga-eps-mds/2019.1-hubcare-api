@@ -14,11 +14,10 @@ class CodeOfConductView(APIView):
         return if a repository has a code of conduct or not
         '''
         code_of_conduct = CodeOfConduct.objects.all().filter(
-            owner=owner,
-            repo=repo
+            owner=owner, repo=repo
         )
 
-        if(not code_of_conduct.exists()):
+        if(not code_of_conduct):
             url1 = 'http://api.github.com/repos/'
             url2 = '/contents/.github/CODE_OF_CONDUCT.md'
             result = url1 + owner + '/' + repo + url2
@@ -28,46 +27,43 @@ class CodeOfConductView(APIView):
                     owner=owner,
                     repo=repo,
                     code_of_conduct=True,
-                    date=datetime.now(timezone.utc)
+                    date_time=datetime.now(timezone.utc)
                 )
             else:
                 CodeOfConduct.objects.create(
                     owner=owner,
                     repo=repo, code_of_conduct=False,
-                    date=datetime.now(timezone.utc)
+                    date_time=datetime.now(timezone.utc)
                 )
-        else:
-            list_code_of_conduct = list(code_of_conduct)
-            if(check_date(list_code_of_conduct[-1])):
-                url1 = 'http://api.github.com/repos/'
-                url2 = '/contents/.github/CODE_OF_CONDUCT.md'
-                result = url1 + owner + '/' + repo + url2
-                github_request = requests.get(result)
-                if(github_request.status_code == 200):
-                    CodeOfConduct.objects.create(
-                        owner=owner,
-                        repo=repo,
-                        code_of_conduct=True,
-                        date=datetime.now(timezone.utc)
-                    )
-                else:
-                    CodeOfConduct.objects.create(
-                        owner=owner,
-                        repo=repo, code_of_conduct=False,
-                        date=datetime.now(timezone.utc)
-                    )
-            else:
-                code_of_conduct = CodeOfConduct.objects.all().filter(
+        elif(check_date(code_of_conduct)):
+            url1 = 'http://api.github.com/repos/'
+            url2 = '/contents/.github/CODE_OF_CONDUCT.md'
+            result = url1 + owner + '/' + repo + url2
+            github_request = requests.get(result)
+            if(github_request.status_code == 200):
+                CodeOfConduct.objects.filter().update(
                     owner=owner,
-                    repo=repo
+                    repo=repo,
+                    code_of_conduct=True,
+                    date_time=datetime.now(timezone.utc)
                 )
+            else:
+                CodeOfConduct.objects.filter().update(
+                    owner=owner,
+                    repo=repo, code_of_conduct=False,
+                    date_time=datetime.now(timezone.utc)
+                )
+        code_of_conduct = CodeOfConduct.objects.all().filter(
+            owner=owner, repo=repo
+        )
+        code_of_conduct_serialized = CodeOfConductSerializer(
+            code_of_conduct, many=True
+        )
+        return Response(code_of_conduct_serialized.data[0])
 
-        code_serialized = CodeOfConductSerializer(code_of_conduct, many=True)
-        return Response(code_serialized.data[-1])
 
-
-def check_date(code_of_conduct):
+def check_date(code_conduct):
     datetime_now = datetime.now(timezone.utc)
-    if(code_of_conduct and (datetime_now - code_of_conduct.date).days >= 1):
+    if(code_conduct and (datetime_now - code_conduct[0].date_time).days >= 1):
         return True
     return False
