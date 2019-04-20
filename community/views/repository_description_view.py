@@ -45,14 +45,20 @@ class DescriptionView(APIView):
 
             if(github_request.status_code == 200):
                 if(github_data['description'] != None):
-                    RepositoryDescription.objects.filter().update(
+                    RepositoryDescription.objects.filter(
+                        owner=owner,
+                        repo=repo
+                    ).update(
                         owner=owner,
                         repo=repo,
                         description=True,
                         date=datetime.now(timezone.utc)
                     )
                 elif(github_data['description'] == None):
-                    RepositoryDescription.objects.filter().update(
+                    RepositoryDescription.objects.filter(
+                        owner=owner,
+                        repo=repo
+                    ).update(
                         owner=owner,
                         repo=repo,
                         description=False,
@@ -64,4 +70,4 @@ class DescriptionView(APIView):
             repo=repo
         )
         serialized = DescriptionSerializer(description, many=True)
-        return Response(serialized.data)
+        return Response(serialized.data[0])
