@@ -23,7 +23,7 @@ urlpatterns = [
     path('readme/<str:owner>/<str:repo>/', ReadmeView.as_view()),
     path(aux, ContributionGuideView.as_view()),
     path('realeasenotecheck/<str:owner>/<str:repo>/',
-         ReleaseNoteCheckView.as_view())
+         ReleaseNoteCheckView.as_view()),
     path('description/<str:owner>/<str:repo>/',
          DescriptionView.as_view())
 ]
