@@ -27,7 +27,7 @@ class GoodFirstIssueView(APIView):
                 total_issues=total_issues,
                 good_first_issue=good_first_issue,
                 date_time=datetime.now(
-                    timezone.ut
+                    timezone.utc
                 )
             )
         elif check_datetime(good_first_issues[0]):
