@@ -5,7 +5,9 @@ from community.views.contribution_guide_views import ContributionGuideView
 from community.views.issue_templates_views import IssueTemplatesView
 from community.views.pr_template_view import PullRequestTemplateView
 from community.views.license_view import LicenseView
-from community.views.repository_description_view import DescriptionView
+from community.views.release_note_view import ReleaseNoteCheckView
+from community.views.repository_description_view \
+    import DescriptionView
 
 
 aux = 'contribution_guide/<str:owner>/<str:repo>/'
@@ -20,5 +22,8 @@ urlpatterns = [
     path('license/<str:owner>/<str:repo>/', LicenseView.as_view()),
     path('readme/<str:owner>/<str:repo>/', ReadmeView.as_view()),
     path(aux, ContributionGuideView.as_view()),
-    path('description/<str:owner>/<str:repo>/', DescriptionView.as_view())
+    path('realeasenotecheck/<str:owner>/<str:repo>/',
+         ReleaseNoteCheckView.as_view()),
+    path('description/<str:owner>/<str:repo>/',
+         DescriptionView.as_view())
 ]
