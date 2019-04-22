@@ -139,3 +139,5 @@ dmypy.json
 .vscode/
 
 # End of https://www.gitignore.io/api/django
+
+hubcare/metrics/issue_metrics/activity_rate/migrations/
