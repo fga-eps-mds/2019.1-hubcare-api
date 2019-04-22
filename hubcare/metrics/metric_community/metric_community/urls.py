@@ -23,7 +23,7 @@ urlpatterns = [
     path('issue_template/', include('issue_template_metric.urls')),
     path('license/', include('license_metric.urls')),
     path('pull_request_template/', include('pr_template_metric.urls')),
-    path('realease_note/', include('release_note.urls')),
+    path('release_note/', include('release_note.urls')),
     path('readme/', include('readme.urls')),
     path('description/', include('description.urls')),
 ]
