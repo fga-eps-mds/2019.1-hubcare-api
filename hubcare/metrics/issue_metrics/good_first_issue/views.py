@@ -61,12 +61,15 @@ class GoodFirstIssueView(APIView):
         checks possibilities for different aliases of good first issue
         '''
         if result:
-            good_first_issue = self.count_all_goodfirstissue(label_url, result)
+            good_first_issue = self.count_all_good_first_issue(
+                label_url,
+                result
+            )
         else:
             label_url = url + constants.label_goodfirstissue
             result = requests.get(label_url + page).json()
             if result:
-                good_first_issue = self.count_all_goodfirstissue(
+                good_first_issue = self.count_all_good_first_issue(
                     label_url,
                     result
                 )
@@ -74,13 +77,13 @@ class GoodFirstIssueView(APIView):
                 label_url = url + constants.label_good_first_issue
                 result = requests.get(label_url + page).json()
                 if result:
-                    good_first_issue = self.count_all_goodfirstissue(
+                    good_first_issue = self.count_all_good_first_issue(
                         label_url,
                         result
                     )
         return total_issues, good_first_issue
 
-    def count_all_goodfirstissue(self, url, result):
+    def count_all_good_first_issue(self, url, result):
         '''
         returns the number of good first issue in all pages
         '''
