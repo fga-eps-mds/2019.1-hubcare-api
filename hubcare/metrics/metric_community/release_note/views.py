@@ -4,6 +4,7 @@ from release_note.models import ReleaseNoteCheck
 from release_note.serializers import ReleaseNoteCheckSerializers
 from datetime import datetime, timedelta
 import requests
+import json
 
 
 class ReleaseNoteCheckView(APIView):
@@ -26,12 +27,16 @@ class ReleaseNoteCheckView(APIView):
         releaseDays = present - days
         releaseLastNinetyDays = []
 
+        response = False
         if(github_data != []):
             releaseDate = datetime.strptime(
                 github_data[0]['created_at'], "%Y-%m-%dT%H:%M:%SZ")
             if(releaseDate > releaseDays):
-                return Response(True)
-            else:
-                return Response(False)
-        else:
-            return Response(False)
+                response = True
+        response = {
+            'response': response
+        }
+        
+        response = json.loads(json.dumps(response))
+        return Response(response)
+        

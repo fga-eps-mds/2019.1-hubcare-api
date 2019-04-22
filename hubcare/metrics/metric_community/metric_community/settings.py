@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'readme',
     'pr_template_metric',
     'release_note',
+    'description',
 ]
 
 MIDDLEWARE = [
