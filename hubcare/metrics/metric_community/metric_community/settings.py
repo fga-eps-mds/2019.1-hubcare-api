@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'contribution_guide_metric',
     'issue_template_metric',
     'license_metric',
+    'pr_template_metric',
 ]
 
 MIDDLEWARE = [
