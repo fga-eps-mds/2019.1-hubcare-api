@@ -1,3 +1,8 @@
 from django.db import models
+from commits.models import Commit
 
-# Create your models here.
+
+class CommitWeek(models.Model):
+    week = models.IntegerField()
+    quantity = models.IntegerField()
+    commit = models.ForeignKey(Commit, on_delete=models.CASCADE)

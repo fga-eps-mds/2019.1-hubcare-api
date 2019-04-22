@@ -1,3 +1,8 @@
 from django.db import models
+from commits.models import Commit
 
-# Create your models here.
+
+class CommitDay(models.Model):
+    date = models.DateField(default=None)
+    quantity = models.IntegerField()
+    commit = models.ForeignKey(Commit, on_delete=models.CASCADE)
