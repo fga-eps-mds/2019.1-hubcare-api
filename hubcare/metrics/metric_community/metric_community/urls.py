@@ -22,4 +22,5 @@ urlpatterns = [
     path('contribution_guide/', include('contribution_guide_metric.urls')),
     path('issue_template/', include('issue_template_metric.urls')),
     path('license/', include('license_metric.urls')),
+    path('readme/', include('readme.urls')),
 ]
