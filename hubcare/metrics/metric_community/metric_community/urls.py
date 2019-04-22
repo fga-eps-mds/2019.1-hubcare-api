@@ -22,5 +22,6 @@ urlpatterns = [
     path('contribution_guide/', include('contribution_guide_metric.urls')),
     path('issue_template/', include('issue_template_metric.urls')),
     path('license/', include('license_metric.urls')),
-    path('pull_request_template/', include('pr_template_metric.urls'))
+    path('pull_request_template/', include('pr_template_metric.urls')),
+    path('realease_note/', include('release_note.urls')),
 ]

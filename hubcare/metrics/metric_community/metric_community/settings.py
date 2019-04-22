@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'issue_template_metric',
     'license_metric',
     'pr_template_metric',
+    'release_note',
 ]
 
 MIDDLEWARE = [
