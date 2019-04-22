@@ -1,12 +1,48 @@
 version: '3'
 
 services:
-  hubcareapi:
-    container_name: hubcareapi 
+  hubcare_api:
+    container_name: hubcare_api 
     build:
-      context: .
+      context: ./hubcare/hubcare_api
       dockerfile: Dockerfile
     volumes:
-      - .:/code
+      - "./hubcare/hubcare_api:/code"
     ports:
       - "8000:8000"
+  commit_metrics:
+    container_name: commit_metrics 
+    build:
+      context: ./hubcare/metrics/commit_metrics
+      dockerfile: Dockerfile
+    volumes:
+      - "./hubcare/metrics/commit_metrics:/code"
+    ports:
+      - "8001:8001"
+  metric_community:
+    container_name: metric_community 
+    build:
+      context: ./hubcare/metrics/metric_community
+      dockerfile: Dockerfile
+    volumes:
+      - "./hubcare/metrics/metric_community:/code"
+    ports:
+      - "8002:8002"
+  issue_metrics:
+    container_name: issue_metrics 
+    build:
+      context: ./hubcare/metrics/issue_metrics
+      dockerfile: Dockerfile
+    volumes:
+      - "./hubcare/metrics/issue_metrics:/code"
+    ports:
+      - "8003:8003"
+  pull_request_metrics:
+    container_name: pull_request_metrics 
+    build:
+      context: ./hubcare/metrics/pull_request_metrics
+      dockerfile: Dockerfile
+    volumes:
+      - "./hubcare/metrics/pull_request_metrics:/code"
+    ports:
+      - "8004:8004"
