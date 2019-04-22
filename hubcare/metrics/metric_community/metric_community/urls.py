@@ -23,4 +23,5 @@ urlpatterns = [
     path('issue_template/', include('issue_template_metric.urls')),
     path('license/', include('license_metric.urls')),
     path('readme/', include('readme.urls')),
+    path('pull_request_template/', include('pr_template_metric.urls'))
 ]
