@@ -1,10 +1,10 @@
 from django.urls import path
-from release_note.views import ReleaseNoteCheckView
+from readme.views import ReadmeView
 
 
 urlpatterns = [
     path(
         '<str:owner>/<str:repo>/',
-        ReleaseNoteCheckView.as_view()
+        ReadmeView.as_view()
     ),
 ]

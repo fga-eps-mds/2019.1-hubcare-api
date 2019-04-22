@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'contribution_guide_metric',
     'issue_template_metric',
     'license_metric',
+    'readme',
     'pr_template_metric',
     'release_note',
 ]
