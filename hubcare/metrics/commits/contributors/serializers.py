@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from commits.models.contributors_models import DifferentsAuthors
+from contributors.models import DifferentsAuthors
 
 
 class DifferentsAuthorsSerializers(serializers.ModelSerializer):

@@ -1,8 +1,7 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from commits.models.contributors_models import DifferentsAuthors
-from commits.serializers.contributor_serializers \
+from contributors.models import DifferentsAuthors
+from contributors.serializers \
     import DifferentsAuthorsSerializers
 import requests
 import datetime
