@@ -1,5 +1,5 @@
 from django.db import models
-from commits.models import Commit
+from commit_metrics.models import Commit
 
 
 class CommitWeek(models.Model):

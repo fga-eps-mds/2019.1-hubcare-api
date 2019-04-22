@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from commits.models import Commit
+from commit_metrics.models import Commit
 
 
 class CommitSerializer(serializers.ModelSerializer):

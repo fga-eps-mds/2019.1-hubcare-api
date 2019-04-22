@@ -1,5 +1,5 @@
 from django.contrib import admin
-from commits.models import Commit
+from commit_metrics.models import Commit
 
 # Register your models here.
 

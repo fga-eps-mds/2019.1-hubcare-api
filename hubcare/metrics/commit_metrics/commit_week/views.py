@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from commits.models import Commit
+from commit_metrics.models import Commit
 from commit_week.models import CommitWeek
-from commits.serializers import CommitSerializer
+from commit_metrics.serializers import CommitSerializer
 from commit_week.serializers import CommitWeekSerializer
 from datetime import date
 import requests
