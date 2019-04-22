@@ -13,7 +13,6 @@ class IssueTemplateView(APIView):
             owner=owner,
             repo=repo
         )
-        
         if(not issue_templates):
 
             url1 = 'https://api.github.com/repos/'

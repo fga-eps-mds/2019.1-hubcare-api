@@ -26,7 +26,6 @@ class ReleaseNoteCheckView(APIView):
         days = timedelta(days=90)
         releaseDays = present - days
         releaseLastNinetyDays = []
-
         response = False
         if(github_data != []):
             releaseDate = datetime.strptime(
@@ -36,7 +35,6 @@ class ReleaseNoteCheckView(APIView):
         response = {
             'response': response
         }
-        
+
         response = json.loads(json.dumps(response))
         return Response(response)
-        

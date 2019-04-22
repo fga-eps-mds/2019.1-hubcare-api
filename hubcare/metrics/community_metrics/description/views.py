@@ -70,6 +70,7 @@ class DescriptionView(APIView):
         serialized = DescriptionSerializer(description, many=True)
         return Response(serialized.data[0])
 
+
 def date_check(tested_variable):
     '''
     verifies if the time difference between the last update and now is

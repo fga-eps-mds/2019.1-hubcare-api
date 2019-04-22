@@ -62,7 +62,7 @@ class CodeOfConductView(APIView):
 
 
 def check_date(code_of_conduct):
-    datetime_now = datetime.now(timezone.utc)
-    if(code_of_conduct and (datetime_now - code_of_conduct[0].date_time).days >= 1):
+    now = datetime.now(timezone.utc)
+    if(code_of_conduct and (now - code_of_conduct[0].date_time).days >= 1):
         return True
     return False
