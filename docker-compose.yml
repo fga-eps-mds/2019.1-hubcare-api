@@ -19,13 +19,13 @@ services:
       - "./hubcare/metrics/commit_metrics:/code"
     ports:
       - "8001:8001"
-  metric_community:
-    container_name: metric_community 
+  community_metrics:
+    container_name: community_metrics 
     build:
-      context: ./hubcare/metrics/metric_community
+      context: ./hubcare/metrics/community_metrics
       dockerfile: Dockerfile
     volumes:
-      - "./hubcare/metrics/metric_community:/code"
+      - "./hubcare/metrics/community_metrics:/code"
     ports:
       - "8002:8002"
   issue_metrics:
