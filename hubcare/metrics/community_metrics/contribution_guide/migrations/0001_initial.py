@@ -12,12 +12,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='ReleaseNoteCheck',
+            name='ContributionGuide',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('owner', models.CharField(max_length=200)),
                 ('repo', models.CharField(max_length=200)),
-                ('have_realease_note', models.BooleanField(default=False)),
+                ('contribution_guide', models.BooleanField(default=False)),
                 ('date', models.DateTimeField(default=None)),
             ],
         ),
