@@ -22,7 +22,7 @@ class LicenseView(APIView):
 
             if (result.status_code == 404):
                 raise Http404
-            elif (github_data['license'] != None):
+            elif (github_data['license'] is not None):
                 License.objects.create(
                     owner=owner,
                     repo=repo,
@@ -43,7 +43,7 @@ class LicenseView(APIView):
 
             if (result.status_code == 404):
                 raise Http404
-            elif (github_data['license'] != None):
+            elif (github_data['license'] is not None):
                 License.objects.filter(owner=owner, repo=repo).update(
                     owner=owner,
                     repo=repo,
