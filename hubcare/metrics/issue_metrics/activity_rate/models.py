@@ -7,3 +7,5 @@ class ActivityRateIssue(models.Model):
     date = models.DateTimeField(default=None)
     activity_rate = models.DecimalField(max_digits=5, decimal_places=2)
     activity_rate_15_days = models.DecimalField(max_digits=5, decimal_places=2)
+    activity_rate_15_days_metric = models.DecimalField(max_digits=5,
+                                                       decimal_places=2)

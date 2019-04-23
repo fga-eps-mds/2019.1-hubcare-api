@@ -16,25 +16,27 @@ class ActivityRateIssueView(APIView):
 
         if(not activity_rate):
             open_issues, closed_issues = get_all_issues(owner, repo)
-            issues_comment, issues_no_comment = get_issues_15_day(owner, repo)
+            issues_alive, not_alive = get_issues_15_day(owner, repo)
 
             ActivityRateIssue.objects.create(
                 owner=owner,
                 repo=repo,
                 activity_rate=(open_issues / (closed_issues + open_issues)),
                 date=datetime.now(timezone.utc),
-                activity_rate_15_days=issues_comment / (issues_comment +
-                                                        issues_no_comment),
+                activity_rate_15_days=issues_alive / not_alive,
+                activity_rate_15_days_metric=calculate_metric(issues_alive,
+                                                              not_alive),
             )
         elif check_datetime(activity_rate[0]):
             open_issues, closed_issues = get_all_issues(owner, repo)
-            issues_comment, issues_no_comment = get_issues_15_day(owner, repo)
+            issues_alive = get_issues_15_day(owner, repo)
 
             ActivityRateIssue.objects.filter(owner=owner, repo=repo).update(
                 activity_rate=(open_issues / (closed_issues + open_issues)),
                 date=datetime.now(timezone.utc),
-                activity_rate_15_days=issues_comment / (issues_comment +
-                                                        issues_no_comment),
+                activity_rate_15_days=issues_alive / not_alive,
+                activity_rate_15_days_metric=calculate_metric(issues_alive,
+                                                              not_alive),
             )
 
         activity_rate = ActivityRateIssue.objects.all().filter(
@@ -74,8 +76,8 @@ def get_issues_15_day(owner, repo):
     Get all the issues in the last 15 days
     '''
     page_number = 1
-    issues_comment = []
-    issues_no_comment = []
+    issues_alive = 0
+    issues_not_alive = 0
     u = 'https://api.github.com/repos/' + owner + '/' + repo + '/issues?&page='
     aux = True
 
@@ -85,19 +87,24 @@ def get_issues_15_day(owner, repo):
 
         for activity in github_data:
             print(activity)
-            if(check_datetime_15_days(activity['created_at'])):
-                if(activity['state'] == 'open' and activity['comments'] == 0):
-                    issues_no_comment.append(activity)
+            if(check_datetime_15_days(activity['updated_at'])):
+                if(activity['state'] == 'open'):
+                    issues_alive = issues_alive + 1
                 else:
-                    issues_comment.append(activity)
+                    # Do nothing
+                    pass
+            if(activity['state'] == 'open'):
+                issues_not_alive = issues_not_alive+1
             else:
-                aux = False
-                break
+                # Do nothing
+                pass
+
         if(github_data == []):
             aux = False
-
+        print(issues_alive)
+        print(issues_not_alive)
         page_number = page_number + 1
-    return len(issues_comment), len(issues_no_comment)
+    return issues_alive, issues_not_alive
 
 
 def get_all_issues(owner, repo):
@@ -113,3 +120,17 @@ def get_all_issues(owner, repo):
     closed_issues = int(find.group(1).replace(',', ''))
 
     return open_issues, closed_issues
+
+
+def calculate_metric(issues_alive, open_issues):
+    '''
+    Calculate metrics
+    '''
+    metric = ((issues_alive / open_issues)-0.5)*4
+
+    if metric > 1:
+        metric = 1
+    elif metric < 0:
+        metric = 0
+
+    return metric
