@@ -1,1 +1,2 @@
 URL_COMMMUNITY = 'http://localhost:8002/'
+HEIGHT_README_SUPPORT = 3
