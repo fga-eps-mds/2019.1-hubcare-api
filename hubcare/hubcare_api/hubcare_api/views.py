@@ -41,11 +41,26 @@ class SupportQuestion(APIView):
             print(release_note_metric.json()['response'])
             v = int(release_note_metric.json()['response'])
 
-            
+            support_metric = calculate_support_metric(x, y, z, w, u, v)
 
         else:
             raise Http404
 
-        return Response("ok")
+        return Response(support_metric)
 
+def calculate_support_metric(readme_metric,
+                            issue_template_metric,
+                            license_metric,
+                            description_metric,
+                            code_of_conduct_metric,
+                            release_note_metric
+                        ):
 
+    support_metric = (readme_metric*HEIGHT_README_SUPPORT
+                    +issue_template_metric*HEIGHT_ISSUE_TEMPLATE_SUPPORT
+                    +license_metric*HEIGHT_LICENSE_SUPPORT
+                    +description_metric*HEIGHT_DESCRIPTION_SUPPORT
+                    +code_of_conduct_metric*HEIGHT_CODE_OF_CONDUCT_SUPPORT
+                    +release_note_metric*HEIGHT_RELEASE_NOTE_SUPPORT)/16
+
+    return support_metric
