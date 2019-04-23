@@ -10,6 +10,7 @@ services:
       - "./hubcare/hubcare_api:/code"
     ports:
       - "8000:8000"
+    network_mode: host
   commit_metrics:
     container_name: commit_metrics 
     build:

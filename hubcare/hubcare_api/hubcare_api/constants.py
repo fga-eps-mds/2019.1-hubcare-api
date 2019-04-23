@@ -1,0 +1,1 @@
+URL_COMMMUNITY = 'http://localhost:8002/'
