@@ -27,13 +27,14 @@ class ActivityRateIssueView(APIView):
                                                         issues_no_comment),
             )
         elif check_datetime(activity_rate[0]):
+            open_issues, closed_issues = get_all_issues(owner, repo)
             issues_comment, issues_no_comment = get_issues_15_day(owner, repo)
 
             ActivityRateIssue.objects.filter(owner=owner, repo=repo).update(
                 activity_rate=(open_issues / (closed_issues + open_issues)),
                 date=datetime.now(timezone.utc),
-                activity_rate_15_days=len(issues_comment) / (issues_comment +
-                                                             issues_no_comment),
+                activity_rate_15_days=issues_comment / (issues_comment +
+                                                        issues_no_comment),
             )
 
         activity_rate = ActivityRateIssue.objects.all().filter(
