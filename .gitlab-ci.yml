@@ -89,8 +89,8 @@ codestyle:
 release_hubcare_api_production:
   extends: .release
   environment: production_hubcare_api
-  only: 
-    - master
+  # only:
+  #   - master
 
 release_hubcare_api_development:
   extends: .release
