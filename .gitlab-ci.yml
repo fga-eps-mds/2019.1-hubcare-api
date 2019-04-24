@@ -12,31 +12,54 @@ stages:
 - release
 # - deploy
 
+variables:
+  OMIT_COVERAGE: '*/tests/*,*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py'
+
 # Stage I
 # Testing Phase:
 # This is where the main code is tested.
 # Other options like code coverage, etc are also written in this phase
-.test:
+unit_test:
   stage: test
   # This repo includes python3, pip3
   image: python:3-alpine
   before_script:
-    # Installing requirements
-    - apk add --no-cache git
-    - pip install -r requirements.txt
-    - python manage.py makemigrations
-    - python manage.py migrate
-  
-unit_test:
-  extends: .test
+    # install requiriment to hubcare_api
+    - pip install -r hubcare/hubcare_api/requirements.txt
+    - python hubcare/hubcare_api/manage.py makemigrations
+    - python hubcare/hubcare_api/manage.py migrate
+    # install requiriment to commit metrics
+    - pip install -r hubcare/metrics/commit_metrics/requirements.txt
+    - python hubcare/metrics/commit_metrics/manage.py makemigrations
+    - python hubcare/metrics/commit_metrics/manage.py migrate
+    # install requiriment to community metrics
+    - pip install -r hubcare/metrics/community_metrics/requirements.txt
+    - python hubcare/metrics/community_metrics/manage.py makemigrations
+    - python hubcare/metrics/community_metrics/manage.py migrate
+    # install requiriment to issue metrics
+    - pip install -r hubcare/metrics/issue_metrics/requirements.txt
+    - python hubcare/metrics/issue_metrics/manage.py makemigrations
+    - python hubcare/metrics/issue_metrics/manage.py migrate
+    # install requiriment to pull_request metrics
+    - pip install -r hubcare/metrics/pull_request_metrics/requirements.txt
+    - python hubcare/metrics/pull_request_metrics/manage.py makemigrations
+    - python hubcare/metrics/pull_request_metrics/manage.py migrate
   script:
     # Command to test our application
-    - coverage run --source='.' --omit=*/tests/*,*/tests.py,*/migrations/*,*/urls.py,*/settings.py,*/wsgi.py,manage.py manage.py test
+    - coverage run --source='.' --omit=$OMIT_COVERAGE hubcare/hubcare_api/manage.py test hubcare/hubcare_api/
+    - coverage run --source='.' --omit=$OMIT_COVERAGE --append hubcare/metrics/commit_metrics/manage.py test hubcare/metrics/commit_metrics/
+    - coverage run --source='.' --omit=$OMIT_COVERAGE --append hubcare/metrics/community_metrics/manage.py test hubcare/metrics/community_metrics/
+    - coverage run --source='.' --omit=$OMIT_COVERAGE --append hubcare/metrics/issue_metrics/manage.py test hubcare/metrics/issue_metrics/
+    - coverage run --source='.' --omit=$OMIT_COVERAGE --append hubcare/metrics/pull_request_metrics/manage.py test hubcare/metrics/pull_request_metrics/
     - coverage report
     - coveralls
 
 codestyle:
-  extends: .test
+  stage: test
+  # This repo includes python3, pip3
+  image: python:3-alpine
+  before_script:
+    - pip install pycodestyle
   script:
     - pycodestyle .
 
@@ -50,25 +73,78 @@ codestyle:
     - docker:dind
   script:
     # Build our image using docker
-    - docker build . -t cjjcastro/hubcare-api:$DOCKERTAG
+    - docker build $IMAGEPATH -t registry.gitlab.com/cjjcastro/2019-1-hubcare-api/$DOCKERIMAGE:$DOCKERTAG
 
     # Configure container registry to push using docker
-    - docker login -p $DOCKERPASSWORD -u $DOCKERLOGIN
+    - docker login -u "$DOCKERLOGIN" -p "$DOCKERPASSWORD" registry.gitlab.com
 
     # Push the image using docker
-    - docker push cjjcastro/hubcare-api:$DOCKERTAG
+    - docker push registry.gitlab.com/cjjcastro/2019-1-hubcare-api/$DOCKERIMAGE:$DOCKERTAG
 
     # The tag, only master indicates that whenever code is pushed to master branch,
     # only then run the pipeline
 
-release_production:
+# Release to hubcare api service
+release_hubcare_api_production:
   extends: .release
-  environment: production
+  environment: production_hubcare_api
   only: 
     - master
 
-release_development:
+release_hubcare_api_development:
   extends: .release
-  environment: development
+  environment: development_hubcare_api
+  only: 
+    - devel
+
+# Release to commit metrics service
+release_commit_metrics_production:
+  extends: .release
+  environment: production_commit_metrics
+  only: 
+    - master
+
+release_commit_metrics_development:
+  extends: .release
+  environment: development_commit_metrics
+  only: 
+    - devel
+
+# Release to community metrics service
+release_community_metrics_production:
+  extends: .release
+  environment: production_community_metrics
+  only: 
+    - master
+
+release_community_metrics_development:
+  extends: .release
+  environment: development_community_metrics
+  only: 
+    - devel
+
+# Release to issue metrics service
+release_issue_metrics_production:
+  extends: .release
+  environment: production_issue_metrics
+  only: 
+    - master
+
+release_issue_metrics_development:
+  extends: .release
+  environment: development_issue_metrics
+  only: 
+    - devel
+
+# Release to pull request metrics service
+release_pull_request_metrics_production:
+  extends: .release
+  environment: production_pull_request_metrics
+  only: 
+    - master
+
+release_pull_request_metrics_development:
+  extends: .release
+  environment: development_pull_request_metrics
   only: 
     - devel
