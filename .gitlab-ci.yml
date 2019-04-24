@@ -89,8 +89,8 @@ codestyle:
 release_hubcare_api_production:
   extends: .release
   environment: production_hubcare_api
-  # only:
-  #   - master
+  only:
+    - master
 
 release_hubcare_api_development:
   extends: .release
@@ -161,8 +161,8 @@ deploy_hubcare_api:
             --environment $RANCHER_ENVIRONMENT
             --stack $RANCHER_STACK
             --service hubcare-api"
-  # only:
-  #   - master
+  only:
+    - master
 
 deploy_commit_metrics:
   image: cdrx/rancher-gitlab-deploy
