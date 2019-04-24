@@ -96,7 +96,7 @@ release_hubcare_api_development:
   extends: .release
   environment: development_hubcare_api
   only: 
-    - 46_refactor_api_architecture
+    - devel
 
 # Release to commit metrics service
 release_commit_metrics_production:
@@ -109,20 +109,20 @@ release_commit_metrics_development:
   extends: .release
   environment: development_commit_metrics
   only: 
-    - 46_refactor_api_architecture
+    - devel
 
 # Release to community metrics service
 release_community_metrics_production:
   extends: .release
   environment: production_community_metrics
   only: 
-    - 46_refactor_api_architecture
+    - master
 
 release_community_metrics_development:
   extends: .release
   environment: development_community_metrics
   only: 
-    - 46_refactor_api_architecture
+    - devel
 
 # Release to issue metrics service
 release_issue_metrics_production:
@@ -135,7 +135,7 @@ release_issue_metrics_development:
   extends: .release
   environment: development_issue_metrics
   only: 
-    - 46_refactor_api_architecture
+    - devel
 
 # Release to pull request metrics service
 release_pull_request_metrics_production:
@@ -148,4 +148,4 @@ release_pull_request_metrics_development:
   extends: .release
   environment: development_pull_request_metrics
   only: 
-    - 46_refactor_api_architecture
+    - devel
