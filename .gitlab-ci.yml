@@ -89,7 +89,7 @@ release_hubcare_api_production:
   extends: .release
   environment: production_hubcare_api
   only: 
-    - master
+    - 46_refactor_api_architecture
 
 release_hubcare_api_development:
   extends: .release
@@ -102,7 +102,7 @@ release_commit_metrics_production:
   extends: .release
   environment: production_commit_metrics
   only: 
-    - master
+    - 46_refactor_api_architecture
 
 release_commit_metrics_development:
   extends: .release
@@ -115,7 +115,7 @@ release_community_metrics_production:
   extends: .release
   environment: production_community_metrics
   only: 
-    - master
+    - 46_refactor_api_architecture
 
 release_community_metrics_development:
   extends: .release
@@ -128,7 +128,7 @@ release_issue_metrics_production:
   extends: .release
   environment: production_issue_metrics
   only: 
-    - master
+    - 46_refactor_api_architecture
 
 release_issue_metrics_development:
   extends: .release
@@ -141,7 +141,7 @@ release_pull_request_metrics_production:
   extends: .release
   environment: production_pull_request_metrics
   only: 
-    - master
+    - 46_refactor_api_architecture
 
 release_pull_request_metrics_development:
   extends: .release
