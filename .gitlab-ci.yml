@@ -24,6 +24,7 @@ unit_test:
   # This repo includes python3, pip3
   image: python:3-alpine
   before_script:
+    - apk add --no-cache git
     # install requiriment to hubcare_api
     - pip install -r hubcare/hubcare_api/requirements.txt
     - python hubcare/hubcare_api/manage.py makemigrations
@@ -89,26 +90,26 @@ release_hubcare_api_production:
   extends: .release
   environment: production_hubcare_api
   only: 
-    - 46_refactor_api_architecture
+    - master
 
 release_hubcare_api_development:
   extends: .release
   environment: development_hubcare_api
   only: 
-    - devel
+    - 46_refactor_api_architecture
 
 # Release to commit metrics service
 release_commit_metrics_production:
   extends: .release
   environment: production_commit_metrics
   only: 
-    - 46_refactor_api_architecture
+    - master
 
 release_commit_metrics_development:
   extends: .release
   environment: development_commit_metrics
   only: 
-    - devel
+    - 46_refactor_api_architecture
 
 # Release to community metrics service
 release_community_metrics_production:
@@ -121,30 +122,30 @@ release_community_metrics_development:
   extends: .release
   environment: development_community_metrics
   only: 
-    - devel
+    - 46_refactor_api_architecture
 
 # Release to issue metrics service
 release_issue_metrics_production:
   extends: .release
   environment: production_issue_metrics
   only: 
-    - 46_refactor_api_architecture
+    - master
 
 release_issue_metrics_development:
   extends: .release
   environment: development_issue_metrics
   only: 
-    - devel
+    - 46_refactor_api_architecture
 
 # Release to pull request metrics service
 release_pull_request_metrics_production:
   extends: .release
   environment: production_pull_request_metrics
   only: 
-    - 46_refactor_api_architecture
+    - master
 
 release_pull_request_metrics_development:
   extends: .release
   environment: development_pull_request_metrics
   only: 
-    - devel
+    - 46_refactor_api_architecture
