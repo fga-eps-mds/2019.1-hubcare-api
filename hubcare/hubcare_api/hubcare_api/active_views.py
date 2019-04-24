@@ -16,7 +16,8 @@ class ActiveQuestion(APIView):
             release_note_bool = release_note_metric.json()['response']
             release_note_int = int(release_note_bool)
 
-            url = URL_COMMIT + 'contributors/different_authors/' + owner + '/' + repo
+            url_authors = 'contributors/different_authors/'
+            url = URL_COMMIT + url_authors + owner + '/' + repo
             contributors_metric = requests.get(url)
             contributors_total = len(contributors_metric.json())
             contributors_int = int(contributors_total)
@@ -24,7 +25,7 @@ class ActiveQuestion(APIView):
             url = URL_COMMIT + 'commit_week/commit_month/' + owner + '/' + repo
             commit_week_metric = requests.get(url)
             commit_week_sum = commit_week_metric.json()['sum']
-            commit_week_int  = int(commit_week_sum)
+            commit_week_int = int(commit_week_sum)
 
             active_metric = calculate_active_metric(
                 release_note_int,
@@ -36,15 +37,18 @@ class ActiveQuestion(APIView):
 
         return Response(active_metric)
 
+
 def calculate_active_metric(
-    release_note_int,
-    contributors_int, 
-    commit_week_int
+        release_note_int,
+        contributors_int,
+        commit_week_int
 ):
     contributors_int = contributors_int*METRIC_CONTRIBUTOR
     if(contributors_int > 1):
-        contributors_int = 1    
-    active_metric = (release_note_int*HEIGHT_RELESE_NOTE_ACTIVE
-                    +contributors_int*HEIGHT_CONTRIBUTOR_ACTIVE
-                    +commit_week_int*HEIGHT_COMMIT_WEEK_ACTIVE)/10
+        contributors_int = 1
+    active_metric = (
+                    release_note_int*HEIGHT_RELESE_NOTE_ACTIVE
+                    + contributors_int*HEIGHT_CONTRIBUTOR_ACTIVE
+                    + commit_week_int*HEIGHT_COMMIT_WEEK_ACTIVE)/10
+
     return active_metric
