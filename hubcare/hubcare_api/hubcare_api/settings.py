@@ -25,7 +25,7 @@ SECRET_KEY = 'e%9essme#g*xwf#=x4-o0ik-c9mim-91*=%_!3j!2@$wo8q_u8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0']
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
 
 # Application definition
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'hubcare_api',
 ]
 
 MIDDLEWARE = [

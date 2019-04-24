@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from hubcare_api.active_views import ActiveQuestion
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('active_question/<str:owner>/<str:repo>/', ActiveQuestion.as_view())
 ]
