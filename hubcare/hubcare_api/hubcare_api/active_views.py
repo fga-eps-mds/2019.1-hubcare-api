@@ -13,17 +13,38 @@ class ActiveQuestion(APIView):
         if(github_request.status_code is 200):
             url = URL_COMMUNITY + 'release_note/' + owner + '/' + repo
             release_note_metric = requests.get(url)
-            print(release_note_metric.json())
+            release_note_bool = release_note_metric.json()['response']
+            release_note_int = int(release_note_bool)
 
             url = URL_COMMIT + 'contributors/different_authors/' + owner + '/' + repo
             contributors_metric = requests.get(url)
-            print(contributors_metric.json())
+            contributors_total = len(contributors_metric.json())
+            contributors_int = int(contributors_total)
 
             url = URL_COMMIT + 'commit_week/commit_month/' + owner + '/' + repo
             commit_week_metric = requests.get(url)
-            print(commit_week_metric.json())
+            commit_week_sum = commit_week_metric.json()['sum']
+            commit_week_int  = int(commit_week_sum)
 
+            active_metric = calculate_active_metric(
+                release_note_int,
+                contributors_int,
+                commit_week_int
+            )
         else:
             raise Http404
 
-        return Response('ok')
+        return Response(active_metric)
+
+def calculate_active_metric(
+    release_note_int,
+    contributors_int, 
+    commit_week_int
+):
+    contributors_int = contributors_int*METRIC_CONTRIBUTOR
+    if(contributors_int > 1):
+        contributors_int = 1    
+    active_metric = (release_note_int*HEIGHT_RELESE_NOTE_ACTIVE
+                    +contributors_int*HEIGHT_CONTRIBUTOR_ACTIVE
+                    +commit_week_int*HEIGHT_COMMIT_WEEK_ACTIVE)/10
+    return active_metric
