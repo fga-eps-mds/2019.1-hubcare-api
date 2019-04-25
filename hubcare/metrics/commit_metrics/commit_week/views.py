@@ -12,11 +12,10 @@ class CommitMonthView(APIView):
 
     def get(self, request, owner, repo):
         commit = Commit.objects.all().filter(owner=owner, repo=repo)
-        # print('commit = ' + str(commit))
         serialized = CommitSerializer(commit, many=True)
-        # print('serialized = ' + str(serialized))
 
-        if (serialized.data != []):
+        if (not commit):
+
             url = 'https://api.github.com/repos/'
             url2 = '/stats/participation'
             github_request = requests.get(url + owner + '/' + repo + url2)
@@ -45,8 +44,8 @@ class CommitMonthView(APIView):
 
         sum = 0
 
-        # for i in range(-5, -1, 1):
-        #     sum += commits_week.data[i]['quantity']
+        for i in range(-5, -1, 1):
+            sum += commits_week.data[i]['quantity']
 
         data = {"owner": owner,
                 "repo": repo,
@@ -54,4 +53,4 @@ class CommitMonthView(APIView):
                 }
 
         return Response(data)
-        # return Response('ok')
+
