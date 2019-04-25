@@ -1,0 +1,42 @@
+version: '2'
+services:
+  community-metrics:
+    image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/community_metrics:stable
+    stdin_open: true
+    tty: true
+    ports:
+    - 8002:8002/tcp
+    labels:
+      io.rancher.container.pull_image: always
+  pull-request-metrics:
+    image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/pull_request_metrics:stable
+    stdin_open: true
+    tty: true
+    ports:
+    - 8004:8004/tcp
+    labels:
+      io.rancher.container.pull_image: always
+  hubcare-api:
+    image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/hubcare_api:stable
+    stdin_open: true
+    tty: true
+    ports:
+    - 8000:8000/tcp
+    labels:
+      io.rancher.container.pull_image: always
+  issue-metrics:
+    image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/issue_metric:stable
+    stdin_open: true
+    tty: true
+    ports:
+    - 8003:8003/tcp
+    labels:
+      io.rancher.container.pull_image: always
+  commit-metrics:
+    image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/commit_metrics:stable
+    stdin_open: true
+    tty: true
+    ports:
+    - 8001:8001/tcp
+    labels:
+      io.rancher.container.pull_image: always

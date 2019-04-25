@@ -29,7 +29,7 @@ class ActivityRateIssueView(APIView):
             )
         elif check_datetime(activity_rate[0]):
             open_issues, closed_issues = get_all_issues(owner, repo)
-            issues_alive = get_issues_15_day(owner, repo)
+            issues_alive, not_alive = get_issues_15_day(owner, repo)
 
             ActivityRateIssue.objects.filter(owner=owner, repo=repo).update(
                 activity_rate=(open_issues / (closed_issues + open_issues)),
@@ -94,7 +94,7 @@ def get_issues_15_day(owner, repo):
                     # Do nothing
                     pass
             if(activity['state'] == 'open'):
-                issues_not_alive = issues_not_alive+1
+                issues_not_alive = issues_not_alive + 1
             else:
                 # Do nothing
                 pass
@@ -126,7 +126,7 @@ def calculate_metric(issues_alive, open_issues):
     '''
     Calculate metrics
     '''
-    metric = ((issues_alive / open_issues)-0.5)*4
+    metric = ((issues_alive / open_issues) - 0.5) * 4
 
     if metric > 1:
         metric = 1
