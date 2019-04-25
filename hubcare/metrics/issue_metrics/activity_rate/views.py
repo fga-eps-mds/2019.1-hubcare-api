@@ -94,7 +94,7 @@ def get_issues_15_day(owner, repo):
                     # Do nothing
                     pass
             if(activity['state'] == 'open'):
-                issues_not_alive = issues_not_alive+1
+                issues_not_alive = issues_not_alive + 1
             else:
                 # Do nothing
                 pass
@@ -126,7 +126,7 @@ def calculate_metric(issues_alive, open_issues):
     '''
     Calculate metrics
     '''
-    metric = ((issues_alive / open_issues)-0.5)*4
+    metric = ((issues_alive / open_issues) - 0.5) * 4
 
     if metric > 1:
         metric = 1

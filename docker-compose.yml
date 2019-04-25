@@ -10,6 +10,8 @@ services:
       - "./hubcare/hubcare_api:/code"
     ports:
       - "8000:8000"
+    network_mode: host
+
   commit_metrics:
     container_name: commit_metrics 
     build:
@@ -19,6 +21,7 @@ services:
       - "./hubcare/metrics/commit_metrics:/code"
     ports:
       - "8001:8001"
+
   community_metrics:
     container_name: community_metrics 
     build:
@@ -28,6 +31,7 @@ services:
       - "./hubcare/metrics/community_metrics:/code"
     ports:
       - "8002:8002"
+
   issue_metrics:
     container_name: issue_metrics 
     build:
@@ -37,6 +41,7 @@ services:
       - "./hubcare/metrics/issue_metrics:/code"
     ports:
       - "8003:8003"
+
   pull_request_metrics:
     container_name: pull_request_metrics 
     build:
