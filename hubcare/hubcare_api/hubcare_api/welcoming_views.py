@@ -2,17 +2,17 @@ from django.http import Http404, HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import requests
-from hubcare_api.constants import * 
+from hubcare_api.constants import *
 
 
 class WelcomingQuestion(APIView):
     def get(self, request, owner, repo):
         url = 'https://api.github.com/repos/'
-        username = 'Brian2397' 
+        username = 'Brian2397'
         token = 'ed76a29b4bde2a0ec415b41fd51e2d740be50941'
-        github_request =  requests.get(url + owner + '/' + repo, auth=(username, token))
+        github_request = requests.get(url + owner + '/' + repo, auth=(username, token))
 
-        if(github_request.status_code == 200):
+        if(github_request.status_code is 200):
             url_authors = 'contributors/different_authors/'
             url = URL_COMMIT + url_authors + owner + '/' + repo
             cont_metric = requests.get(url)
@@ -23,7 +23,7 @@ class WelcomingQuestion(APIView):
             url = URL_COMMUNITY + url_authors + owner + '/' + repo
             cont_guide_metric = requests.get(url)
             cont_guide_bool = cont_guide_metric.json()[0]['contribution_guide']
-            cont_int = int(cont_guide_bool)
+            cont_guide_int = int(cont_guide_bool)
 
             url_authors = 'help_wanted/'
             url = URL_ISSUES + url_authors + owner + '/' + repo
@@ -73,4 +73,47 @@ class WelcomingQuestion(APIView):
             license_bool = license_metric.json()['have_license']
             license_int = int(license_bool)
 
-        return Response('ok')
+            welcoming_metric = calculate_welcoming_metric(
+                cont_int,
+                cont_guide_int,
+                help_float,
+                good_float,
+                prt_int,
+                description_int,
+                code_cond_int,
+                readme_int,
+                issue_temp_int,
+                license_int
+            )
+
+        return Response(welcoming_metric)
+
+
+def calculate_welcoming_metric(
+    cont_int,
+    cont_guide_int,
+    help_float,
+    good_float,
+    prt_int,
+    description_int,
+    code_cond_int,
+    readme_int,
+    issue_temp_int,
+    license_int
+):
+    cont_int = cont_int*METRIC_CONTRIBUTOR
+    if(cont_int > 1):
+        cont_int = 1
+    welcoming_metric = (
+        cont_int*HEIGHT_CONTRIBUTORS_WELCO
+        + cont_guide_int*HEIGHT_CONTRIBUTION_GUIDE_WELCO
+        + help_float*HEIGHT_HELP_WANTED_WELCO
+        + good_float*HEIGHT_GOOD_FIRST_ISSUE_WELCO
+        + prt_int*HEIGHT_PR_TEMPLATE_WELCO
+        + description_int*HEIGHT_DESCRIPTION_WELCO
+        + code_cond_int*HEIGHT_CODE_OF_CONDUCT_WELCO
+        + readme_int*HEIGHT_README_WELCO
+        + issue_temp_int*HEIGHT_ISSUE_TEMPLATE_WELCO
+        + license_int*HEIGHT_LICENSE_WELCO)/23
+
+    return welcoming_metric
