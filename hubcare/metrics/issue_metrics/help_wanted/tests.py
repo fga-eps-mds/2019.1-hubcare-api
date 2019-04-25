@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
-from issues.views.help_wanted_views import HelpWantedView
-from issues.models.help_wanted_models import HelpWanted
+from help_wanted.views import HelpWantedView
+from help_wanted.models import HelpWanted
 from datetime import datetime, timezone
 from unittest import mock
 
@@ -18,7 +18,7 @@ from unittest import mock
 #             self.status_code = status_code
 
 #         def json(self):
-#             '''
+#             '''coverage run
 #             return all datas in object
 #             '''
 #             return self.json_data

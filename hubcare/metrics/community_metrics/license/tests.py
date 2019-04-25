@@ -87,7 +87,7 @@ class LicenseViewTest(TestCase):
         response = LicenseView.as_view()(request, 'cleber', 'cremilda')
         self.assertEqual(response.status_code, 200)
 
-    @mock.patch('license'.views.requests.get',
+    @mock.patch('license.views.requests.get',
                 side_effect=mocked_requests_get)
     def test_license_exists(self, mock_get):
         '''
@@ -100,7 +100,7 @@ class LicenseViewTest(TestCase):
         self.assertEqual(response.data['repo'], 'repo_test')
         self.assertEqual(response.data['have_license'], True)
 
-    @mock.patch('license'.views.requests.get',
+    @mock.patch('license.views.requests.get',
                 side_effect=mocked_requests_get)
     def test_license_not_exists(self, mock_get):
         '''
@@ -113,7 +113,7 @@ class LicenseViewTest(TestCase):
         self.assertEqual(response.data['repo'], 'no_license')
         self.assertEqual(response.data['have_license'], False)
 
-    @mock.patch('license'.views.requests.get',
+    @mock.patch('license.views.requests.get',
                 side_effect=mocked_requests_get)
     def test_check_datetime_out(self, mock_get):
         '''
@@ -123,7 +123,7 @@ class LicenseViewTest(TestCase):
         response = LicenseView.as_view()(request, 'brian', 'mds')
         self.assertEqual(response.status_code, 404)
 
-    @mock.patch('license'.views.requests.get',
+    @mock.patch('license.views.requests.get',
                 side_effect=mocked_requests_get)
     def test_check_datetime(self, mock_get):
         '''
@@ -140,7 +140,7 @@ class LicenseViewTest(TestCase):
         self.assertEqual(str(date_strp),
                          str(datetime.now(timezone.utc).date()))
 
-    @mock.patch('license'.views.requests.get',
+    @mock.patch('license.views.requests.get',
                 side_effect=mocked_requests_get)
     def test_check_datetime_false(self, mock_get):
         '''
