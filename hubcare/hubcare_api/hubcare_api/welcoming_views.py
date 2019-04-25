@@ -8,46 +8,69 @@ from hubcare_api.constants import *
 class WelcomingQuestion(APIView):
     def get(self, request, owner, repo):
         url = 'https://api.github.com/repos/'
-        github_request =  requests.get(url + owner + '/' + repo)
+        username = 'Brian2397' 
+        token = 'ed76a29b4bde2a0ec415b41fd51e2d740be50941'
+        github_request =  requests.get(url + owner + '/' + repo, auth=(username, token))
 
         if(github_request.status_code == 200):
-            url = URL_COMMIT + 'contributors/different_authors/' + owner + '/' + repo
-            contributors_metric = requests.get(url)
-            print(contributors_metric.json())
+            url_authors = 'contributors/different_authors/'
+            url = URL_COMMIT + url_authors + owner + '/' + repo
+            cont_metric = requests.get(url)
+            cont_total = len(cont_metric.json())
+            cont_int = int(cont_total)
 
-            url = URL_COMMUNITY + 'contribution_guide/' + owner + '/' + repo
-            contribution_guide_metric = requests.get(url)
-            print(contribution_guide_metric.json())
+            url_authors = 'contribution_guide/'
+            url = URL_COMMUNITY + url_authors + owner + '/' + repo
+            cont_guide_metric = requests.get(url)
+            cont_guide_bool = cont_guide_metric.json()[0]['contribution_guide']
+            cont_int = int(cont_guide_bool)
 
-            url = URL_ISSUES + 'help_wanted/' + owner + '/' + repo
-            help_wanted_metrics = requests.get(url)
-            print(help_wanted_metrics.json())
+            url_authors = 'help_wanted/'
+            url = URL_ISSUES + url_authors + owner + '/' + repo
+            help_metric = requests.get(url)
+            help_rate = help_metric.json()['rate']
+            help_float = float(help_rate)
 
-            url = URL_ISSUES + 'good_first_issue/' + owner + '/' + repo
-            good_first_issue_metrics = requests.get(url)
-            print(good_first_issue_metrics.json())
+            url_authors = 'good_first_issue/'
+            url = URL_ISSUES + url_authors + owner + '/' + repo
+            good_metric = requests.get(url)
+            good_rate = good_metric.json()['rate']
+            good_float = float(good_rate)
 
-            url = URL_COMMUNITY + 'pull_request_template/' + owner + '/' + repo
-            pull_request_template_metrics = requests.get(url)
-            print(pull_request_template_metrics.json())
+            url_authors = 'pull_request_template/'
+            url = URL_COMMUNITY + url_authors + owner + '/' + repo
+            prt_metric = requests.get(url)
+            prt_bool = prt_metric.json()['pull_request_template']
+            prt_int = int(prt_bool)
 
-            url = URL_COMMUNITY + 'description/' + owner + '/' + repo
-            description_metrics = requests.get(url)
-            print(description_metrics.json())
+            url_authors = 'description/'
+            url = URL_COMMUNITY + url_authors + owner + '/' + repo
+            description_metric = requests.get(url)
+            description_bool = description_metric.json()['description']
+            description_int = int(description_bool)
 
-            url = URL_COMMUNITY + 'code_of_conduct/' + owner + '/' + repo
-            code_of_conduct_metrics = requests.get(url)
-            print(code_of_conduct_metrics.json())
+            url_authors = 'code_of_conduct/'
+            url = URL_COMMUNITY + url_authors + owner + '/' + repo
+            code_cond_metric = requests.get(url)
+            code_cond_bool = code_cond_metric.json()['code_of_conduct']
+            code_cond_int = int(code_cond_bool)
 
-            url = URL_COMMUNITY + 'readme/' + owner + '/' + repo
+            url_authors = 'readme/'
+            url = URL_COMMUNITY + url_authors + owner + '/' + repo
             readme_metrics = requests.get(url)
-            print(readme_metrics.json())
+            readme_bool = readme_metrics.json()[0]['readme']
+            readme_int = int(readme_bool)
 
-            url = URL_COMMUNITY + 'issue_template/' + owner + '/' + repo
-            issue_template_metrics = requests.get(url)
-            print(issue_template_metrics.json())
+            url_authors = 'issue_template/'
+            url = URL_COMMUNITY + url_authors + owner + '/' + repo
+            issue_temp_metric = requests.get(url)
+            issue_temp_bool = issue_temp_metric.json()['issue_templates']
+            issue_temp_int = int(issue_temp_bool)
 
-            url = URL_COMMUNITY + 'license/' + owner + '/' + repo
-            license_metrics = requests.get(url)
-            print(license_metrics.json())
+            url_authors = 'license/'
+            url = URL_COMMUNITY + url_authors + owner + '/' + repo
+            license_metric = requests.get(url)
+            license_bool = license_metric.json()['have_license']
+            license_int = int(license_bool)
+
         return Response('ok')
