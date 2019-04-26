@@ -16,17 +16,32 @@ class ActivityRateIssueView(APIView):
 
         if(not activity_rate):
             open_issues, closed_issues = get_all_issues(owner, repo)
-            issues_alive, not_alive = get_issues_15_day(owner, repo)
 
-            ActivityRateIssue.objects.create(
-                owner=owner,
-                repo=repo,
-                activity_rate=(open_issues / (closed_issues + open_issues)),
-                date=datetime.now(timezone.utc),
-                activity_rate_15_days=issues_alive / not_alive,
-                activity_rate_15_days_metric=calculate_metric(issues_alive,
-                                                              not_alive),
-            )
+            if(open_issues+closed_issues == 0):
+                ActivityRateIssue.objects.create(
+                    owner=owner,
+                    repo=repo,
+                    activity_rate=0,
+                    date=datetime.now(timezone.utc),
+                    activity_rate_15_days=0,
+                    activity_rate_15_days_metric=0,
+                )
+            else:
+                issues_alive, not_alive = get_issues_15_day(owner, repo)
+                ActivityRateIssue.objects.create(
+                    owner=owner,
+                    repo=repo,
+                    activity_rate=(
+                        open_issues / (closed_issues + open_issues)
+                    ),
+                    date=datetime.now(timezone.utc),
+                    activity_rate_15_days=issues_alive / not_alive,
+                    activity_rate_15_days_metric=calculate_metric(
+                        issues_alive,
+                        not_alive
+                    ),
+                )
+
         elif check_datetime(activity_rate[0]):
             open_issues, closed_issues = get_all_issues(owner, repo)
             issues_alive, not_alive = get_issues_15_day(owner, repo)
@@ -114,6 +129,8 @@ def get_all_issues(owner, repo):
     github_page = requests.get(
         'https://github.com/' + owner + '/' + repo + '/issues')
     find = re.search(r'(.*) Open\n', github_page.text)
+    if (find is None):
+        return 0, 0
     open_issues = int(find.group(1).replace(',', ''))
 
     find = re.search(r'(.*) Closed\n', github_page.text)
