@@ -71,6 +71,12 @@ def calculate_support_metric(
         release_note_int,
         issue_act_float
 ):
+    media = ((issue_act_float - ISSUE_METRIC_ONE) * ISSUE_METRIC_TWO)
+    issue_act_float = media
+    if(issue_act_float > 1):
+        issue_act_float = 1
+    elif(issue_act_float < 1):
+        issue_act_float = 0
 
     support_metric = (
         readme_int*HEIGHT_README_SUPPORT
