@@ -41,13 +41,19 @@ class SupportQuestion(APIView):
             release_note_bool = release_note_metric.json()['response']
             release_note_int = int(release_note_bool)
 
+            url = URL_ISSUE + 'activity_rate/' + owner + '/' + repo
+            issue_act_metric = requests.get(url)
+            issue_act = issue_act_metric.json()[0]['activity_rate_15_days']
+            issue_act_float = float(issue_act)
+
             support_metric = calculate_support_metric(
                                 readme_int,
                                 issue_temp_int,
                                 license_int,
                                 description_int,
                                 code_cond_int,
-                                release_note_int
+                                release_note_int,
+                                issue_act_float
             )
 
         else:
@@ -62,7 +68,8 @@ def calculate_support_metric(
         license_int,
         description_int,
         code_cond_int,
-        release_note_int
+        release_note_int,
+        issue_act_float
 ):
 
     support_metric = (
@@ -71,6 +78,7 @@ def calculate_support_metric(
         + license_int*HEIGHT_LICENSE_SUPPORT
         + description_int*HEIGHT_DESCRIPTION_SUPPORT
         + code_cond_int*HEIGHT_CODE_OF_CONDUCT_SUPPORT
-        + release_note_int*HEIGHT_RELEASE_NOTE_SUPPORT)/16
+        + release_note_int*HEIGHT_RELEASE_NOTE_SUPPORT
+        + issue_act_float*HEIGHT_RATE_ISSUE_ACTIVE_SUPPORT)/16
 
     return support_metric
