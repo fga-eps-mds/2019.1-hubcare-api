@@ -150,6 +150,9 @@ release_pull_request_metrics_development:
   only: 
     - devel
 
+# Stage III - I
+# Deployment Phase
+# Production deploy
 deploy_hubcare_api:
   image: cdrx/rancher-gitlab-deploy
   stage: deploy
@@ -219,3 +222,69 @@ deploy_pull_request_metrics:
             --service pull_request_metrics"
   only:
     - master
+
+# Development deploy in Heroku
+deploy_hubcare_api_dev:
+  stage: deploy
+  script:
+    - docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
+    - docker pull registry.gitlab.com/cjjcastro/2019-1-hubcare-api/hubcare_api:latest
+    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/hubcare_api:latest registry.heroku.com/hubcare-api/web:latest
+    - docker push registry.heroku.com/hubcare-api/web:latest
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-api
+  tags:
+    - docker
+  only:
+    - devel
+
+deploy_commit_metrics_dev:
+  stage: deploy
+  script:
+    - docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
+    - docker pull registry.gitlab.com/cjjcastro/2019-1-hubcare-api/commit_metrics:latest
+    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/commit_metrics:latest registry.heroku.com/commit_metrics/web:latest
+    - docker push registry.heroku.com/commit_metrics/web:latest
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app commit_metrics
+  tags:
+    - docker
+  only:
+    - devel
+
+deploy_community_metrics_dev:
+  stage: deploy
+  script:
+    - docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
+    - docker pull registry.gitlab.com/cjjcastro/2019-1-hubcare-api/community_metrics:latest
+    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/community_metrics:latest registry.heroku.com/community_metrics/web:latest
+    - docker push registry.heroku.com/community_metrics/web:latest
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app community_metrics
+  tags:
+    - docker
+  only:
+    - devel
+
+deploy_issue_metrics_dev:
+  stage: deploy
+  script:
+    - docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
+    - docker pull registry.gitlab.com/cjjcastro/2019-1-hubcare-api/issue_metric:latest
+    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/issue_metric:latest registry.heroku.com/issue_metric/web:latest
+    - docker push registry.heroku.com/issue_metric/web:latest
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app issue_metric
+  tags:
+    - docker
+  only:
+    - devel
+
+deploy_pull_request_metrics_metrics_dev:
+  stage: deploy
+  script:
+    - docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
+    - docker pull registry.gitlab.com/cjjcastro/2019-1-hubcare-api/pull_request_metrics:latest
+    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/pull_request_metrics:latest registry.heroku.com/pull_request_metrics/web:latest
+    - docker push registry.heroku.com/pull_request_metrics/web:latest
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app pull_request_metrics
+  tags:
+    - docker
+  only:
+    - devel
