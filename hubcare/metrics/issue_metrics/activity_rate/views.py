@@ -17,7 +17,7 @@ class ActivityRateIssueView(APIView):
         if(not activity_rate):
             open_issues, closed_issues = get_all_issues(owner, repo)
 
-            if(open_issues+closed_issues == 0):
+            if(open_issues + closed_issues == 0):
                 ActivityRateIssue.objects.create(
                     owner=owner,
                     repo=repo,
