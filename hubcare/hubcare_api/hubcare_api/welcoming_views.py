@@ -73,6 +73,12 @@ class WelcomingQuestion(APIView):
             license_bool = license_metric.json()['have_license']
             license_int = int(license_bool)
 
+            url_authors = 'activity_rate/'
+            url = URL_ISSUES + url_authors + owner + '/' + repo
+            act_rate_metric = requests.get(url)
+            act_rate_str = act_rate_metric.json()[0]['activity_rate_15_days']
+            act_rate_float = float(act_rate_str)
+
             welcoming_metric = calculate_welcoming_metric(
                 cont_int,
                 cont_guide_int,
@@ -83,7 +89,8 @@ class WelcomingQuestion(APIView):
                 code_cond_int,
                 readme_int,
                 issue_temp_int,
-                license_int
+                license_int,
+                act_rate_float
             )
 
         return Response(welcoming_metric)
@@ -99,21 +106,31 @@ def calculate_welcoming_metric(
     code_cond_int,
     readme_int,
     issue_temp_int,
-    license_int
+    license_int,
+    act_rate_float
 ):
     cont_int = cont_int*METRIC_CONTRIBUTOR
     if(cont_int > 1):
         cont_int = 1
+
+    media = ((act_rate_float - ISSUE_METRIC_ONE) * ISSUE_METRIC_TWO)
+    act_rate_float = media
+    if(act_rate_float > 1):
+        act_rate_float = 1
+    if(act_rate_float < 1):
+        act_rate_float = 0
+
     welcoming_metric = (
         cont_int*HEIGHT_CONTRIBUTORS_WELCO
-        + cont_guide_int*HEIGHT_CONTRIBUTION_GUIDE_WELCO
-        + help_float*HEIGHT_HELP_WANTED_WELCO
-        + good_float*HEIGHT_GOOD_FIRST_ISSUE_WELCO
-        + prt_int*HEIGHT_PR_TEMPLATE_WELCO
-        + description_int*HEIGHT_DESCRIPTION_WELCO
-        + code_cond_int*HEIGHT_CODE_OF_CONDUCT_WELCO
-        + readme_int*HEIGHT_README_WELCO
-        + issue_temp_int*HEIGHT_ISSUE_TEMPLATE_WELCO
-        + license_int*HEIGHT_LICENSE_WELCO)/23
+        + cont_guide_int * HEIGHT_CONTRIBUTION_GUIDE_WELCO
+        + help_float * HEIGHT_HELP_WANTED_WELCO
+        + good_float * HEIGHT_GOOD_FIRST_ISSUE_WELCO
+        + prt_int * HEIGHT_PR_TEMPLATE_WELCO
+        + description_int * HEIGHT_DESCRIPTION_WELCO
+        + code_cond_int * HEIGHT_CODE_OF_CONDUCT_WELCO
+        + readme_int * HEIGHT_README_WELCO
+        + issue_temp_int * HEIGHT_ISSUE_TEMPLATE_WELCO
+        + license_int * HEIGHT_LICENSE_WELCO
+        + act_rate_float * WEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2) / 28
 
     return welcoming_metric
