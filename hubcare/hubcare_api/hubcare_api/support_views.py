@@ -47,13 +47,13 @@ class SupportQuestion(APIView):
             issue_act_float = float(issue_act)
 
             support_metric = calculate_support_metric(
-                                readme_int,
-                                issue_temp_int,
-                                license_int,
-                                description_int,
-                                code_cond_int,
-                                release_note_int,
-                                issue_act_float
+                readme_int,
+                issue_temp_int,
+                license_int,
+                description_int,
+                code_cond_int,
+                release_note_int,
+                issue_act_float
             )
 
         else:
@@ -79,12 +79,12 @@ def calculate_support_metric(
         issue_act_float = 0
 
     support_metric = (
-        readme_int*HEIGHT_README_SUPPORT
-        + issue_temp_int*HEIGHT_ISSUE_TEMPLATE_SUPPORT
-        + license_int*HEIGHT_LICENSE_SUPPORT
-        + description_int*HEIGHT_DESCRIPTION_SUPPORT
-        + code_cond_int*HEIGHT_CODE_OF_CONDUCT_SUPPORT
-        + release_note_int*HEIGHT_RELEASE_NOTE_SUPPORT
-        + issue_act_float*HEIGHT_RATE_ISSUE_ACTIVE_SUPPORT)/16
+        readme_int * WEIGHT_README_SUPPORT
+        + issue_temp_int * WEIGHT_ISSUE_TEMPLATE_SUPPORT
+        + license_int * WEIGHT_LICENSE_SUPPORT
+        + description_int * WEIGHT_DESCRIPTION_SUPPORT
+        + code_cond_int * WEIGHT_CODE_OF_CONDUCT_SUPPORT
+        + release_note_int * WEIGHT_RELEASE_NOTE_SUPPORT
+        + issue_act_float * WEIGHT_ISSUE_ACTIVE_SUPPORT) / SUPPORT_METRIC
 
     return support_metric
