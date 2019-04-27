@@ -79,12 +79,12 @@ def calculate_support_metric(
         issue_act_float = 0
 
     support_metric = (
-        readme_int * WEIGHT_README_SUPPORT +
-        issue_temp_int * WEIGHT_ISSUE_TEMPLATE_SUPPORT +
-        license_int * WEIGHT_LICENSE_SUPPORT +
-        description_int * WEIGHT_DESCRIPTION_SUPPORT +
-        code_cond_int * WEIGHT_CODE_OF_CONDUCT_SUPPORT +
-        release_note_int * WEIGHT_RELEASE_NOTE_SUPPORT +
+        readme_int * WEIGHT_README_SUPPORT + 
+        issue_temp_int * WEIGHT_ISSUE_TEMPLATE_SUPPORT + 
+        license_int * WEIGHT_LICENSE_SUPPORT + 
+        description_int * WEIGHT_DESCRIPTION_SUPPORT + 
+        code_cond_int * WEIGHT_CODE_OF_CONDUCT_SUPPORT +  
+        release_note_int * WEIGHT_RELEASE_NOTE_SUPPORT + 
         issue_act_float * WEIGHT_ISSUE_ACTIVE_SUPPORT) / SUPPORT_METRIC
 
     return support_metric
