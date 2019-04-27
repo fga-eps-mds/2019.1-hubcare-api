@@ -131,6 +131,6 @@ def calculate_welcoming_metric(
         + readme_int * HEIGHT_README_WELCO
         + issue_temp_int * HEIGHT_ISSUE_TEMPLATE_WELCO
         + license_int * HEIGHT_LICENSE_WELCO
-        + act_rate_float * WEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2) / 28
+        + act_rate_float * WEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2) / WELCOMING_METRIC_QUESTION
 
     return welcoming_metric
