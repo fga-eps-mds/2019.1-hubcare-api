@@ -10,7 +10,7 @@ class ActiveQuestion(APIView):
         url = 'https://api.github.com/repos/'
         github_request = requests.get(url + owner + '/' + repo)
 
-        if(github_request.status_code is 200):
+        if(github_request.status_code == 200):
             url = URL_COMMUNITY + 'release_note/' + owner + '/' + repo
             release_note_metric = requests.get(url)
             release_note_bool = release_note_metric.json()['response']
@@ -35,7 +35,8 @@ class ActiveQuestion(APIView):
         else:
             raise Http404
 
-        return Response(active_metric)
+        data = {"active_metric": active_metric}
+        return Response(data)
 
 
 def calculate_active_metric(
