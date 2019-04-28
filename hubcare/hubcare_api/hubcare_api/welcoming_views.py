@@ -10,7 +10,8 @@ class WelcomingQuestion(APIView):
         url = 'https://api.github.com/repos/'
         username = 'Brian2397'
         token = 'ed76a29b4bde2a0ec415b41fd51e2d740be50941'
-        github_request = requests.get(url + owner + '/' + repo, auth=(username, token))
+        url = url + owner + '/' + repo, auth = (username, token)
+        github_request = requests.get(url)
 
         if(github_request.status_code is 200):
             url_authors = 'contributors/different_authors/'
@@ -93,7 +94,8 @@ class WelcomingQuestion(APIView):
                 act_rate_float
             )
 
-        return Response(welcoming_metric)
+        data = {"welcoming_metric": welcoming_metric}
+        return Response(data)
 
 
 def calculate_welcoming_metric(
@@ -120,6 +122,7 @@ def calculate_welcoming_metric(
     if(act_rate_float < 1):
         act_rate_float = 0
 
+    WEIGHT_SUPPORT_2 = WEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2
     welcoming_metric = (
         cont_int*HEIGHT_CONTRIBUTORS_WELCO
         + cont_guide_int * HEIGHT_CONTRIBUTION_GUIDE_WELCO
@@ -131,6 +134,6 @@ def calculate_welcoming_metric(
         + readme_int * HEIGHT_README_WELCO
         + issue_temp_int * HEIGHT_ISSUE_TEMPLATE_WELCO
         + license_int * HEIGHT_LICENSE_WELCO
-        + act_rate_float * WEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2) / WELCOMING_METRIC_QUESTION
+        + act_rate_float * WEIGHT_SUPPORT_2) / WELCOMING_METRIC_QUESTION
 
     return welcoming_metric
