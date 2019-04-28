@@ -59,7 +59,8 @@ class SupportQuestion(APIView):
         else:
             raise Http404
 
-        return Response(support_metric)
+        data = {"support_metric": support_metric}
+        return Response(data)
 
 
 def calculate_support_metric(
