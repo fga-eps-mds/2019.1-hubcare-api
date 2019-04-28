@@ -6,6 +6,12 @@ services:
     build:
       context: ./hubcare/hubcare_api
       dockerfile: Dockerfile
+    environment: 
+      - PORT=8000
+      - URL_COMMIT=http://localhost:8001/
+      - URL_COMMUNITY=http://localhost:8002/
+      - URL_ISSUES=http://localhost:8003/
+      - URL_PULL_REQUEST=http://localhost:8004/
     volumes:
       - "./hubcare/hubcare_api:/code"
     ports:
@@ -17,6 +23,8 @@ services:
     build:
       context: ./hubcare/metrics/commit_metrics
       dockerfile: Dockerfile
+    environment: 
+      - PORT=8001
     volumes:
       - "./hubcare/metrics/commit_metrics:/code"
     ports:
@@ -27,6 +35,8 @@ services:
     build:
       context: ./hubcare/metrics/community_metrics
       dockerfile: Dockerfile
+    environment: 
+      - PORT=8002
     volumes:
       - "./hubcare/metrics/community_metrics:/code"
     ports:
@@ -37,6 +47,8 @@ services:
     build:
       context: ./hubcare/metrics/issue_metrics
       dockerfile: Dockerfile
+    environment: 
+      - PORT=8003
     volumes:
       - "./hubcare/metrics/issue_metrics:/code"
     ports:
@@ -47,6 +59,8 @@ services:
     build:
       context: ./hubcare/metrics/pull_request_metrics
       dockerfile: Dockerfile
+    environment: 
+      - PORT=8004
     volumes:
       - "./hubcare/metrics/pull_request_metrics:/code"
     ports:

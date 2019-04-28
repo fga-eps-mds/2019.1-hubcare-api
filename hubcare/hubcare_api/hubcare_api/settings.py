@@ -29,7 +29,8 @@ ALLOWED_HOSTS = [
     '0.0.0.0',
     '159.65.44.0',
     '127.0.0.1',
-    'hubcare-api.herokuapp.com'
+    'hubcare-api.herokuapp.com',
+    'localhost'
 ]
 
 # Application definition

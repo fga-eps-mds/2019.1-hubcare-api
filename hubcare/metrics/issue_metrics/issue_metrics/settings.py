@@ -27,10 +27,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '0.0.0.0',
-    '134.209.175.210',
-    '127.0.0.1'
+    '159.65.44.0',
+    '127.0.0.1',
+    'hubcare-issue-metrics.herokuapp.com',
+    'localhost'
 ]
-
 # Application definition
 
 INSTALLED_APPS = [

@@ -95,8 +95,8 @@ release_hubcare_api_production:
 release_hubcare_api_development:
   extends: .release
   environment: development_hubcare_api
-  only: 
-    - devel
+  # only: 
+  #   - devel
 
 # Release to commit metrics service
 release_commit_metrics_production:
@@ -108,8 +108,8 @@ release_commit_metrics_production:
 release_commit_metrics_development:
   extends: .release
   environment: development_commit_metrics
-  only: 
-    - devel
+  # only: 
+  #   - devel
 
 # Release to community metrics service
 release_community_metrics_production:
@@ -121,8 +121,8 @@ release_community_metrics_production:
 release_community_metrics_development:
   extends: .release
   environment: development_community_metrics
-  only: 
-    - devel
+  # only: 
+  #   - devel
 
 # Release to issue metrics service
 release_issue_metrics_production:
@@ -134,8 +134,8 @@ release_issue_metrics_production:
 release_issue_metrics_development:
   extends: .release
   environment: development_issue_metrics
-  only: 
-    - devel
+  # only: 
+  #   - devel
 
 # Release to pull request metrics service
 release_pull_request_metrics_production:
@@ -147,8 +147,8 @@ release_pull_request_metrics_production:
 release_pull_request_metrics_development:
   extends: .release
   environment: development_pull_request_metrics
-  only: 
-    - devel
+  # only: 
+  #   - devel
 
 # Stage III - I
 # Deployment Phase
@@ -226,6 +226,9 @@ deploy_pull_request_metrics:
 # Development deploy in Heroku
 deploy_hubcare_api_dev:
   stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
   script:
     - docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
     - docker pull registry.gitlab.com/cjjcastro/2019-1-hubcare-api/hubcare_api:latest
@@ -234,57 +237,69 @@ deploy_hubcare_api_dev:
     - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-api
   tags:
     - docker
-  only:
-    - devel
+  # only:
+  #   - devel
 
 deploy_commit_metrics_dev:
   stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
   script:
     - docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
     - docker pull registry.gitlab.com/cjjcastro/2019-1-hubcare-api/commit_metrics:latest
-    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/commit_metrics:latest registry.heroku.com/commit_metrics/web:latest
-    - docker push registry.heroku.com/commit_metrics/web:latest
-    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app commit_metrics
+    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/commit_metrics:latest registry.heroku.com/hubcare-commit-metrics/web:latest
+    - docker push registry.heroku.com/hubcare-commit-metrics/web:latest
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-commit-metrics
   tags:
     - docker
-  only:
-    - devel
+  # only:
+  #   - devel
 
 deploy_community_metrics_dev:
   stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
   script:
     - docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
     - docker pull registry.gitlab.com/cjjcastro/2019-1-hubcare-api/community_metrics:latest
-    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/community_metrics:latest registry.heroku.com/community_metrics/web:latest
-    - docker push registry.heroku.com/community_metrics/web:latest
-    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app community_metrics
+    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/community_metrics:latest registry.heroku.com/hubcare-community-metrics/web:latest
+    - docker push registry.heroku.com/hubcare-community-metrics/web:latest
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-community-metrics
   tags:
     - docker
-  only:
-    - devel
+  # only:
+  #   - devel
 
 deploy_issue_metrics_dev:
   stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
   script:
     - docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
     - docker pull registry.gitlab.com/cjjcastro/2019-1-hubcare-api/issue_metric:latest
-    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/issue_metric:latest registry.heroku.com/issue_metric/web:latest
-    - docker push registry.heroku.com/issue_metric/web:latest
-    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app issue_metric
+    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/issue_metric:latest registry.heroku.com/hubcare-issue-metrics/web:latest
+    - docker push registry.heroku.com/hubcare-issue-metrics/web:latest
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-issue-metrics
   tags:
     - docker
-  only:
-    - devel
+  # only:
+  #   - devel
 
 deploy_pull_request_metrics_metrics_dev:
   stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
   script:
     - docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
     - docker pull registry.gitlab.com/cjjcastro/2019-1-hubcare-api/pull_request_metrics:latest
-    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/pull_request_metrics:latest registry.heroku.com/pull_request_metrics/web:latest
-    - docker push registry.heroku.com/pull_request_metrics/web:latest
-    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app pull_request_metrics
+    - docker tag registry.gitlab.com/cjjcastro/2019-1-hubcare-api/pull_request_metrics:latest registry.heroku.com/hubcare-pull-request-metrics/web:latest
+    - docker push registry.heroku.com/hubcare-pull-request-metrics/web:latest
+    - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-pull-request-metrics
   tags:
     - docker
-  only:
-    - devel
+  # only:
+  #   - devel
