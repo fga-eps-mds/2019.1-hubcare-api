@@ -22,14 +22,14 @@ class DescriptionView(APIView):
             github_data = github_request.json()
 
             if(github_request.status_code == 200):
-                if(github_data['description'] != None):
+                if(github_data['description'] is not None):
                     Description.objects.create(
                         owner=owner,
                         repo=repo,
                         description=True,
                         date=datetime.now(timezone.utc)
                     )
-                elif(github_data['description'] == None):
+                elif(github_data['description'] is None):
                     Description.objects.create(
                         owner=owner,
                         repo=repo,
@@ -41,8 +41,8 @@ class DescriptionView(APIView):
             github_request = requests.get(url + owner + '/' + repo)
             github_data = github_request.json()
 
-            if(github_request.status_code == 200):
-                if(github_data['description'] != None):
+            if(github_request.status_code is 200):
+                if(github_data['description'] is not None):
                     Description.objects.filter(
                         owner=owner,
                         repo=repo
@@ -52,7 +52,7 @@ class DescriptionView(APIView):
                         description=True,
                         date=datetime.now(timezone.utc)
                     )
-                elif(github_data['description'] == None):
+                elif(github_data['description'] is None):
                     Description.objects.filter(
                         owner=owner,
                         repo=repo
