@@ -73,15 +73,17 @@ def get_pull_request(owner, repo):
         github_request = requests.get(url + str(page_number) + '&per_page=100')
         github_data = github_request.json()
 
+        if (github_data == [] and elements == 0):
+            return 0
+
         for pr in github_data:
-            if(check_datetime_days(pr['created_at'], 60)):
+            if(check_datetime_days(pr['created_at'], 60) and elements < 50):
                 score = calculate_metric(owner, repo, pr)
                 print("score = ", score)
                 pull_request_score = pull_request_score + score
                 print("pull_request_score =", pull_request_score)
                 elements = elements + 1
-
-            if(elements < 50):
+            elif(elements < 50):
                 score = calculate_metric(owner, repo, pr)
                 print("score = ", score)
                 pull_request_score = pull_request_score + score
@@ -90,7 +92,10 @@ def get_pull_request(owner, repo):
             else:
                 # Do nothing
                 pass
+            print("elementos = ", elements)
         if(github_data == []):
+            aux = False
+        if(elements == 50):
             aux = False
         page_number = page_number + 1
     print("pull_request_score_total =", pull_request_score)
