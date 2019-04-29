@@ -4,6 +4,7 @@ from issue_template.models import IssueTemplate
 from issue_template.serializers import IssueTemplateSerializer
 from datetime import date
 import requests
+import os
 
 
 class IssueTemplateView(APIView):
@@ -13,12 +14,16 @@ class IssueTemplateView(APIView):
             owner=owner,
             repo=repo
         )
-        if(not issue_templates):
 
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
+
+        if(not issue_templates):
             url1 = 'https://api.github.com/repos/'
             url2 = '/contents/.github/ISSUE_TEMPLATE'
             result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result)
+            github_request = requests.get(result, auth=(username,
+                                                        token))
             if(github_request.status_code == 200):
                 IssueTemplate.objects.create(
                     owner=owner,

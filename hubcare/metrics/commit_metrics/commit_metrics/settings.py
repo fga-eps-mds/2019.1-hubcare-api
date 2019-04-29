@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'commit_metrics',
-    'commit_day',
     'commit_week',
     'contributors'
 ]

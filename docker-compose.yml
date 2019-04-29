@@ -6,6 +6,9 @@ services:
     build:
       context: ./hubcare/hubcare_api
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
     environment: 
       - PORT=8000
       - URL_COMMIT=http://localhost:8001/
@@ -23,6 +26,9 @@ services:
     build:
       context: ./hubcare/metrics/commit_metrics
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
     environment: 
       - PORT=8001
     volumes:
@@ -35,6 +41,9 @@ services:
     build:
       context: ./hubcare/metrics/community_metrics
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
     environment: 
       - PORT=8002
     volumes:
@@ -47,6 +56,9 @@ services:
     build:
       context: ./hubcare/metrics/issue_metrics
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
     environment: 
       - PORT=8003
     volumes:
@@ -59,6 +71,9 @@ services:
     build:
       context: ./hubcare/metrics/pull_request_metrics
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
     environment: 
       - PORT=8004
     volumes:
