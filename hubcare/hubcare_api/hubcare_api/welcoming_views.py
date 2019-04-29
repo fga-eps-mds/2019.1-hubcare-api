@@ -104,7 +104,7 @@ class WelcomingQuestion(APIView):
         else:
             raise Http404
 
-        data = [{"welcoming_metric": welcoming_metric}]
+        data = {"welcoming_metric": welcoming_metric}
         return Response(data)
 
 
