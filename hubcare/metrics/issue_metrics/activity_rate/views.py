@@ -101,7 +101,7 @@ def get_issues_15_day(owner, repo):
         github_data = github_request.json()
 
         for activity in github_data:
-            print(activity)
+            #print(activity)
             if(check_datetime_15_days(activity['updated_at'])):
                 if(activity['state'] == 'open'):
                     issues_alive = issues_alive + 1
@@ -116,8 +116,8 @@ def get_issues_15_day(owner, repo):
 
         if(github_data == []):
             aux = False
-        print(issues_alive)
-        print(issues_not_alive)
+        #print(issues_alive)
+        #print(issues_not_alive)
         page_number = page_number + 1
     return issues_alive, issues_not_alive
 

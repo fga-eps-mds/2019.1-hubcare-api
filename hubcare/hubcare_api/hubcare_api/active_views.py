@@ -31,7 +31,6 @@ class ActiveQuestion(APIView):
             url = URL_PR + url_authors + owner + '/' + repo
             pr_qua_metric = requests.get(url)
             pr_qua_str = pr_qua_metric.json()[0]['metric']
-            print(pr_qua_metric.json()[0]['metric'])
             pr_qua_float = float(pr_qua_str)
 
             url_authors = 'activity_rate/'
@@ -64,6 +63,10 @@ def calculate_active_metric(
     contributors_int = contributors_int * METRIC_CONTRIBUTOR
     if(contributors_int > 1):
         contributors_int = 1
+
+    commit_week_int = commit_week_int * METRIC_COMMIT
+    if(commit_week_int > 1):
+        commit_week_int = 1
 
     media = ((act_rate_float - ISSUE_METRIC_ONE) * ISSUE_METRIC_TWO)
     act_rate_float = media
