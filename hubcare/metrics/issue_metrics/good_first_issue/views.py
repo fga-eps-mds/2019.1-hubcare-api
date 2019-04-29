@@ -53,11 +53,14 @@ class GoodFirstIssueView(APIView):
         '''
         total_issues = 0
         good_first_issue = 0
-        info_repo = requests.get(url, auth=(os.environ['USERNAME'], os.environ['TOKEN'])).json()
+        info_repo = requests.get(url, auth=(os.environ['USERNAME'],
+                                            os.environ['TOKEN'])).json()
         total_issues = info_repo["open_issues_count"]
         page = '&page=1'
         label_url = url + constants.label_good_first_issue_spaces
-        result = requests.get(label_url + page, auth=(os.environ['USERNAME'], os.environ['TOKEN'])).json()
+        result = requests.get(label_url + page,
+                              auth=(os.environ['USERNAME'],
+                                    os.environ['TOKEN'])).json()
 
         '''
         checks possibilities for different aliases of good first issue
@@ -70,7 +73,8 @@ class GoodFirstIssueView(APIView):
         else:
             label_url = url + constants.label_goodfirstissue
             result = requests.get(label_url + page,
-                                  auth=(os.environ['USERNAME'], os.environ['TOKEN'])).json()
+                                  auth=(os.environ['USERNAME'],
+                                        os.environ['TOKEN'])).json()
             if result:
                 good_first_issue = self.count_all_good_first_issue(
                     label_url,
@@ -79,7 +83,8 @@ class GoodFirstIssueView(APIView):
             else:
                 label_url = url + constants.label_good_first_issue
                 result = requests.get(label_url + page,
-                                      auth=(os.environ['USERNAME'], os.environ['TOKEN'])).json()
+                                      auth=(os.environ['USERNAME'],
+                                            os.environ['TOKEN'])).json()
                 if result:
                     good_first_issue = self.count_all_good_first_issue(
                         label_url,
@@ -97,8 +102,9 @@ class GoodFirstIssueView(APIView):
         while result:
             count += 1
             good_first_issue += len(result)
-            result = requests.get(url + page + str(count), 
-                                  auth=(os.environ['USERNAME'], os.environ['TOKEN'])).json()
+            result = requests.get(url + page + str(count),
+                                  auth=(os.environ['USERNAME'],
+                                        os.environ['TOKEN'])).json()
         return good_first_issue
 
     def get_metric(self, owner, repo):

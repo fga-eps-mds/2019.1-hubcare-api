@@ -15,7 +15,6 @@ class ActivityRateIssueView(APIView):
         activity_rate_serialized = ActivityRateIssueSerializers(
             activity_rate, many=True)
 
-
         if(not activity_rate):
             open_issues, closed_issues = get_all_issues(owner, repo)
 
@@ -99,10 +98,11 @@ def get_issues_15_day(owner, repo):
     aux = True
     username = os.environ['USERNAME']
     token = os.environ['TOKEN']
-    
+
     while aux:
         github_request = requests.get(u + str(page_number) + '&per_page=100',
-                                      auth=(os.environ['USERNAME'], os.environ['TOKEN']))
+                                      auth=(os.environ['USERNAME'],
+                                            os.environ['TOKEN']))
         github_data = github_request.json()
 
         for activity in github_data:

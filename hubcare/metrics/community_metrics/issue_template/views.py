@@ -15,13 +15,12 @@ class IssueTemplateView(APIView):
             repo=repo
         )
 
-
         if(not issue_templates):
-
             url1 = 'https://api.github.com/repos/'
             url2 = '/contents/.github/ISSUE_TEMPLATE'
             result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result, auth=(os.environ['USERNAME'], os.environ['TOKEN']))
+            github_request = requests.get(result, auth=(os.environ['USERNAME'],
+                                                        os.environ['TOKEN']))
             if(github_request.status_code == 200):
                 IssueTemplate.objects.create(
                     owner=owner,

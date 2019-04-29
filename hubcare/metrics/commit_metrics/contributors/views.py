@@ -19,8 +19,6 @@ class DifferentsAuthorsView(APIView):
             differentsauthors,
             many=True)
 
-
-
         github_request = requests.get(
             'https://api.github.com/repos/' + owner + '/' + repo + '/commits',
             auth=(os.environ['USERNAME'], os.environ['TOKEN']))

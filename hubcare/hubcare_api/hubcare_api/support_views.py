@@ -10,7 +10,8 @@ class SupportQuestion(APIView):
     def get(self, request, owner, repo):
         url = 'https://api.github.com/repos/'
         github_request = requests.get(url + owner + '/' + repo,
-                                      auth=(os.environ['USERNAME'], os.environ['TOKEN']))
+                                      auth=(os.environ['USERNAME'],
+                                            os.environ['TOKEN']))
 
         if(github_request.status_code == 200):
             url = URL_COMMUNITY + 'readme/' + owner + '/' + repo

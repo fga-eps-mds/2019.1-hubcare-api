@@ -11,8 +11,6 @@ import os
 class ReleaseNoteCheckView(APIView):
 
     def get(self, request, owner, repo):
-
-
         releasenotecheck = ReleaseNoteCheck.objects.all().filter(
             owner=owner,
             repo=repo

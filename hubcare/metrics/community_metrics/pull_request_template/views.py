@@ -17,12 +17,12 @@ class PullRequestTemplateView(APIView):
             repo=repo
         )
 
-
         if(not pull_request_template):
             url1 = 'https://api.github.com/repos/'
             url2 = '/contents/.github/PULL_REQUEST_TEMPLATE.md'
             result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result, auth=(os.environ['USERNAME'], os.environ['TOKEN']))
+            github_request = requests.get(result, auth=(os.environ['USERNAME'],
+                                                        os.environ['TOKEN']))
 
             if(github_request.status_code == 200):
                 PullRequestTemplate.objects.create(
@@ -42,7 +42,8 @@ class PullRequestTemplateView(APIView):
             url1 = 'https://api.github.com/repos/'
             url2 = '/contents/.github/PULL_REQUEST_TEMPLATE.md'
             result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result, auth=(os.environ['USERNAME'], os.environ['TOKEN']))
+            github_request = requests.get(result, auth=(os.environ['USERNAME'],
+                                                        os.environ['TOKEN']))
 
             if(github_request.status_code == 200):
                 PullRequestTemplate.objects.filter().update(

@@ -72,7 +72,8 @@ def get_pull_request(owner, repo):
     aux = True
     while aux:
         github_request = requests.get(url + str(page_number) + '&per_page=100',
-                                      auth=(os.environ['USERNAME'], os.environ['TOKEN']))
+                                      auth=(os.environ['USERNAME'],
+                                            os.environ['TOKEN']))
         github_data = github_request.json()
 
         if (github_data == [] and elements == 0):

@@ -15,12 +15,11 @@ class LicenseView(APIView):
         '''
         all_license = License.objects.all().filter(owner=owner, repo=repo)
 
-
         if (not all_license):
-
             url = 'https://api.github.com/repos/'
             result = requests.get(url + owner + '/' + repo,
-                                  auth=(os.environ['USERNAME'], os.environ['TOKEN']))
+                                  auth=(os.environ['USERNAME'],
+                                        os.environ['TOKEN']))
             github_data = result.json()
 
             if (result.status_code == 404):
@@ -41,7 +40,9 @@ class LicenseView(APIView):
                 )
         elif(check_datetime(all_license)):
             url = 'https://api.github.com/repos/'
-            result = requests.get(url + owner + '/' + repo)
+            result = requests.get(url + owner + '/' + repo,
+                                  auth=(os.environ['USERNAME'],
+                                        os.environ['TOKEN']))
             github_data = result.json()
 
             if (result.status_code == 404):

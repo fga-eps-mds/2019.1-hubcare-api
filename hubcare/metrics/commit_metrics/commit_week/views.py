@@ -20,7 +20,7 @@ class CommitMonthView(APIView):
             url2 = '/stats/participation'
             github_request = requests.get(url + owner + '/' + repo + url2,
                                           auth=(os.environ['USERNAME'],
-                                          os.environ['TOKEN']))
+                                                os.environ['TOKEN']))
             github_data = github_request.json()
 
             commit = Commit.objects.create(
