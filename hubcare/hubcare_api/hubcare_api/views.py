@@ -25,9 +25,11 @@ class HubcareApiView(APIView):
             support_data = support_indicator.get_support_indicator(owner, repo)
             hubcare_indicators = [
                 {
-                    "active_indicator": active_data,
-                    "welcoming_indicator": welcoming_data,
-                    "support_indicator": support_data
+                    "active_indicator": float(format(active_data, '.2f')),
+                    "welcoming_indicator": float(
+                                                 format(welcoming_data, '.2f')
+                                                ),
+                    "support_indicator": float(format(support_data, '.2f')),
                 }
             ]
             return Response(hubcare_indicators)
