@@ -32,7 +32,9 @@ class DifferentsAuthorsView(APIView):
         listCommits = []
         listJson = []
 
-        if github_request.status_code >= 200 and github_request.status_code <= 204:
+        if (github_request.status_code >= 200 and
+                github_request.status_code <= 204):
+
             for commit in github_data:
                 commit['commit']['committer']['date'].split('T')[0]
                 past = datetime.datetime.strptime(
