@@ -15,13 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from hubcare_api.support_views import SupportQuestion
-from hubcare_api.welcoming_views import WelcomingQuestion
+from hubcare_api.views import HubcareApiView
+hubcare_indicators = 'hubcare_indicators/<str:owner>/<str:repo>/'
 
-support_quest = 'support_question/<str:owner>/<str:repo>/'
-welcoming_quest = 'welcoming_question/<str:owner>/<str:repo>/'
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(welcoming_quest, WelcomingQuestion.as_view()),
-    path(support_quest, SupportQuestion.as_view())
+    path(hubcare_indicators, HubcareApiView.as_view())
 ]

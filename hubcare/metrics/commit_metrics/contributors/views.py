@@ -32,18 +32,21 @@ class DifferentsAuthorsView(APIView):
         listCommits = []
         listJson = []
 
-        for commit in github_data:
-            commit['commit']['committer']['date'].split('T')[0]
-            past = datetime.datetime.strptime(
-                commit['commit']['committer']['date'],
-                "%Y-%m-%dT%H:%M:%SZ")
-            commitsDay = present - days
-            if((past > commitsDay)):
-                commitsLastThirtyDays.append(
-                    commit['commit']['committer']['date'].split('T')[0])
-                authorsCommits.append(commit['commit']['author']['email'])
-        authorsDistintCommits = set(authorsCommits)
-        for author in authorsDistintCommits:
-            listJson.append({'author': author,
-                             'numberCommits': authorsCommits.count(author)})
+        if (github_request.status_code >= 200 and
+                github_request.status_code <= 204):
+
+            for commit in github_data:
+                commit['commit']['committer']['date'].split('T')[0]
+                past = datetime.datetime.strptime(
+                    commit['commit']['committer']['date'],
+                    "%Y-%m-%dT%H:%M:%SZ")
+                commitsDay = present - days
+                if((past > commitsDay)):
+                    commitsLastThirtyDays.append(
+                        commit['commit']['committer']['date'].split('T')[0])
+                    authorsCommits.append(commit['commit']['author']['email'])
+            authorsDistintCommits = set(authorsCommits)
+            for author in authorsDistintCommits:
+                listJson.append({'author': author,
+                                'numberCommits': authorsCommits.count(author)})
         return Response(listJson)
