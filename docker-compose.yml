@@ -10,7 +10,7 @@ services:
       - PORT=8000
       - URL_COMMIT=http://localhost:8001/
       - URL_COMMUNITY=http://localhost:8002/
-      - URL_ISSUES=http://localhost:8003/
+      - URL_ISSUE=http://localhost:8003/
       - URL_PULL_REQUEST=http://localhost:8004/
     volumes:
       - "./hubcare/hubcare_api:/code"
