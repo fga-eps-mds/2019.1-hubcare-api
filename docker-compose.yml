@@ -1,12 +1,82 @@
 version: '3'
 
 services:
-  hubcareapi:
-    container_name: hubcareapi 
+  hubcare_api:
+    container_name: hubcare_api 
     build:
-      context: .
+      context: ./hubcare/hubcare_api
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
+    environment: 
+      - PORT=8000
+      - URL_COMMIT=http://localhost:8001/
+      - URL_COMMUNITY=http://localhost:8002/
+      - URL_ISSUE=http://localhost:8003/
+      - URL_PULL_REQUEST=http://localhost:8004/
     volumes:
-      - .:/code
+      - "./hubcare/hubcare_api:/code"
     ports:
       - "8000:8000"
+    network_mode: host
+    
+  commit_metrics:
+    container_name: commit_metrics 
+    build:
+      context: ./hubcare/metrics/commit_metrics
+      dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
+    environment: 
+      - PORT=8001
+    volumes:
+      - "./hubcare/metrics/commit_metrics:/code"
+    ports:
+      - "8001:8001"
+
+  community_metrics:
+    container_name: community_metrics 
+    build:
+      context: ./hubcare/metrics/community_metrics
+      dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
+    environment: 
+      - PORT=8002
+    volumes:
+      - "./hubcare/metrics/community_metrics:/code"
+    ports:
+      - "8002:8002"
+
+  issue_metrics:
+    container_name: issue_metrics 
+    build:
+      context: ./hubcare/metrics/issue_metrics
+      dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
+    environment: 
+      - PORT=8003
+    volumes:
+      - "./hubcare/metrics/issue_metrics:/code"
+    ports:
+      - "8003:8003"
+
+  pull_request_metrics:
+    container_name: pull_request_metrics 
+    build:
+      context: ./hubcare/metrics/pull_request_metrics
+      dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
+    environment: 
+      - PORT=8004
+    volumes:
+      - "./hubcare/metrics/pull_request_metrics:/code"
+    ports:
+      - "8004:8004"
