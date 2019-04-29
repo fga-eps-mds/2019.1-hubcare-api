@@ -6,6 +6,9 @@ services:
     build:
       context: ./hubcare/hubcare_api
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
     volumes:
       - "./hubcare/hubcare_api:/code"
     ports:
@@ -17,6 +20,9 @@ services:
     build:
       context: ./hubcare/metrics/commit_metrics
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
     volumes:
       - "./hubcare/metrics/commit_metrics:/code"
     ports:
@@ -27,6 +33,9 @@ services:
     build:
       context: ./hubcare/metrics/community_metrics
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
     volumes:
       - "./hubcare/metrics/community_metrics:/code"
     ports:
@@ -37,6 +46,9 @@ services:
     build:
       context: ./hubcare/metrics/issue_metrics
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
     volumes:
       - "./hubcare/metrics/issue_metrics:/code"
     ports:
@@ -47,6 +59,9 @@ services:
     build:
       context: ./hubcare/metrics/pull_request_metrics
       dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
     volumes:
       - "./hubcare/metrics/pull_request_metrics:/code"
     ports:

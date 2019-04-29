@@ -6,6 +6,7 @@ from commit_metrics.serializers import CommitSerializer
 from commit_week.serializers import CommitWeekSerializer
 from datetime import date
 import requests
+import os
 
 
 class CommitMonthView(APIView):
@@ -14,11 +15,14 @@ class CommitMonthView(APIView):
         commit = Commit.objects.all().filter(owner=owner, repo=repo)
         serialized = CommitSerializer(commit, many=True)
 
-        if (not commit):
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
 
+        if (not commit):
             url = 'https://api.github.com/repos/'
             url2 = '/stats/participation'
-            github_request = requests.get(url + owner + '/' + repo + url2)
+            github_request = requests.get(url + owner + '/' + repo + url2,
+                                          auth=(username, token))
             github_data = github_request.json()
 
             commit = Commit.objects.create(
@@ -27,7 +31,8 @@ class CommitMonthView(APIView):
                 date=date.today()
             )
 
-            if github_request.status_code >= 200 and github_request.status_code <= 204:
+            if(github_request.status_code >= 200 and
+               github_request.status_code <= 204):
                 week_number = 52
                 for i in range(0, 52, 1):
                     commit_week = CommitWeek.objects.create(

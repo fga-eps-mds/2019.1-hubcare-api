@@ -5,11 +5,16 @@ from release_note.serializers import ReleaseNoteCheckSerializers
 from datetime import datetime, timedelta
 import requests
 import json
+import os
 
 
 class ReleaseNoteCheckView(APIView):
 
     def get(self, request, owner, repo):
+
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
+
         releasenotecheck = ReleaseNoteCheck.objects.all().filter(
             owner=owner,
             repo=repo
@@ -19,7 +24,8 @@ class ReleaseNoteCheckView(APIView):
             many=True
         )
         github_request = requests.get(
-            'https://api.github.com/repos/' + owner + '/' + repo + '/releases'
+            'https://api.github.com/repos/' + owner + '/' + repo + '/releases',
+            auth=(username, token)
         )
         github_data = github_request.json()
         present = datetime.today()

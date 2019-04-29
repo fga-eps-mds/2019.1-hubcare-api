@@ -3,12 +3,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 import requests
 from hubcare_api.constants import *
+import os
 
 
 class ActiveQuestion(APIView):
     def get(self, request, owner, repo):
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
         url = 'https://api.github.com/repos/'
-        github_request = requests.get(url + owner + '/' + repo)
+        github_request = requests.get(url + owner + '/' + repo,
+                                      auth=(username, token))
 
         if(github_request.status_code == 200):
             url = URL_COMMUNITY + 'release_note/' + owner + '/' + repo
@@ -22,7 +26,7 @@ class ActiveQuestion(APIView):
             contributors_total = len(contributors_metric.json())
             contributors_int = int(contributors_total)
 
-            url = URL_COMMIT + 'commit_week/commit_month/' + owner + '/' + repo
+            url = URL_COMMIT + 'commit_week/commit_week/' + owner + '/' + repo
             commit_week_metric = requests.get(url)
             commit_week_sum = commit_week_metric.json()['sum']
             commit_week_int = int(commit_week_sum)

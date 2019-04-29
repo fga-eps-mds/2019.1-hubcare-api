@@ -18,7 +18,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('commit_day/', include('commit_day.urls')),
     path('commit_week/', include('commit_week.urls')),
     path('contributors/', include('contributors.urls')),
 ]
