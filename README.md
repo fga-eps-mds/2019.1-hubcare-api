@@ -23,6 +23,13 @@ $docker-compose up
 
 Running this commands will set all the needed configuration and will start the server at the port 0.0.0.0
 
+For development reason you must set environment variable.
+
+```
+export NAME='name'
+export TOKEN='token'
+```
+
 ## Contributing
 
 Please make sure to read the [Contributing Guide]() before making a pull request. After you've read, don't forget to take an issue!

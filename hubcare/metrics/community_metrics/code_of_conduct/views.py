@@ -4,6 +4,7 @@ from code_of_conduct.models import CodeOfConduct
 from code_of_conduct.serializers import CodeOfConductSerializer
 from datetime import datetime, timezone
 import requests
+import os
 
 
 class CodeOfConductView(APIView):
@@ -15,12 +16,14 @@ class CodeOfConductView(APIView):
         code_of_conduct = CodeOfConduct.objects.all().filter(
             owner=owner, repo=repo
         )
-
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
         if(not code_of_conduct):
             url1 = 'http://api.github.com/repos/'
             url2 = '/contents/.github/CODE_OF_CONDUCT.md'
             result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result)
+            github_request = requests.get(result, auth=(username,
+                                                        token))
             if(github_request.status_code == 200):
                 CodeOfConduct.objects.create(
                     owner=owner,
@@ -38,7 +41,8 @@ class CodeOfConductView(APIView):
             url1 = 'http://api.github.com/repos/'
             url2 = '/contents/.github/CODE_OF_CONDUCT.md'
             result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result)
+            github_request = requests.get(result, auth=(username,
+                                                        token))
             if(github_request.status_code == 200):
                 CodeOfConduct.objects.filter().update(
                     owner=owner,

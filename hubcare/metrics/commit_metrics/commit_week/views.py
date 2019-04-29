@@ -6,6 +6,7 @@ from commit_metrics.serializers import CommitSerializer
 from commit_week.serializers import CommitWeekSerializer
 from datetime import date
 import requests
+import os
 
 
 class CommitMonthView(APIView):
@@ -16,9 +17,13 @@ class CommitMonthView(APIView):
 
         if (not commit):
 
+            username = os.environ['NAME']
+            token = os.environ['TOKEN']
             url = 'https://api.github.com/repos/'
             url2 = '/stats/participation'
-            github_request = requests.get(url + owner + '/' + repo + url2)
+            github_request = requests.get(url + owner + '/' + repo + url2,
+                                          auth=(username,
+                                                token))
             github_data = github_request.json()
 
             commit = Commit.objects.create(

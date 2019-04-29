@@ -22,7 +22,7 @@ class ActiveQuestion(APIView):
             contributors_total = len(contributors_metric.json())
             contributors_int = int(contributors_total)
 
-            url = URL_COMMIT + 'commit_week/commit_month/' + owner + '/' + repo
+            url = URL_COMMIT + 'commit_week/commit_week/' + owner + '/' + repo
             commit_week_metric = requests.get(url)
             commit_week_sum = commit_week_metric.json()['sum']
             commit_week_int = int(commit_week_sum)

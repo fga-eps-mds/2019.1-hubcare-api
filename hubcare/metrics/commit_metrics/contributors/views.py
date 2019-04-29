@@ -5,6 +5,7 @@ from contributors.serializers \
     import DifferentsAuthorsSerializers
 import requests
 import datetime
+import os
 
 
 class DifferentsAuthorsView(APIView):
@@ -17,8 +18,11 @@ class DifferentsAuthorsView(APIView):
         differentsauthors_serialized = DifferentsAuthorsSerializers(
             differentsauthors,
             many=True)
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
         github_request = requests.get(
-            'https://api.github.com/repos/' + owner + '/' + repo + '/commits')
+            'https://api.github.com/repos/' + owner + '/' + repo + '/commits',
+            auth=(username, token))
         github_data = github_request.json()
         present = datetime.datetime.today()
         days = datetime.timedelta(days=30)
