@@ -17,8 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from hubcare_api.welcoming_views import WelcomingQuestion
 
-url_welcoming = 'welcoming_question/<str:owner>/<str:repo>/'
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(url_welcoming, WelcomingQuestion.as_view()),
+    path('welcoming_question/<str:owner>/<str:repo>/', WelcomingQuestion.as_view()),
 ]

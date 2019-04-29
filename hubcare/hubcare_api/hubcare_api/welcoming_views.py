@@ -8,9 +8,7 @@ from hubcare_api.constants import *
 class WelcomingQuestion(APIView):
     def get(self, request, owner, repo):
         url = 'https://api.github.com/repos/'
-        username = 'Brian2397'
-        token = 'ed76a29b4bde2a0ec415b41fd51e2d740be50941'
-        url = url + owner + '/' + repo, auth = (username, token)
+        url = url + owner + '/' + repo
         github_request = requests.get(url)
 
         if(github_request.status_code is 200):
