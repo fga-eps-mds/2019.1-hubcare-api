@@ -117,7 +117,7 @@ def calculate_welcoming_metric(
     act_rate_float,
     pr_qua_float
 ):
-    cont_int = cont_int*METRIC_CONTRIBUTOR
+    cont_int = cont_int * METRIC_CONTRIBUTOR
     if(cont_int > 1):
         cont_int = 1
 
@@ -140,7 +140,7 @@ def calculate_welcoming_metric(
         + readme_int * HEIGHT_README_WELCO
         + issue_temp_int * HEIGHT_ISSUE_TEMPLATE_WELCO
         + license_int * HEIGHT_LICENSE_WELCO
-        + act_rate_float * HEIGHT_SUPPORT_2
+        + act_rate_float * HEIGHT_ACT_MET_2
         + pr_qua_float * HEIGHT_PR_QUALITY) / WELCOMING_METRIC_QUESTION
 
     return welcoming_metric
