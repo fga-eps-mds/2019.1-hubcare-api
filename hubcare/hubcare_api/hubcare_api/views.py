@@ -25,13 +25,15 @@ class HubcareApiView(APIView):
             support_data = support_indicator.get_support_indicator(owner, repo)
             hubcare_indicators = [
                 {
-                    "active_indicator": float(format(active_data, '.2f'))*100,
+                    "active_indicator": float(
+                        "{0:.2f}".format(active_data*100)),
                     "welcoming_indicator": float(
-                                            format(welcoming_data, '.2f')*100),
+                        "{0:.2f}".format(welcoming_data*100)),
                     "support_indicator": float(
-                                            format(support_data, '.2f'))*100,
+                        "{0:.2f}".format(support_data*100)),
                 }
             ]
+
             return Response(hubcare_indicators)
         else:
             raise Http404
