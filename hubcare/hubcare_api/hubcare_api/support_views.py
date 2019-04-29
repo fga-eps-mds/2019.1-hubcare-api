@@ -45,7 +45,7 @@ class SupportQuestion(APIView):
             release_note_bool = release_note_metric.json()['response']
             release_note_int = int(release_note_bool)
 
-            url = URL_ISSUES + 'activity_rate/' + owner + '/' + repo
+            url = URL_ISSUE + 'activity_rate/' + owner + '/' + repo
             issue_act_metric = requests.get(url)
             issue_act = issue_act_metric.json()[0]['activity_rate_15_days']
             issue_act_float = float(issue_act)

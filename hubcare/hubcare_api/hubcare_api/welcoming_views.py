@@ -28,13 +28,13 @@ class WelcomingQuestion(APIView):
             cont_guide_int = int(cont_guide_bool)
 
             url_authors = 'help_wanted/'
-            url = URL_ISSUES + url_authors + owner + '/' + repo
+            url = URL_ISSUE + url_authors + owner + '/' + repo
             help_metric = requests.get(url)
             help_rate = help_metric.json()['rate']
             help_float = float(help_rate)
 
             url_authors = 'good_first_issue/'
-            url = URL_ISSUES + url_authors + owner + '/' + repo
+            url = URL_ISSUE + url_authors + owner + '/' + repo
             good_metric = requests.get(url)
             good_rate = good_metric.json()['rate']
             good_float = float(good_rate)
@@ -76,7 +76,7 @@ class WelcomingQuestion(APIView):
             license_int = int(license_bool)
 
             url_authors = 'activity_rate/'
-            url = URL_ISSUES + url_authors + owner + '/' + repo
+            url = URL_ISSUE + url_authors + owner + '/' + repo
             act_rate_metric = requests.get(url)
             act_rate_str = act_rate_metric.json()[0]['activity_rate_15_days']
             act_rate_float = float(act_rate_str)
