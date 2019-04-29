@@ -95,8 +95,8 @@ release_hubcare_api_production:
 release_hubcare_api_development:
   extends: .release
   environment: development_hubcare_api
-  # only: 
-  #   - devel
+  only: 
+    - devel
 
 # Release to commit metrics service
 release_commit_metrics_production:
@@ -108,8 +108,8 @@ release_commit_metrics_production:
 release_commit_metrics_development:
   extends: .release
   environment: development_commit_metrics
-  # only: 
-  #   - devel
+  only: 
+    - devel
 
 # Release to community metrics service
 release_community_metrics_production:
@@ -121,8 +121,8 @@ release_community_metrics_production:
 release_community_metrics_development:
   extends: .release
   environment: development_community_metrics
-  # only: 
-  #   - devel
+  only: 
+    - devel
 
 # Release to issue metrics service
 release_issue_metrics_production:
@@ -134,8 +134,8 @@ release_issue_metrics_production:
 release_issue_metrics_development:
   extends: .release
   environment: development_issue_metrics
-  # only: 
-  #   - devel
+  only: 
+    - devel
 
 # Release to pull request metrics service
 release_pull_request_metrics_production:
@@ -147,8 +147,8 @@ release_pull_request_metrics_production:
 release_pull_request_metrics_development:
   extends: .release
   environment: development_pull_request_metrics
-  # only: 
-  #   - devel
+  only: 
+    - devel
 
 # Stage III - I
 # Deployment Phase
@@ -237,8 +237,8 @@ deploy_hubcare_api_dev:
     - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-api
   tags:
     - docker
-  # only:
-  #   - devel
+  only:
+    - devel
 
 deploy_commit_metrics_dev:
   stage: deploy
@@ -253,8 +253,8 @@ deploy_commit_metrics_dev:
     - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-commit-metrics
   tags:
     - docker
-  # only:
-  #   - devel
+  only:
+    - devel
 
 deploy_community_metrics_dev:
   stage: deploy
@@ -269,8 +269,8 @@ deploy_community_metrics_dev:
     - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-community-metrics
   tags:
     - docker
-  # only:
-  #   - devel
+  only:
+    - devel
 
 deploy_issue_metrics_dev:
   stage: deploy
@@ -285,8 +285,8 @@ deploy_issue_metrics_dev:
     - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-issue-metrics
   tags:
     - docker
-  # only:
-  #   - devel
+  only:
+    - devel
 
 deploy_pull_request_metrics_metrics_dev:
   stage: deploy
@@ -301,5 +301,5 @@ deploy_pull_request_metrics_metrics_dev:
     - docker run --rm -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli container:release web --app hubcare-pull-request-metrics
   tags:
     - docker
-  # only:
-  #   - devel
+  only:
+    - devel
