@@ -16,9 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from hubcare_api.support_views import SupportQuestion
+from hubcare_api.welcoming_views import WelcomingQuestion
 
-
+support_quest = 'support_question/<str:owner>/<str:repo>/'
+welcoming_quest = 'welcoming_question/<str:owner>/<str:repo>/'
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('support_question/<str:owner>/<str:repo>/', SupportQuestion.as_view())
+    path(welcoming_quest, WelcomingQuestion.as_view()),
+    path(support_quest, SupportQuestion.as_view())
 ]
