@@ -44,8 +44,9 @@ class CommitMonthView(APIView):
 
         sum = 0
 
-        for i in range(-5, -1, 1):
-            sum += commits_week.data[i]['quantity']
+        if commits_week.data:
+            for i in range(-5, -1, 1):
+                sum += commits_week.data[i]['quantity']
 
         data = {"owner": owner,
                 "repo": repo,
