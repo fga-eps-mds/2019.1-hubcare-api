@@ -29,6 +29,12 @@ class ActivityRateIssueView(APIView):
                 )
             else:
                 issues_alive, not_alive = get_issues_15_day(owner, repo)
+
+                if(not_alive != 0):
+                    activity_rate_15_days = issues_alive / not_alive
+                else:
+                    activity_rate_15_days = 0
+
                 ActivityRateIssue.objects.create(
                     owner=owner,
                     repo=repo,
@@ -36,7 +42,7 @@ class ActivityRateIssueView(APIView):
                         open_issues / (closed_issues + open_issues)
                     ),
                     date=datetime.now(timezone.utc),
-                    activity_rate_15_days=issues_alive / not_alive,
+                    activity_rate_15_days=activity_rate_15_days,
                     activity_rate_15_days_metric=calculate_metric(
                         issues_alive,
                         not_alive
@@ -47,10 +53,15 @@ class ActivityRateIssueView(APIView):
             open_issues, closed_issues = get_all_issues(owner, repo)
             issues_alive, not_alive = get_issues_15_day(owner, repo)
 
+            if(not_alive != 0):
+                activity_rate_15_days = issues_alive / not_alive
+            else:
+                activity_rate_15_days = 0
+
             ActivityRateIssue.objects.filter(owner=owner, repo=repo).update(
                 activity_rate=(open_issues / (closed_issues + open_issues)),
                 date=datetime.now(timezone.utc),
-                activity_rate_15_days=issues_alive / not_alive,
+                activity_rate_15_days=activity_rate_15_days,
                 activity_rate_15_days_metric=calculate_metric(issues_alive,
                                                               not_alive),
             )
@@ -148,7 +159,10 @@ def calculate_metric(issues_alive, open_issues):
     '''
     Calculate metrics
     '''
-    metric = ((issues_alive / open_issues) - 0.5) * 4
+    if(open_issues != 0):
+        metric = ((issues_alive / open_issues) - 0.5) * 4
+    else:
+        metric = 0
 
     if metric > 1:
         metric = 1

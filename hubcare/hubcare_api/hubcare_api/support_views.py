@@ -59,7 +59,6 @@ class SupportQuestion(APIView):
                 release_note_int,
                 issue_act_float
             )
-
         else:
             raise Http404
 

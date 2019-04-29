@@ -11,10 +11,9 @@ class WelcomingQuestion(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
         url = 'https://api.github.com/repos/'
-        url = url + owner + '/' + repo
         github_request = requests.get(url + owner + '/' + repo,
                                       auth=(username, token))
-
+        print(github_request.status_code)
         if(github_request.status_code is 200):
             url_authors = 'contributors/different_authors/'
             url = URL_COMMIT + url_authors + owner + '/' + repo
@@ -102,6 +101,8 @@ class WelcomingQuestion(APIView):
                 act_rate_float,
                 pr_qua_float
             )
+        else:
+            raise Http404
 
         data = [{"welcoming_metric": welcoming_metric}]
         return Response(data)
