@@ -26,7 +26,7 @@ class ActiveQuestion(APIView):
             commit_week_metric = requests.get(url)
             commit_week_sum = commit_week_metric.json()['sum']
             commit_week_int = int(commit_week_sum)
-            
+
             url_authors = 'acceptance_quality/'
             url = URL_PR + url_authors + owner + '/' + repo
             pr_qua_metric = requests.get(url)
@@ -52,13 +52,15 @@ def calculate_active_metric(
         commit_week_int,
         pr_qua_float
 ):
-    contributors_int = contributors_int*METRIC_CONTRIBUTOR
+    contributors_int = contributors_int * METRIC_CONTRIBUTOR
     if(contributors_int > 1):
         contributors_int = 1
+
+    act_met_quest = ACTIVE_METRIC_QUESTION
     active_metric = (
                     release_note_int * HEIGHT_RELESE_NOTE_ACTIVE
                     + contributors_int * HEIGHT_CONTRIBUTOR_ACTIVE
                     + commit_week_int * HEIGHT_COMMIT_WEEK_ACTIVE
-                    + pr_qua_float * HEIGHT_PR_QUALITY_1) / ACTIVE_METRIC_QUESTION
+                    + pr_qua_float * HEIGHT_PR_QUALITY_1) / act_met_quest
 
     return active_metric

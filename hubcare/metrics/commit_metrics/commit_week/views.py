@@ -53,4 +53,3 @@ class CommitMonthView(APIView):
                 }
 
         return Response(data)
-
