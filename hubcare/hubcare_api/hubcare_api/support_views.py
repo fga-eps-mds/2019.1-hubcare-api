@@ -3,12 +3,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 import requests
 from hubcare_api.constants import *
+import os
 
 
 class SupportQuestion(APIView):
     def get(self, request, owner, repo):
         url = 'https://api.github.com/repos/'
-        github_request = requests.get(url + owner + '/' + repo)
+        github_request = requests.get(url + owner + '/' + repo,
+                                      auth=(os.environ['USERNAME'], os.environ['TOKEN']))
 
         if(github_request.status_code == 200):
             url = URL_COMMUNITY + 'readme/' + owner + '/' + repo

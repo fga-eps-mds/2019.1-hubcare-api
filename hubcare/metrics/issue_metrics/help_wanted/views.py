@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from issue_metrics import constants
 import requests
 import json
+import os
 
 
 class HelpWantedView(APIView):
@@ -42,11 +43,11 @@ class HelpWantedView(APIView):
         '''
         total_issues = 0
         help_wanted_issues = 0
-        info_repo = requests.get(url).json()
+        info_repo = requests.get(url, auth=(os.environ['USERNAME'], os.environ['TOKEN'])).json()
         total_issues = info_repo["open_issues_count"]
         page = '&page=1'
         label_url = url + constants.label_help_espace_wanted
-        result = requests.get(label_url + page).json()
+        result = requests.get(label_url + page, auth=(os.environ['USERNAME'], os.environ['TOKEN'])).json()
 
         '''
         checks possibilities for different aliases of help wanted
@@ -55,7 +56,8 @@ class HelpWantedView(APIView):
             help_wanted_issues = self.count_all_helpwanted(label_url, result)
         else:
             label_url = url + constants.label_helpwanted
-            result = requests.get(label_url + page).json()
+            result = requests.get(label_url + page, 
+                                  auth=(os.environ['USERNAME'], os.environ['TOKEN'])).json()
             if result:
                 help_wanted_issues = self.count_all_helpwanted(
                     label_url,
@@ -63,7 +65,8 @@ class HelpWantedView(APIView):
                 )
             else:
                 label_url = url + constants.label_help_wanted
-                result = requests.get(label_url + page).json()
+                result = requests.get(label_url + page, 
+                                      auth=(os.environ['USERNAME'], os.environ['TOKEN'])).json()
                 if result:
                     help_wanted_issues = self.count_all_helpwanted(
                         label_url,
@@ -81,7 +84,8 @@ class HelpWantedView(APIView):
         while result:
             count += 1
             help_wanted_issues += len(result)
-            result = requests.get(url + page + str(count)).json()
+            result = requests.get(url + page + str(count), 
+                                  auth=(os.environ['USERNAME'], os.environ['TOKEN'])).json()
         return help_wanted_issues
 
     def get_metric(self, owner, repo):

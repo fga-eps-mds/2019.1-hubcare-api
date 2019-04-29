@@ -4,6 +4,7 @@ from contribution_guide.models import ContributionGuide
 from contribution_guide.serializers import ContributionGuideSerializer
 from datetime import date
 import requests
+import os
 
 
 class ContributionGuideView(APIView):
@@ -15,11 +16,14 @@ class ContributionGuideView(APIView):
         )
         serialized = ContributionGuideSerializer(contribution_guide, many=True)
 
+
+
         if(serialized.data == []):
 
             url1 = 'https://api.github.com/repos/'
             url2 = '/contents/.github/CONTRIBUTING.md'
-            github_request = requests.get(url1 + owner + '/' + repo + url2)
+            github_request = requests.get(url1 + owner + '/' + repo + url2,
+                                          auth=(os.environ['USERNAME'], os.environ['TOKEN']))
 
             if(github_request.status_code == 200):
                 ContributionGuide.objects.create(

@@ -3,13 +3,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 import requests
 from hubcare_api.constants import *
+import os
 
 
 class WelcomingQuestion(APIView):
     def get(self, request, owner, repo):
         url = 'https://api.github.com/repos/'
         url = url + owner + '/' + repo
-        github_request = requests.get(url)
+        github_request = requests.get(url, auth=(os.environ['USERNAME'],
+                                      os.environ['TOKEN']))
 
         if(github_request.status_code is 200):
             url_authors = 'contributors/different_authors/'
