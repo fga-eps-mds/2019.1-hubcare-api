@@ -78,6 +78,12 @@ class WelcomingQuestion(APIView):
             act_rate_str = act_rate_metric.json()[0]['activity_rate_15_days']
             act_rate_float = float(act_rate_str)
 
+            url_authors = 'acceptance_quality/'
+            url = URL_PR + url_authors + owner + '/' + repo
+            pr_qua_metric = requests.get(url)
+            pr_qua_str = pr_qua_metric.json()[0]['metric']
+            pr_qua_float = float(pr_qua_str)
+
             welcoming_metric = calculate_welcoming_metric(
                 cont_int,
                 cont_guide_int,
@@ -89,7 +95,8 @@ class WelcomingQuestion(APIView):
                 readme_int,
                 issue_temp_int,
                 license_int,
-                act_rate_float
+                act_rate_float,
+                pr_qua_float
             )
 
         data = {"welcoming_metric": welcoming_metric}
@@ -107,7 +114,8 @@ def calculate_welcoming_metric(
     readme_int,
     issue_temp_int,
     license_int,
-    act_rate_float
+    act_rate_float,
+    pr_qua_float
 ):
     cont_int = cont_int*METRIC_CONTRIBUTOR
     if(cont_int > 1):
@@ -120,7 +128,7 @@ def calculate_welcoming_metric(
     if(act_rate_float < 1):
         act_rate_float = 0
 
-    WEIGHT_SUPPORT_2 = WEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2
+    HEIGHT_SUPPORT_2 = HEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2
     welcoming_metric = (
         cont_int*HEIGHT_CONTRIBUTORS_WELCO
         + cont_guide_int * HEIGHT_CONTRIBUTION_GUIDE_WELCO
@@ -132,6 +140,7 @@ def calculate_welcoming_metric(
         + readme_int * HEIGHT_README_WELCO
         + issue_temp_int * HEIGHT_ISSUE_TEMPLATE_WELCO
         + license_int * HEIGHT_LICENSE_WELCO
-        + act_rate_float * WEIGHT_SUPPORT_2) / WELCOMING_METRIC_QUESTION
+        + act_rate_float * HEIGHT_SUPPORT_2
+        + pr_qua_float * HEIGHT_PR_QUALITY) / WELCOMING_METRIC_QUESTION
 
     return welcoming_metric

@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from hubcare_api.support_views import SupportQuestion
 from hubcare_api.welcoming_views import WelcomingQuestion
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('welcoming_question/<str:owner>/<str:repo>/', WelcomingQuestion.as_view()),
+    path('support_question/<str:owner>/<str:repo>/', SupportQuestion.as_view())
 ]

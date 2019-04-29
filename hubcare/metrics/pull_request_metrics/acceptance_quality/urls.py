@@ -1,5 +1,6 @@
-from django.urls import path, include
+from django.urls import path
+from .views import PullRequestQualityView
 
 urlpatterns = [
-    # urls
+    path('<str:owner>/<str:repo>/', PullRequestQualityView.as_view())
 ]
