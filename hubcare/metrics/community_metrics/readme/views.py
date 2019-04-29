@@ -5,6 +5,7 @@ from readme.serializers import ReadmeSerializer
 from readme.models import Readme
 import requests
 from datetime import date
+import os
 
 
 class ReadmeView(APIView):
@@ -13,11 +14,14 @@ class ReadmeView(APIView):
         readme = Readme.objects.all().filter(owner=owner, repo=repo)
         serialized = ReadmeSerializer(readme, many=True)
 
-        if (serialized.data == []):
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
 
+        if (serialized.data == []):
             url = 'https://api.github.com/repos/'
             url2 = '/contents/README.md'
-            github_request = requests.get(url + owner + '/' + repo + url2)
+            github_request = requests.get(url + owner + '/' + repo + url2,
+                                          auth=(username, token))
 
             if(github_request.status_code == 200):
                 Readme.objects.create(

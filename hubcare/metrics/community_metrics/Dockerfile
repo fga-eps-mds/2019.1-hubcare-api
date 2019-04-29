@@ -1,5 +1,9 @@
 FROM python:3-alpine
 ENV PYTHONUNBUFFERED 1
+ARG NAME
+ENV NAME=$NAME
+ARG TOKEN
+ENV TOKEN=$TOKEN
 RUN mkdir /code
 WORKDIR /code
 COPY requirements.txt /code/

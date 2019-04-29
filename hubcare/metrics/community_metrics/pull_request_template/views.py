@@ -4,6 +4,7 @@ from pull_request_template.models import PullRequestTemplate
 from pull_request_template.serializers import PullRequestTemplateSerializer
 from datetime import datetime, timezone
 import requests
+import os
 
 
 class PullRequestTemplateView(APIView):
@@ -16,11 +17,15 @@ class PullRequestTemplateView(APIView):
             repo=repo
         )
 
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
+
         if(not pull_request_template):
             url1 = 'https://api.github.com/repos/'
             url2 = '/contents/.github/PULL_REQUEST_TEMPLATE.md'
             result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result)
+            github_request = requests.get(result, auth=(username,
+                                                        token))
 
             if(github_request.status_code == 200):
                 PullRequestTemplate.objects.create(
@@ -40,7 +45,8 @@ class PullRequestTemplateView(APIView):
             url1 = 'https://api.github.com/repos/'
             url2 = '/contents/.github/PULL_REQUEST_TEMPLATE.md'
             result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result)
+            github_request = requests.get(result, auth=(username,
+                                                        token))
 
             if(github_request.status_code == 200):
                 PullRequestTemplate.objects.filter().update(
