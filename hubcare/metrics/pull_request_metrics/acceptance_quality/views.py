@@ -159,22 +159,15 @@ def get_comments(owner, repo, number):
     '''
     Get all the comments
     '''
-    url = 'https://github.com/'
-    github_page = requests.get(
-        url + owner + '/' + repo + '/pull' + '/' + str(number))
+    username = os.environ['NAME']
+    token = os.environ['TOKEN']
+    url = 'https://api.github.com/repos/'
+    github_request = requests.get(
+        url + owner + '/' + repo + '/pulls' + '/' + str(number),
+        auth=(username, token))
+    github_data = github_request.json()
 
-    find = re.search(
-        r'<span id="conversation_tab_counter" class="Counter">[^>]*>',
-        github_page.text)
-
-    if (find is None):
-        return 0
-
-    find_number = re.search(r'\d+', find[0])
-    find_number = find_number[0].replace(',', '')
-
-    comments = int(find_number)
-
+    comments = github_data['comments'] + github_data['review_comments']
     print("comments = ", comments)
 
     return comments
