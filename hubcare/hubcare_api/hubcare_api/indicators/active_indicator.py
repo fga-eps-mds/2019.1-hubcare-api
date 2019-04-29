@@ -27,7 +27,7 @@ def get_active_indicator(owner, repo):
     pr_qua_float = float(pr_qua_str)
 
     url_authors = 'activity_rate/'
-    url = URL_ISSUES + url_authors + owner + '/' + repo
+    url = URL_ISSUE + url_authors + owner + '/' + repo
     act_rate_metric = requests.get(url)
     act_rate_str = act_rate_metric.json()[0]['activity_rate_15_days']
     act_rate_float = float(act_rate_str)

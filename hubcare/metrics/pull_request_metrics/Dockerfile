@@ -11,4 +11,4 @@ RUN pip install -r requirements.txt && apk add bash
 COPY . /code/
 CMD bash -c "python3 manage.py makemigrations && \
              python3 manage.py migrate --run-syncdb && \
-             python3 manage.py runserver 0.0.0.0:8004"
+             python3 manage.py runserver 0.0.0.0:$PORT"

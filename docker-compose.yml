@@ -9,6 +9,12 @@ services:
       args:
         NAME: ${NAME}
         TOKEN: ${TOKEN}
+    environment: 
+      - PORT=8000
+      - URL_COMMIT=http://localhost:8001/
+      - URL_COMMUNITY=http://localhost:8002/
+      - URL_ISSUE=http://localhost:8003/
+      - URL_PULL_REQUEST=http://localhost:8004/
     volumes:
       - "./hubcare/hubcare_api:/code"
     ports:
@@ -23,6 +29,8 @@ services:
       args:
         NAME: ${NAME}
         TOKEN: ${TOKEN}
+    environment: 
+      - PORT=8001
     volumes:
       - "./hubcare/metrics/commit_metrics:/code"
     ports:
@@ -36,6 +44,8 @@ services:
       args:
         NAME: ${NAME}
         TOKEN: ${TOKEN}
+    environment: 
+      - PORT=8002
     volumes:
       - "./hubcare/metrics/community_metrics:/code"
     ports:
@@ -49,6 +59,8 @@ services:
       args:
         NAME: ${NAME}
         TOKEN: ${TOKEN}
+    environment: 
+      - PORT=8003
     volumes:
       - "./hubcare/metrics/issue_metrics:/code"
     ports:
@@ -62,6 +74,8 @@ services:
       args:
         NAME: ${NAME}
         TOKEN: ${TOKEN}
+    environment: 
+      - PORT=8004
     volumes:
       - "./hubcare/metrics/pull_request_metrics:/code"
     ports:

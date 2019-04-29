@@ -1,7 +1,9 @@
-URL_COMMIT = 'http://localhost:8001/'
-URL_COMMUNITY = 'http://localhost:8002/'
-URL_ISSUES = 'http://localhost:8003/'
-URL_PR = 'http://localhost:8004/'
+import os
+
+URL_COMMUNITY = os.environ['URL_COMMUNITY']
+URL_ISSUE = os.environ['URL_ISSUE']
+URL_COMMIT = os.environ['URL_COMMIT']
+URL_PR = os.environ['URL_PULL_REQUEST']
 
 HEIGHT_RELESE_NOTE_ACTIVE = 1
 HEIGHT_CONTRIBUTOR_ACTIVE = 1
