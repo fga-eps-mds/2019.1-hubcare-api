@@ -25,7 +25,7 @@ Running this commands will set all the needed configuration and will start the s
 
 ## Contributing
 
-Please make sure to read the [Contributing Guide]() before making a pull request. After you've read, don't forget to take an issue!
+Please make sure to read the [Contributing Guide](https://github.com/fga-eps-mds/2019.1-hubcare-api/blob/master/.github/CONTRIBUTING.md) before making a pull request. After you've read, don't forget to take an issue!
 
 ## License
 
