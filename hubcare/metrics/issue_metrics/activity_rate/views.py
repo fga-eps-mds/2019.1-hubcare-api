@@ -96,13 +96,13 @@ def get_issues_15_day(owner, repo):
     issues_not_alive = 0
     u = 'https://api.github.com/repos/' + owner + '/' + repo + '/issues?&page='
     aux = True
-    username = os.environ['USERNAME']
+
+    username = os.environ['NAME']
     token = os.environ['TOKEN']
 
     while aux:
         github_request = requests.get(u + str(page_number) + '&per_page=100',
-                                      auth=(os.environ['USERNAME'],
-                                            os.environ['TOKEN']))
+                                      auth=(username, token))
         github_data = github_request.json()
 
         for activity in github_data:

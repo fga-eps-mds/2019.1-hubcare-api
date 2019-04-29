@@ -14,13 +14,14 @@ class CommitMonthView(APIView):
     def get(self, request, owner, repo):
         commit = Commit.objects.all().filter(owner=owner, repo=repo)
         serialized = CommitSerializer(commit, many=True)
-
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
         if (serialized.data != []):
             url = 'https://api.github.com/repos/'
             url2 = '/stats/participation'
             github_request = requests.get(url + owner + '/' + repo + url2,
-                                          auth=(os.environ['USERNAME'],
-                                                os.environ['TOKEN']))
+                                          auth=(username,
+                                                token))
             github_data = github_request.json()
 
             commit = Commit.objects.create(

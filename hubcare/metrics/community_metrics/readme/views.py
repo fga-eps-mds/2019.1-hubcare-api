@@ -14,12 +14,14 @@ class ReadmeView(APIView):
         readme = Readme.objects.all().filter(owner=owner, repo=repo)
         serialized = ReadmeSerializer(readme, many=True)
 
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
+
         if (serialized.data == []):
             url = 'https://api.github.com/repos/'
             url2 = '/contents/README.md'
             github_request = requests.get(url + owner + '/' + repo + url2,
-                                          auth=(os.environ['USERNAME'],
-                                                os.environ['TOKEN']))
+                                          auth=(username, token))
 
             if(github_request.status_code == 200):
                 Readme.objects.create(

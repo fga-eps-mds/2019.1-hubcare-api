@@ -15,12 +15,15 @@ class DescriptionView(APIView):
             repo=repo
         )
 
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
+
         if (not description):
 
             url = 'https://api.github.com/repos/'
             github_request = requests.get(url + owner + '/' + repo,
-                                          auth=(os.environ['USERNAME'],
-                                                os.environ['TOKEN']))
+                                          auth=(username,
+                                                token))
 
             github_data = github_request.json()
 
@@ -42,8 +45,8 @@ class DescriptionView(APIView):
         elif(date_check(description)):
             url = 'https://api.github.com/repos/'
             github_request = requests.get(url + owner + '/' + repo,
-                                          auth=(os.environ['USERNAME'],
-                                                os.environ['TOKEN']))
+                                          auth=(username,
+                                                token))
 
             github_data = github_request.json()
 

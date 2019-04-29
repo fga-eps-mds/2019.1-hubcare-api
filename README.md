@@ -26,7 +26,7 @@ Running this commands will set all the needed configuration and will start the s
 For development reason you must set environment variable.
 
 ```
-export USERNAME='username'
+export NAME='name'
 export TOKEN='token'
 ```
 

@@ -64,6 +64,8 @@ def get_pull_request(owner, repo):
     '''
     Get all the pr's in the last 60 days or the first 50
     '''
+    username = os.environ['NAME']
+    token = os.environ['TOKEN']
     page_number = 1
     pull_request_score = 0
     elements = 0
@@ -72,8 +74,7 @@ def get_pull_request(owner, repo):
     aux = True
     while aux:
         github_request = requests.get(url + str(page_number) + '&per_page=100',
-                                      auth=(os.environ['USERNAME'],
-                                            os.environ['TOKEN']))
+                                      auth=(username, token))
         github_data = github_request.json()
 
         if (github_data == [] and elements == 0):

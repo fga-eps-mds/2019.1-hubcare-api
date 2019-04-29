@@ -8,10 +8,12 @@ import os
 
 class WelcomingQuestion(APIView):
     def get(self, request, owner, repo):
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
         url = 'https://api.github.com/repos/'
         url = url + owner + '/' + repo
-        github_request = requests.get(url, auth=(os.environ['USERNAME'],
-                                      os.environ['TOKEN']))
+        github_request = requests.get(url + owner + '/' + repo,
+                                      auth=(username, token))
 
         if(github_request.status_code is 200):
             url_authors = 'contributors/different_authors/'
@@ -101,7 +103,7 @@ class WelcomingQuestion(APIView):
                 pr_qua_float
             )
 
-        data = {"welcoming_metric": welcoming_metric}
+        data = [{"welcoming_metric": welcoming_metric}]
         return Response(data)
 
 

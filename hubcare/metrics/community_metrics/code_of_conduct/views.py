@@ -16,13 +16,14 @@ class CodeOfConductView(APIView):
         code_of_conduct = CodeOfConduct.objects.all().filter(
             owner=owner, repo=repo
         )
-
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
         if(not code_of_conduct):
             url1 = 'http://api.github.com/repos/'
             url2 = '/contents/.github/CODE_OF_CONDUCT.md'
             result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result, auth=(os.environ['USERNAME'],
-                                                        os.environ['TOKEN']))
+            github_request = requests.get(result, auth=(username,
+                                                        token))
             if(github_request.status_code == 200):
                 CodeOfConduct.objects.create(
                     owner=owner,
@@ -40,8 +41,8 @@ class CodeOfConductView(APIView):
             url1 = 'http://api.github.com/repos/'
             url2 = '/contents/.github/CODE_OF_CONDUCT.md'
             result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result, auth=(os.environ['USERNAME'],
-                                                        os.environ['TOKEN']))
+            github_request = requests.get(result, auth=(username,
+                                                        token))
             if(github_request.status_code == 200):
                 CodeOfConduct.objects.filter().update(
                     owner=owner,
