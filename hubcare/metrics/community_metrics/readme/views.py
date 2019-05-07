@@ -12,12 +12,11 @@ class ReadmeView(APIView):
     def get(self, request, owner, repo):
 
         readme = Readme.objects.all().filter(owner=owner, repo=repo)
-        serialized = ReadmeSerializer(readme, many=True)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        if (serialized.data == []):
+        if (not readme):
             url = 'https://api.github.com/repos/'
             url2 = '/contents/README.md'
             github_request = requests.get(url + owner + '/' + repo + url2,
@@ -40,4 +39,4 @@ class ReadmeView(APIView):
 
         readme = Readme.objects.all().filter(owner=owner, repo=repo)
         serialized = ReadmeSerializer(readme, many=True)
-        return Response(serialized.data)
+        return Response(serialized.data[0])
