@@ -8,10 +8,22 @@ from datetime import date
 import requests
 import os
 
+from commit_week.constants import *
+
 
 class CommitMonthView(APIView):
-
+    '''
+        Get commits of the last month from GitHub Api and return the total sum
+        Input: owner, repo
+        Output: the sum of commits
+    '''
     def get(self, request, owner, repo):
+        '''
+            Check the existence of the repo, if so get the number of commits
+            for each week in the last year and filter the last four weeks.
+            Input: owner, repo
+            Output: the sum of commits
+        '''
         commit = Commit.objects.all().filter(owner=owner, repo=repo)
         serialized = CommitSerializer(commit, many=True)
 
@@ -31,10 +43,10 @@ class CommitMonthView(APIView):
                 date=date.today()
             )
 
-            if(github_request.status_code >= 200 and
-               github_request.status_code <= 204):
-                week_number = 52
-                for i in range(0, 52, 1):
+            if(github_request.status_code >= status_ok and
+               github_request.status_code <= status_no_content):
+                week_number = total_weeks_per_year
+                for i in range(0, total_weeks_per_year, 1):
                     if len(github_data['all']) >= 1:
                         commit_week = CommitWeek.objects.create(
                             week=week_number,
@@ -52,7 +64,7 @@ class CommitMonthView(APIView):
         sum = 0
 
         if commits_week.data:
-            for i in range(-5, -1, 1):
+            for i in range(first_week_commit, last_week_commit, 1):
                 sum += commits_week.data[i]['quantity']
 
         data = {"owner": owner,
