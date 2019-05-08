@@ -47,4 +47,4 @@ class ContributionGuideView(APIView):
             repo=repo
         )
         serialized = ContributionGuideSerializer(contribution_guide, many=True)
-        return Response(serialized.data)
+        return Response(serialized.data[0])
