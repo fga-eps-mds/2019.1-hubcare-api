@@ -5,10 +5,9 @@ from commit_week.models import CommitWeek
 from commit_metrics.serializers import CommitSerializer
 from commit_week.serializers import CommitWeekSerializer
 from datetime import date
+from commit_week.constants import *
 import requests
 import os
-
-from commit_week.constants import *
 
 
 class CommitMonthView(APIView):
