@@ -1,8 +1,9 @@
-from django.test import RequestFactory,TestCase
+from django.test import RequestFactory, TestCase
 from contribution_guide.models import ContributionGuide
 from contribution_guide.views import ContributionGuideView
 from datetime import date, timezone
 from unittest import mock
+
 
 def mocked_request_get(*args, **kwargs):
     '''
@@ -14,7 +15,7 @@ def mocked_request_get(*args, **kwargs):
         define response to mock request
         '''
 
-        def __init__(self,json_data,status_code):
+        def __init__(self, json_data, status_code):
             self.json_data = json_data
             self.status_code = status_code
 
@@ -56,9 +57,9 @@ class ContributionGuideViewTest(TestCase):
             'repo_test'
         )
         self.assertEqual(response.status_code, 200)
-     
+
     @mock.patch('contribution_guide.views.requests.get',
-        side_effect=mocked_request_get)
+                side_effect=mocked_request_get)
     def test_contribution_guide_existence(self, mock_get):
         '''
         test if contribution guide existence in github api
@@ -76,7 +77,7 @@ class ContributionGuideViewTest(TestCase):
         self.assertEqual(response.data['contribution_guide'], True)
 
     @mock.patch('contribution_guide.views.requests.get',
-        side_effect=mocked_request_get)
+                side_effect=mocked_request_get)
     def test_contribution_guide_not_existence(self, mock_get):
         '''
         test if contribution guide not existence in github api
