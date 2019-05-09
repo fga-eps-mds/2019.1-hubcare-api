@@ -6,6 +6,7 @@ from license.models import License
 from datetime import datetime, timezone
 import requests
 import os
+from community_metrics.function import check_date
 
 
 class LicenseView(APIView):
@@ -41,7 +42,7 @@ class LicenseView(APIView):
                     have_license=False,
                     date_time=datetime.now(timezone.utc)
                 )
-        elif(check_datetime(all_license)):
+        elif(check_date(all_license)):
             url = 'https://api.github.com/repos/'
             result = requests.get(url + owner + '/' + repo,
                                   auth=(username, token))
@@ -68,10 +69,3 @@ class LicenseView(APIView):
         license = License.objects.all().filter(owner=owner, repo=repo)
         license_serialized = LicenseSerializer(license, many=True)
         return Response(license_serialized.data[0])
-
-
-def check_datetime(license):
-    datetime_now = datetime.now(timezone.utc)
-    if(license and (datetime_now - license[0].date_time).days >= 1):
-        return True
-    return False

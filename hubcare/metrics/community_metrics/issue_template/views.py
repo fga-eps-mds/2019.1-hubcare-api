@@ -2,9 +2,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from issue_template.models import IssueTemplate
 from issue_template.serializers import IssueTemplateSerializer
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 import requests
 import os
+from community_metrics.function import check_date
 
 
 class IssueTemplateView(APIView):
@@ -67,14 +68,3 @@ class IssueTemplateView(APIView):
         )
         issue_serialized = IssueTemplateSerializer(issue_templates, many=True)
         return Response(issue_serialized.data[0])
-
-
-def check_date(issue):
-    '''
-    verifies if the time difference between the last update and now is
-    greater than 24 hours
-    '''
-    datetime_now = datetime.now(timezone.utc)
-    if(issue and (datetime_now - issue[0].date_time).days >= 1):
-        return True
-    return False

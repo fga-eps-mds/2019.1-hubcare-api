@@ -5,16 +5,17 @@ from code_of_conduct.serializers import CodeOfConductSerializer
 from datetime import datetime, timezone
 import requests
 import os
+from community_metrics.function import check_date
 
 
 class CodeOfConductView(APIView):
-
     def get(self, request, owner, repo):
         '''
         return if a repository has a code of conduct or not
         '''
         code_of_conduct = CodeOfConduct.objects.all().filter(
-            owner=owner, repo=repo
+            owner=owner,
+            repo=repo
         )
 
         username = os.environ['NAME']
@@ -39,6 +40,7 @@ class CodeOfConductView(APIView):
                     repo=repo, code_of_conduct=False,
                     date_time=datetime.now(timezone.utc)
                 )
+
         elif(check_date(code_of_conduct)):
             url1 = 'http://api.github.com/repos/'
             url2 = '/contents/.github/CODE_OF_CONDUCT.md'
@@ -61,16 +63,11 @@ class CodeOfConductView(APIView):
                 )
 
         code_of_conduct = CodeOfConduct.objects.all().filter(
-            owner=owner, repo=repo
+            owner=owner,
+            repo=repo
         )
         code_of_conduct_serialized = CodeOfConductSerializer(
-            code_of_conduct, many=True
+            code_of_conduct,
+            many=True
         )
         return Response(code_of_conduct_serialized.data[0])
-
-
-def check_date(code_of_conduct):
-    now = datetime.now(timezone.utc)
-    if(code_of_conduct and (now - code_of_conduct[0].date_time).days >= 1):
-        return True
-    return False

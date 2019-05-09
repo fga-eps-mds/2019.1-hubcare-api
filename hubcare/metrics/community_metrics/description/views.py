@@ -5,6 +5,7 @@ from description.models import Description
 import requests
 from datetime import datetime, timezone
 import os
+from community_metrics.function import check_date
 
 
 class DescriptionView(APIView):
@@ -22,9 +23,7 @@ class DescriptionView(APIView):
 
             url = 'https://api.github.com/repos/'
             github_request = requests.get(url + owner + '/' + repo,
-                                          auth=(username,
-                                                token))
-
+                                          auth=(username, token))
             github_data = github_request.json()
 
             if(github_request.status_code == 200):
@@ -33,21 +32,20 @@ class DescriptionView(APIView):
                         owner=owner,
                         repo=repo,
                         description=True,
-                        date=datetime.now(timezone.utc)
+                        date_time=datetime.now(timezone.utc)
                     )
                 elif(github_data['description'] is None):
                     Description.objects.create(
                         owner=owner,
                         repo=repo,
                         description=False,
-                        date=datetime.now(timezone.utc)
+                        date_time=datetime.now(timezone.utc)
                     )
-        elif(date_check(description)):
+
+        elif(check_date(description)):
             url = 'https://api.github.com/repos/'
             github_request = requests.get(url + owner + '/' + repo,
-                                          auth=(username,
-                                                token))
-
+                                          auth=(username, token))
             github_data = github_request.json()
 
             if(github_request.status_code is 200):
@@ -59,7 +57,7 @@ class DescriptionView(APIView):
                         owner=owner,
                         repo=repo,
                         description=True,
-                        date=datetime.now(timezone.utc)
+                        date_time=datetime.now(timezone.utc)
                     )
                 elif(github_data['description'] is None):
                     Description.objects.filter(
@@ -69,7 +67,7 @@ class DescriptionView(APIView):
                         owner=owner,
                         repo=repo,
                         description=False,
-                        date=datetime.now(timezone.utc)
+                        date_time=datetime.now(timezone.utc)
                     )
 
         description = Description.objects.all().filter(
@@ -78,14 +76,3 @@ class DescriptionView(APIView):
         )
         serialized = DescriptionSerializer(description, many=True)
         return Response(serialized.data[0])
-
-
-def date_check(tested_variable):
-    '''
-    verifies if the time difference between the last update and now is
-    greater than 24 hours
-    '''
-    datetime_now = datetime.now(timezone.utc)
-    if(tested_variable and (datetime_now - tested_variable[0].date).days >= 1):
-        return True
-    return False

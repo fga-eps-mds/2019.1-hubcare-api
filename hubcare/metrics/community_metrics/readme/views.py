@@ -1,11 +1,11 @@
-from django.http import Http404, HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from readme.serializers import ReadmeSerializer
 from readme.models import Readme
+from datetime import datetime, timezone
 import requests
-from datetime import date, datetime, timezone
 import os
+from community_metrics.function import check_date
 
 
 class ReadmeView(APIView):
@@ -38,6 +38,7 @@ class ReadmeView(APIView):
                     readme=False,
                     date_time=datetime.now(timezone.utc)
                 )
+
         elif(check_date(readme)):
             url = 'https://api.github.com/repos/'
             url2 = '/contents/README.md'
@@ -62,14 +63,3 @@ class ReadmeView(APIView):
         readme = Readme.objects.all().filter(owner=owner, repo=repo)
         readme_serialized = ReadmeSerializer(readme, many=True)
         return Response(readme_serialized.data[0])
-
-
-def check_date(readme):
-    '''
-    verifies if the time difference between the last update and now is
-    greater than 24 hours
-    '''
-    datetime_now = datetime.now(timezone.utc)
-    if(readme and (datetime_now - readme[0].date_time).days >= 1):
-        return True
-    return False
