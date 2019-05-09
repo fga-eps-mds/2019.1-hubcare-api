@@ -10,7 +10,9 @@ import os
 
 class ReadmeView(APIView):
     def get(self, request, owner, repo):
-
+        '''
+        return if a repository have a readme or not
+        '''
         readme = Readme.objects.all().filter(owner=owner, repo=repo)
 
         username = os.environ['NAME']
@@ -27,52 +29,47 @@ class ReadmeView(APIView):
                     owner=owner,
                     repo=repo,
                     readme=True,
-                    date=date.today()
+                    date_time=datetime.now(timezone.utc)
                 )
             else:
                 Readme.objects.create(
                     owner=owner,
                     repo=repo,
                     readme=False,
-                    date=date.today()
+                    date_time=datetime.now(timezone.utc)
                 )
         elif(check_date(readme)):
-            url1 = 'https://api.github.com/repos/'
+            url = 'https://api.github.com/repos/'
             url2 = '/contents/README.md'
-            result = url1 + owner + '/' + repo + url2
-            github_request = requests.get(result, auth=(username,
-                                                        token))
+            github_request = requests.get(url + owner + '/' + repo + url2,
+                                          auth=(username, token))
 
             if(github_request.status_code == 200):
-                Readme.objects.filter().update(
+                Readme.objects.filter(owner=owner, repo=repo).update(
                     owner=owner,
                     repo=repo,
                     readme=True,
-                    date=datetime.now(timezone.utc)
+                    date_time=datetime.now(timezone.utc)
                 )
             else:
-                Readme.objects.filter().update(
+                Readme.objects.filter(owner=owner, repo=repo).update(
                     owner=owner,
                     repo=repo,
                     readme=False,
-                    date=datetime.now(timezone.utc)
+                    date_time=datetime.now(timezone.utc)
                 )
 
-        readme = Readme.objects.all().filter(
-            owner=owner, repo=repo
-        )
-        serialized = ReadmeSerializer(
-            readme, many=True
-        )
-        return Response(serialized.data[0])
+        readme = Readme.objects.all().filter(owner=owner, repo=repo)
+        readme_serialized = ReadmeSerializer(readme, many=True)
+        return Response(readme_serialized.data[0])
 
 
-def check_date(readme_check):
+def check_date(readme):
     '''
     verifies if the time difference between the last update and now is
     greater than 24 hours
     '''
-    datetime_now = date.today()
-    if(readme_check and (datetime_now - readme_check[0].date).days >= 1):
+    datetime_now = datetime.now(timezone.utc)
+    if(readme and (datetime_now - readme[0].date_time).days >= 1):
         return True
     return False
