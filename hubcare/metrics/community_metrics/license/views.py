@@ -6,7 +6,7 @@ from license.models import License
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date
+from community_metrics.function import check_date, filterObject
 
 
 class LicenseView(APIView):
@@ -14,7 +14,7 @@ class LicenseView(APIView):
         '''
         return if a repository have a license or not
         '''
-        all_license = License.objects.all().filter(owner=owner, repo=repo)
+        all_license = filterObject(License)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']

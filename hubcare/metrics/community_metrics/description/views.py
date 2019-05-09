@@ -5,16 +5,13 @@ from description.models import Description
 import requests
 from datetime import datetime, timezone
 import os
-from community_metrics.function import check_date
+from community_metrics.function import check_date, filterObject
 
 
 class DescriptionView(APIView):
     def get(self, request, owner, repo):
 
-        description = Description.objects.all().filter(
-            owner=owner,
-            repo=repo
-        )
+        description = filterObject(Description)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']

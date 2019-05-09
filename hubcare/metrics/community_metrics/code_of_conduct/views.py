@@ -5,7 +5,7 @@ from code_of_conduct.serializers import CodeOfConductSerializer
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date
+from community_metrics.function import check_date, filterObject
 
 
 class CodeOfConductView(APIView):
@@ -13,10 +13,7 @@ class CodeOfConductView(APIView):
         '''
         return if a repository has a code of conduct or not
         '''
-        code_of_conduct = CodeOfConduct.objects.all().filter(
-            owner=owner,
-            repo=repo
-        )
+        code_of_conduct = filterObject(CodeOfConduct)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']

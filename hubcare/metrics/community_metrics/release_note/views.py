@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from release_note.models import ReleaseNoteCheck
 from release_note.serializers import ReleaseNoteCheckSerializers
 from datetime import datetime, timedelta
+from community_metrics.function import filterObject
 import requests
 import json
 import os
@@ -15,10 +16,7 @@ class ReleaseNoteCheckView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        releasenotecheck = ReleaseNoteCheck.objects.all().filter(
-            owner=owner,
-            repo=repo
-        )
+        releasenotecheck = filterObject(ReleaseNoteCheck)
         releasenotecheck_serialized = ReleaseNoteCheckSerializers(
             releasenotecheck,
             many=True
