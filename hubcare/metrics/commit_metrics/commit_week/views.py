@@ -6,6 +6,7 @@ from commit_metrics.serializers import CommitSerializer
 from commit_week.serializers import CommitWeekSerializer
 from datetime import date
 from commit_week.constants import *
+from django.http import Http404
 import requests
 import os
 
@@ -34,16 +35,19 @@ class CommitMonthView(APIView):
             url2 = '/stats/participation'
             github_request = requests.get(url + owner + '/' + repo + url2,
                                           auth=(username, token))
+
             github_data = github_request.json()
 
-            commit = Commit.objects.create(
-                owner=owner,
-                repo=repo,
-                date=date.today()
-            )
+            if(github_request.status_code == 404):
+                raise Http404
 
-            if(github_request.status_code >= status_ok and
-               github_request.status_code <= status_no_content):
+            else:
+                commit = Commit.objects.create(
+                    owner=owner,
+                    repo=repo,
+                    date=date.today()
+                )
+
                 week_number = total_weeks_per_year
                 for i in range(0, total_weeks_per_year, 1):
                     if len(github_data['all']) >= 1:
