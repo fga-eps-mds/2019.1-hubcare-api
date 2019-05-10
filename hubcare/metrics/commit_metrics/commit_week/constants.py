@@ -1,0 +1,7 @@
+import os
+
+STATUS_ERROR = 204
+
+YEAR_WEEK = 52
+LAST_WEEK = -1
+FIRST_WEEK = -5
