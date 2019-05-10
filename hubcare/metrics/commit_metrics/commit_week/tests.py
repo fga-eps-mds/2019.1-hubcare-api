@@ -6,7 +6,6 @@ from commit_week.models import CommitWeek
 from commit_week.views import CommitMonthView
 from commit_week.constants import *
 
-
 def mocked_requests_get(*args, **kwargs):
     '''
     This method will be used by the mock to replace requests.get
@@ -24,7 +23,7 @@ def mocked_requests_get(*args, **kwargs):
             return all datas in object
             '''
             return self.json_data
-    
+
     if args[0] == 'https://api.github.com/repos/test/repo_test/stats/participation':
         return MockResponse({"all":[
                                 0,
@@ -83,11 +82,11 @@ def mocked_requests_get(*args, **kwargs):
 
     return MockResponse(None, 404)
 
+
 class CommitMonthViewTest(TestCase):
     '''
-    test all methods to view class
+        test all methods to view class
     '''
-
     def setUp(self):
         '''
             setup test configs
@@ -98,6 +97,14 @@ class CommitMonthViewTest(TestCase):
             repo='cremilda',
             date='2019-03-19'
         )
+        week_number=YEAR_WEEK
+        for i in range(0, YEAR_WEEK, 1):
+            self.commit_week = CommitWeek.objects.create(
+                week=week_number,
+                quantity=1,
+                commit=commit_metric
+            )
+            week_number = week_number - 1
 
     @mock.patch('commit_week.views.requests.get',
                 side_effect=mocked_requests_get)
@@ -129,3 +136,4 @@ class CommitMonthViewTest(TestCase):
         self.assertEqual(response.data['owner'],'test')
         self.assertEqual(response.data['repo'],'repo_test')
         self.assertEqual(response.data['sum'],273)
+    
