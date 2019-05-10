@@ -38,7 +38,7 @@ class CommitMonthView(APIView):
 
             github_data = github_request.json()
 
-            if(github_request.status_code == 404):
+            if(github_request.status_code == STATUS_ERROR):
                 raise Http404
 
             else:
@@ -47,9 +47,8 @@ class CommitMonthView(APIView):
                     repo=repo,
                     date=date.today()
                 )
-
-                week_number = total_weeks_per_year
-                for i in range(0, total_weeks_per_year, 1):
+                week_number=YEAR_WEEK
+                for i in range(0, YEAR_WEEK, 1):
                     if len(github_data['all']) >= 1:
                         commit_week = CommitWeek.objects.create(
                             week=week_number,
@@ -57,7 +56,7 @@ class CommitMonthView(APIView):
                             commit=commit
                         )
                     week_number = week_number - 1
-
+                
         commit = Commit.objects.all().filter(owner=owner, repo=repo)
 
         commits_week = CommitWeek.objects.all().filter(commit=commit.first())
@@ -67,12 +66,12 @@ class CommitMonthView(APIView):
         sum = 0
 
         if commits_week.data:
-            for i in range(first_week_commit, last_week_commit, 1):
+            for i in range(FIRST_WEEK, LAST_WEEK, 1):
                 sum += commits_week.data[i]['quantity']
 
         data = {"owner": owner,
                 "repo": repo,
                 "sum": sum,
-                }
+        }
 
         return Response(data)
