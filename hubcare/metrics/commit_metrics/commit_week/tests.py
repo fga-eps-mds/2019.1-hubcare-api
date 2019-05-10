@@ -23,38 +23,29 @@ def mocked_requests_get(*args, **kwargs):
             '''
             return self.json_data
 
-    if args[0] == 'https://api.github.com/repos/test/repo_test':
-        return MockResponse({"commit_week": "value1"}, 200)
-    elif args[0] == 'https://api.github.com/repos/test/no_commit_week':
-        return MockResponse({"commit_week": None}, 200)
-    elif args[0] == 'https://api.github.com/repos/test/old_commit_week':
-        return MockResponse({"commit_week": "value1"}, 200)
-    elif args[0] == 'https://api.github.com/repos/test/old_commit_week':
-        return MockResponse({"commit_week": None}, 200)
+    if args[0] == 'https://api.github.com/repos/test/repo_test/stats/participation':
+        return MockResponse({"all":"valorrr"}, 200)
 
     return MockResponse(None, 404)
-
-
 
 
 class CommitMonthViewTest(TestCase):
     '''
         test all methods to view class
     '''
-
     def setUp(self):
         '''
             setup test configs
         '''
         self.factory = RequestFactory()
         commit_metric = self.commit_metric = Commit.objects.create(
-            owner='vitor',
-            repo='pricom',
+            owner='cleber',
+            repo='cremilda',
             date='2019-03-19'
        )
         self.commit_week = CommitWeek.objects.create(
             week=1,
-            quantity=5,
+            quantity=19,
             commit=commit_metric
        )
 
@@ -65,6 +56,28 @@ class CommitMonthViewTest(TestCase):
         '''
             test if a repository exists
         '''
-        request = self.factory.get('commit_week/cleber/desenho')
+        request = self.factory.get('commit_week/commit_week/cleber/desenho')
         response = CommitMonthView.as_view()(request, 'cleber', 'desenho')
         self.assertEqual(response.status_code, 404)
+
+    def test_exists_in_db(self):
+        '''
+            test if a repository data exists in DB
+        '''
+        request = self.factory.get('commit_week/commit_week/cleber/cremilda')
+        response = CommitMonthView.as_view()(request, 'cleber', 'cremilda')
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('commit_week.views.requests.get',
+                side_effect=mocked_requests_get)
+    def test_sum(self, mock_get):
+        '''
+            test sum 
+        '''
+        request = self.factory.get('commit_week/commit_week/cleber/cremilda')
+        response = CommitMonthView.as_view()(request, 'cleber', 'cremilda')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['owner'],'test')
+        self.assertEqual(response.data['repo'],'repo_test')
+        self.assertEqual(response.data['sum'],19)
+    
