@@ -6,7 +6,7 @@ from license.models import License
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject
+from community_metrics.function import check_date, filterObject, serialized
 
 
 class LicenseView(APIView):
@@ -67,5 +67,5 @@ class LicenseView(APIView):
                 )
 
         license = License.objects.all().filter(owner=owner, repo=repo)
-        license_serialized = LicenseSerializer(license, many=True)
+        license_serialized = serialized(LicenseSerializer, license)
         return Response(license_serialized.data[0])

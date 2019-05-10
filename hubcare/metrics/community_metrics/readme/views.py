@@ -5,7 +5,7 @@ from readme.models import Readme
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject
+from community_metrics.function import check_date, filterObject, serialized
 
 
 class ReadmeView(APIView):
@@ -61,5 +61,5 @@ class ReadmeView(APIView):
                 )
 
         readme = Readme.objects.all().filter(owner=owner, repo=repo)
-        readme_serialized = ReadmeSerializer(readme, many=True)
+        readme_serialized = serialized(ReadmeSerializer,  readme)
         return Response(readme_serialized.data[0])

@@ -5,7 +5,7 @@ from code_of_conduct.serializers import CodeOfConductSerializer
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject
+from community_metrics.function import check_date, filterObject, serialized
 
 
 class CodeOfConductView(APIView):
@@ -63,8 +63,9 @@ class CodeOfConductView(APIView):
             owner=owner,
             repo=repo
         )
-        code_of_conduct_serialized = CodeOfConductSerializer(
-            code_of_conduct,
-            many=True
+        code_of_conduct_serialized = serialized(
+            CodeOfConductSerializer,
+            code_of_conduct
         )
+
         return Response(code_of_conduct_serialized.data[0])

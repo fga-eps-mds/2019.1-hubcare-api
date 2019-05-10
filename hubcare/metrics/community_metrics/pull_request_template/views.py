@@ -5,7 +5,7 @@ from pull_request_template.serializers import PullRequestTemplateSerializer
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject
+from community_metrics.function import check_date, filterObject, serialized
 
 
 class PullRequestTemplateView(APIView):
@@ -66,8 +66,8 @@ class PullRequestTemplateView(APIView):
             owner=owner,
             repo=repo
         )
-        pull_request_template_serializer = PullRequestTemplateSerializer(
-            pull_request_template,
-            many=True
+        pull_request_template_serializer = serialized(
+            PullRequestTemplateSerializer,
+            pull_request_template
         )
         return Response(pull_request_template_serializer.data[0])

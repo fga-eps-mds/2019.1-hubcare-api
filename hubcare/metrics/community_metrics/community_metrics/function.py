@@ -21,3 +21,11 @@ def filterObject(ObjectForFilter):
         repo=ObjectForFilter.repo
     )
     return filter_objects
+
+
+def serialized(ObjectSerializer, ObjectForFilterS):
+    serializerObject = ObjectSerializer(
+            ObjectForFilterS,
+            many=True
+        )
+    return serializerObject

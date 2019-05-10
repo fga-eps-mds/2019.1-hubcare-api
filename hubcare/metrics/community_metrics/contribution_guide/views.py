@@ -5,7 +5,7 @@ from contribution_guide.serializers import ContributionGuideSerializer
 from datetime import date, datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject
+from community_metrics.function import check_date, filterObject, serialized
 
 
 class ContributionGuideView(APIView):
@@ -70,8 +70,8 @@ class ContributionGuideView(APIView):
             owner=owner,
             repo=repo
         )
-        contribution_serialized = ContributionGuideSerializer(
-            contribution_guide,
-            many=True
+        contribution_serialized = serialized(
+            ContributionGuideSerializer,
+            contribution_guide
         )
         return Response(contribution_serialized.data[0])

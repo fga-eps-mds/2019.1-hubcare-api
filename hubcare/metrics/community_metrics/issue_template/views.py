@@ -5,7 +5,7 @@ from issue_template.serializers import IssueTemplateSerializer
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject
+from community_metrics.function import check_date, filterObject, serialized
 
 
 class IssueTemplateView(APIView):
@@ -63,5 +63,5 @@ class IssueTemplateView(APIView):
             owner=owner,
             repo=repo
         )
-        issue_serialized = IssueTemplateSerializer(issue_templates, many=True)
+        issue_serialized = serialized(IssueTemplateSerializer, issue_templates)
         return Response(issue_serialized.data[0])

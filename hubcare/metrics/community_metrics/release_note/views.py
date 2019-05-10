@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from release_note.models import ReleaseNoteCheck
 from release_note.serializers import ReleaseNoteCheckSerializers
 from datetime import datetime, timedelta
-from community_metrics.function import filterObject
+from community_metrics.function import filterObject, serialized
 import requests
 import json
 import os
@@ -17,10 +17,10 @@ class ReleaseNoteCheckView(APIView):
         token = os.environ['TOKEN']
 
         releasenotecheck = filterObject(ReleaseNoteCheck)
-        releasenotecheck_serialized = ReleaseNoteCheckSerializers(
-            releasenotecheck,
-            many=True
-        )
+        releasenotecheck_serialized = serialized(
+            ReleaseNoteCheckSerializers,
+            releasenotecheck
+            )
         github_request = requests.get(
             'https://api.github.com/repos/' + owner + '/' + repo + '/releases',
             auth=(username, token)

@@ -5,7 +5,7 @@ from description.models import Description
 import requests
 from datetime import datetime, timezone
 import os
-from community_metrics.function import check_date, filterObject
+from community_metrics.function import check_date, filterObject, serialized
 
 
 class DescriptionView(APIView):
@@ -71,5 +71,5 @@ class DescriptionView(APIView):
             owner=owner,
             repo=repo
         )
-        serialized = DescriptionSerializer(description, many=True)
-        return Response(serialized.data[0])
+        description_serialized = serialized(DescriptionSerializer, description)
+        return Response(description_serialized.data[0])
