@@ -25,6 +25,62 @@ def mocked_requests_get(*args, **kwargs):
             '''
             return self.json_data
     
+    if args[0] == 'https://api.github.com/repos/test/repo_test/stats/participation':
+        return MockResponse({"all":[
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                1,
+                                18,
+                                44,
+                                70,
+                                86,
+                                73,
+                                0]}, 
+                            200)
+
     return MockResponse(None, 404)
 
 class CommitMonthViewTest(TestCase):
@@ -60,3 +116,16 @@ class CommitMonthViewTest(TestCase):
         request = self.factory.get('commit_week/commit_week/cleber/cremilda')
         response = CommitMonthView.as_view()(request, 'cleber', 'cremilda')
         self.assertEqual(response.status_code, 200)
+
+    @mock.patch('commit_week.views.requests.get',
+                side_effect=mocked_requests_get)
+    def test_sum(self, mock_get):
+        '''
+            test sum 
+        '''
+        request = self.factory.get('commit_week/commit_week/test/repo_test')
+        response = CommitMonthView.as_view()(request, 'test', 'repo_test')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['owner'],'test')
+        self.assertEqual(response.data['repo'],'repo_test')
+        self.assertEqual(response.data['sum'],273)
