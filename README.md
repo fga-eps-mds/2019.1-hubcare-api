@@ -1,7 +1,7 @@
 # Hubcare - API
 
 [![build status](https://gitlab.com/cjjcastro/2019-1-hubcare-api/badges/master/pipeline.svg)](https://gitlab.com/cjjcastro/2019-1-hubcare-api/pipelines)
-[![Coverage Status](https://coveralls.io/repos/github/fga-eps-mds/2019.1-hubcare-api/badge.svg?branch=)](https://coveralls.io/github/fga-eps-mds/2019.1-hubcare-api?branch=)
+[![Coverage Status](https://coveralls.io/repos/github/fga-eps-mds/2019.1-hubcare-api/badge.svg?branch=29-setup_ci_pipeline)](https://coveralls.io/github/fga-eps-mds/2019.1-hubcare-api?branch=29-setup_ci_pipeline)
 [![Maintainability](https://api.codeclimate.com/v1/badges/956d64084dec1bc50ad3/maintainability)](https://codeclimate.com/github/fga-eps-mds/2019.1-hubcare-api/maintainability)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/fga-eps-mds/2019.1-hubcare-api.svg)](http://isitmaintained.com/project/fga-eps-mds/2019.1-hubcare-api "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/fga-eps-mds/2019.1-hubcare-api.svg)](http://isitmaintained.com/project/fga-eps-mds/2019.1-hubcare-api "Percentage of issues still open")
@@ -32,7 +32,7 @@ export TOKEN='token'
 
 ## Contributing
 
-Please make sure to read the [Contributing Guide]() before making a pull request. After you've read, don't forget to take an issue!
+Please make sure to read the [Contributing Guide](https://github.com/fga-eps-mds/2019.1-hubcare-api/blob/master/.github/CONTRIBUTING.md) before making a pull request. After you've read, don't forget to take an issue!
 
 ## License
 
