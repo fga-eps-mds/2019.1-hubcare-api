@@ -1,6 +1,6 @@
 import os
 
-STATUS_ERROR = 204
+STATUS_ERROR = 404
 
 YEAR_WEEK = 52
 LAST_WEEK = -1
