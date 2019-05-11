@@ -130,7 +130,7 @@ class CodeOfConductViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['owner'], 'owner_date')
         self.assertEqual(response.data['repo'], 'repo_date')
-        self.assertEqual(response.data['code_of_conduct'], False)
+        self.assertEqual(response.data['code_of_conduct'], True)
         response_date = response.data['date_time']
         date_strp = datetime.strptime(response_date[0:10], "%Y-%m-%d").date()
         self.assertEqual(str(date_strp),
