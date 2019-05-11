@@ -3,10 +3,11 @@ from rest_framework.response import Response
 from release_note.models import ReleaseNoteCheck
 from release_note.serializers import ReleaseNoteCheckSerializers
 from datetime import datetime, timedelta
-from community_metrics.function import filterObject, serialized
 import requests
 import json
 import os
+from community_metrics.functions import filter_object, serialized_object
+from community_metrics.constants import URL_API, HTTP_OK, NINETY_DAYS
 
 
 class ReleaseNoteCheckView(APIView):
@@ -16,18 +17,18 @@ class ReleaseNoteCheckView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        releasenotecheck = filterObject(ReleaseNoteCheck)
-        releasenotecheck_serialized = serialized(
+        releasenotecheck = filter_object(ReleaseNoteCheck)
+        releasenotecheck_serialized = serialized_object(
             ReleaseNoteCheckSerializers,
             releasenotecheck
             )
         github_request = requests.get(
-            'https://api.github.com/repos/' + owner + '/' + repo + '/releases',
+            URL_API + owner + '/' + repo + '/releases',
             auth=(username, token)
         )
         github_data = github_request.json()
         present = datetime.today()
-        days = timedelta(days=90)
+        days = timedelta(days=NINETY_DAYS)
         releaseDays = present - days
         releaseLastNinetyDays = []
         response = False

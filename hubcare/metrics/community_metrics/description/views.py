@@ -5,25 +5,26 @@ from description.models import Description
 import requests
 from datetime import datetime, timezone
 import os
-from community_metrics.function import check_date, filterObject, serialized
+from community_metrics.functions \
+    import check_date, filter_object, serialized_object
+from community_metrics.constants import HTTP_OK, URL_API
 
 
 class DescriptionView(APIView):
     def get(self, request, owner, repo):
 
-        description = filterObject(Description)
+        description = filter_object(Description)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
         if (not description):
 
-            url = 'https://api.github.com/repos/'
-            github_request = requests.get(url + owner + '/' + repo,
+            github_request = requests.get(URL_API + owner + '/' + repo,
                                           auth=(username, token))
             github_data = github_request.json()
 
-            if(github_request.status_code == 200):
+            if(github_request.status_code == HTTP_OK):
                 if(github_data['description'] is not None):
                     Description.objects.create(
                         owner=owner,
@@ -40,12 +41,11 @@ class DescriptionView(APIView):
                     )
 
         elif(check_date(description)):
-            url = 'https://api.github.com/repos/'
-            github_request = requests.get(url + owner + '/' + repo,
+            github_request = requests.get(URL_API + owner + '/' + repo,
                                           auth=(username, token))
             github_data = github_request.json()
 
-            if(github_request.status_code is 200):
+            if(github_request.status_code is HTTP_OK):
                 if(github_data['description'] is not None):
                     Description.objects.filter(
                         owner=owner,
@@ -71,5 +71,8 @@ class DescriptionView(APIView):
             owner=owner,
             repo=repo
         )
-        description_serialized = serialized(DescriptionSerializer, description)
+        description_serialized = serialized_object(
+            DescriptionSerializer,
+            description
+        )
         return Response(description_serialized.data[0])

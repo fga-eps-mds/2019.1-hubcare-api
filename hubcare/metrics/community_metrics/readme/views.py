@@ -5,7 +5,9 @@ from readme.models import Readme
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject, serialized
+from community_metrics.functions \
+    import check_date, filter_object, serialized_object
+from community_metrics.constants import URL_API, HTTP_OK
 
 
 class ReadmeView(APIView):
@@ -13,18 +15,17 @@ class ReadmeView(APIView):
         '''
         return if a repository have a readme or not
         '''
-        readme = filterObject(Readme)
+        readme = filter_object(Readme)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
         if (not readme):
-            url = 'https://api.github.com/repos/'
-            url2 = '/contents/README.md'
-            github_request = requests.get(url + owner + '/' + repo + url2,
+            url = '/contents/README.md'
+            github_request = requests.get(URL_API + owner + '/' + repo + url,
                                           auth=(username, token))
 
-            if(github_request.status_code == 200):
+            if(github_request.status_code == HTTP_OK):
                 Readme.objects.create(
                     owner=owner,
                     repo=repo,
@@ -40,12 +41,11 @@ class ReadmeView(APIView):
                 )
 
         elif(check_date(readme)):
-            url = 'https://api.github.com/repos/'
-            url2 = '/contents/README.md'
-            github_request = requests.get(url + owner + '/' + repo + url2,
+            url = '/contents/README.md'
+            github_request = requests.get(URL_API + owner + '/' + repo + url,
                                           auth=(username, token))
 
-            if(github_request.status_code == 200):
+            if(github_request.status_code == HTTP_OK):
                 Readme.objects.filter(owner=owner, repo=repo).update(
                     owner=owner,
                     repo=repo,
@@ -61,5 +61,5 @@ class ReadmeView(APIView):
                 )
 
         readme = Readme.objects.all().filter(owner=owner, repo=repo)
-        readme_serialized = serialized(ReadmeSerializer,  readme)
+        readme_serialized = serialized_object(ReadmeSerializer,  readme)
         return Response(readme_serialized.data[0])

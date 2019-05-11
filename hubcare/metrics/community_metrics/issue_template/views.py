@@ -5,7 +5,9 @@ from issue_template.serializers import IssueTemplateSerializer
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject, serialized
+from community_metrics.functions \
+    import check_date, filter_object, serialized_object
+from community_metrics.constants import URL_API, HTTP_OK
 
 
 class IssueTemplateView(APIView):
@@ -13,18 +15,17 @@ class IssueTemplateView(APIView):
         '''
         return if a repository have a readme or not
         '''
-        issue_templates = filterObject(IssueTemplate)
+        issue_templates = filter_object(IssueTemplate)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
         if(not issue_templates):
-            url1 = 'https://api.github.com/repos/'
-            url2 = '/contents/.github/ISSUE_TEMPLATE'
-            result = url1 + owner + '/' + repo + url2
+            url = '/contents/.github/ISSUE_TEMPLATE'
+            result = URL_API + owner + '/' + repo + url
             github_request = requests.get(result, auth=(username,
                                                         token))
-            if(github_request.status_code == 200):
+            if(github_request.status_code == HTTP_OK):
                 IssueTemplate.objects.create(
                     owner=owner,
                     repo=repo,
@@ -39,12 +40,11 @@ class IssueTemplateView(APIView):
                     date_time=datetime.now(timezone.utc)
                 )
         elif(check_date(issue_templates)):
-            url1 = 'https://api.github.com/repos/'
-            url2 = '/contents/.github/ISSUE_TEMPLATE'
-            result = url1 + owner + '/' + repo + url2
+            url = '/contents/.github/ISSUE_TEMPLATE'
+            result = URL_API + owner + '/' + repo + url
             github_request = requests.get(result, auth=(username,
                                                         token))
-            if(github_request.status_code == 200):
+            if(github_request.status_code == HTTP_OK):
                 IssueTemplate.objects.filter(owner=owner, repo=repo).update(
                     owner=owner,
                     repo=repo,
@@ -63,5 +63,8 @@ class IssueTemplateView(APIView):
             owner=owner,
             repo=repo
         )
-        issue_serialized = serialized(IssueTemplateSerializer, issue_templates)
+        issue_serialized = serialized_object(
+            IssueTemplateSerializer,
+            issue_templates
+            )
         return Response(issue_serialized.data[0])

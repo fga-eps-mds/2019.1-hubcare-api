@@ -6,7 +6,9 @@ from license.models import License
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject, serialized
+from community_metrics.functions \
+ import check_date, filter_object, serialized_object
+from community_metrics.constants import URL_API, HTTP_OK, HTTP_NOT_FOUND
 
 
 class LicenseView(APIView):
@@ -14,19 +16,18 @@ class LicenseView(APIView):
         '''
         return if a repository have a license or not
         '''
-        all_license = filterObject(License)
+        all_license = filter_object(License)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
         if (not all_license):
-            url = 'https://api.github.com/repos/'
-            result = requests.get(url + owner + '/' + repo,
+            result = requests.get(URL_API + owner + '/' + repo,
                                   auth=(username, token))
 
             github_data = result.json()
 
-            if (result.status_code == 404):
+            if (result.status_code == HTTP_NOT_FOUND):
                 raise Http404
             elif (github_data['license'] is not None):
                 License.objects.create(
@@ -43,13 +44,12 @@ class LicenseView(APIView):
                     date_time=datetime.now(timezone.utc)
                 )
         elif(check_date(all_license)):
-            url = 'https://api.github.com/repos/'
-            result = requests.get(url + owner + '/' + repo,
+            result = requests.get(URL_API + owner + '/' + repo,
                                   auth=(username, token))
 
             github_data = result.json()
 
-            if (result.status_code == 404):
+            if (result.status_code == HTTP_NOT_FOUND):
                 raise Http404
             elif (github_data['license'] is not None):
                 License.objects.filter(owner=owner, repo=repo).update(
@@ -67,5 +67,5 @@ class LicenseView(APIView):
                 )
 
         license = License.objects.all().filter(owner=owner, repo=repo)
-        license_serialized = serialized(LicenseSerializer, license)
+        license_serialized = serialized_object(LicenseSerializer, license)
         return Response(license_serialized.data[0])

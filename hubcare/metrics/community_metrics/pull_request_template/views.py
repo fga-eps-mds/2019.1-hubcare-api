@@ -5,7 +5,9 @@ from pull_request_template.serializers import PullRequestTemplateSerializer
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject, serialized
+from community_metrics.functions \
+    import check_date, filter_object, serialized_object
+from community_metrics.constants import URL_API, HTTP_OK
 
 
 class PullRequestTemplateView(APIView):
@@ -13,19 +15,18 @@ class PullRequestTemplateView(APIView):
         '''
         return if a repository have a pull request template or not
         '''
-        pull_request_template = filterObject(PullRequestTemplate)
+        pull_request_template = filter_object(PullRequestTemplate)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
         if(not pull_request_template):
-            url1 = 'https://api.github.com/repos/'
-            url2 = '/contents/.github/PULL_REQUEST_TEMPLATE.md'
-            result = url1 + owner + '/' + repo + url2
+            url = '/contents/.github/PULL_REQUEST_TEMPLATE.md'
+            result = URL_API + owner + '/' + repo + url
             github_request = requests.get(result, auth=(username,
                                                         token))
 
-            if(github_request.status_code == 200):
+            if(github_request.status_code == HTTP_OK):
                 PullRequestTemplate.objects.create(
                     owner=owner,
                     repo=repo,
@@ -41,13 +42,12 @@ class PullRequestTemplateView(APIView):
                 )
 
         elif(check_date(pull_request_template)):
-            url1 = 'https://api.github.com/repos/'
-            url2 = '/contents/.github/PULL_REQUEST_TEMPLATE.md'
-            result = url1 + owner + '/' + repo + url2
+            url = '/contents/.github/PULL_REQUEST_TEMPLATE.md'
+            result = URL_API + owner + '/' + repo + url
             github_request = requests.get(result, auth=(username,
                                                         token))
 
-            if(github_request.status_code == 200):
+            if(github_request.status_code == HTTP_OK):
                 PullRequestTemplate.objects.filter().update(
                     owner=owner,
                     repo=repo,
@@ -66,7 +66,7 @@ class PullRequestTemplateView(APIView):
             owner=owner,
             repo=repo
         )
-        pull_request_template_serializer = serialized(
+        pull_request_template_serializer = serialized_object(
             PullRequestTemplateSerializer,
             pull_request_template
         )

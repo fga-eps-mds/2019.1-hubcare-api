@@ -5,7 +5,9 @@ from contribution_guide.serializers import ContributionGuideSerializer
 from datetime import date, datetime, timezone
 import requests
 import os
-from community_metrics.function import check_date, filterObject, serialized
+from community_metrics.functions \
+    import check_date, filter_object, serialized_object
+from community_metrics.constants import URL_API, HTTP_OK
 
 
 class ContributionGuideView(APIView):
@@ -13,18 +15,17 @@ class ContributionGuideView(APIView):
         '''
         return if a repository have a contribution guide or not
         '''
-        contribution_guide = filterObject(ContributionGuide)
+        contribution_guide = filter_object(ContributionGuide)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
         if(not contribution_guide):
-            url1 = 'https://api.github.com/repos/'
-            url2 = '/contents/.github/CONTRIBUTING.md'
-            github_request = requests.get(url1 + owner + '/' + repo + url2,
+            url = '/contents/.github/CONTRIBUTING.md'
+            github_request = requests.get(URL_API + owner + '/' + repo + url,
                                           auth=(username, token))
 
-            if(github_request.status_code == 200):
+            if(github_request.status_code == HTTP_OK):
                 ContributionGuide.objects.create(
                     owner=owner,
                     repo=repo,
@@ -40,12 +41,11 @@ class ContributionGuideView(APIView):
                 )
 
         elif(check_date(contribution_guide)):
-            url1 = 'https://api.github.com/repos/'
-            url2 = '/contents/.github/CONTRIBUTING.md'
-            github_request = requests.get(url1 + owner + '/' + repo + url2,
+            url = '/contents/.github/CONTRIBUTING.md'
+            github_request = requests.get(URL_API + owner + '/' + repo + url,
                                           auth=(username, token))
 
-            if(github_request.status_code == 200):
+            if(github_request.status_code == HTTP_OK):
                 ContributionGuide.objects.filter(
                     owner=owner,
                     repo=repo
@@ -70,7 +70,7 @@ class ContributionGuideView(APIView):
             owner=owner,
             repo=repo
         )
-        contribution_serialized = serialized(
+        contribution_serialized = serialized_object(
             ContributionGuideSerializer,
             contribution_guide
         )

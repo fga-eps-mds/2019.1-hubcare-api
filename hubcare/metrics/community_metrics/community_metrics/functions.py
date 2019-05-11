@@ -12,20 +12,23 @@ def check_date(date_time):
     return False
 
 
-def filterObject(ObjectForFilter):
+def filter_object(object_for_filter):
     '''
     filtering the owner and repo of object
     '''
-    filter_objects = ObjectForFilter.objects.all().filter(
-        owner=ObjectForFilter.owner,
-        repo=ObjectForFilter.repo
+    filter_objects = object_for_filter.objects.all().filter(
+        owner=object_for_filter.owner,
+        repo=object_for_filter.repo
     )
     return filter_objects
 
 
-def serialized(ObjectSerializer, ObjectForFilterS):
-    serializerObject = ObjectSerializer(
-            ObjectForFilterS,
+def serialized_object(object_serializer, object_for_filter_s):
+    '''
+    serialization of objects
+    '''
+    serializer_objects = object_serializer(
+            object_for_filter_s,
             many=True
         )
-    return serializerObject
+    return serializer_objects
