@@ -12,17 +12,6 @@ def check_date(date_time):
     return False
 
 
-def filter_object(object_for_filter):
-    '''
-    filtering the owner and repo of object
-    '''
-    filter_objects = object_for_filter.objects.all().filter(
-        owner=object_for_filter.owner,
-        repo=object_for_filter.repo
-    )
-    return filter_objects
-
-
 def serialized_object(object_serializer, object_for_filter_s):
     '''
     serialization of objects

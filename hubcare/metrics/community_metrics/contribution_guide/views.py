@@ -5,8 +5,7 @@ from contribution_guide.serializers import ContributionGuideSerializer
 from datetime import date, datetime, timezone
 import requests
 import os
-from community_metrics.functions \
-    import check_date, filter_object, serialized_object
+from community_metrics.functions import check_date, serialized_object
 from community_metrics.constants import URL_API, HTTP_OK
 
 
@@ -15,7 +14,10 @@ class ContributionGuideView(APIView):
         '''
         return if a repository have a contribution guide or not
         '''
-        contribution_guide = filter_object(ContributionGuide)
+        contribution_guide = ContributionGuide.objects.all().filter(
+            owner=owner,
+            repo=repo
+        )
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']

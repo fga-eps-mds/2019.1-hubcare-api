@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import requests
 import json
 import os
-from community_metrics.functions import filter_object, serialized_object
+from community_metrics.functions import serialized_object
 from community_metrics.constants import URL_API, HTTP_OK, NINETY_DAYS
 
 
@@ -17,7 +17,10 @@ class ReleaseNoteCheckView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        releasenotecheck = filter_object(ReleaseNoteCheck)
+        releasenotecheck = ReleaseNoteCheck.objects.all().filter(
+            owner=owner,
+            repo=repo
+        )
         releasenotecheck_serialized = serialized_object(
             ReleaseNoteCheckSerializers,
             releasenotecheck

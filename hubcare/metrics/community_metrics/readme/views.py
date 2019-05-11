@@ -5,8 +5,7 @@ from readme.models import Readme
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.functions \
-    import check_date, filter_object, serialized_object
+from community_metrics.functions import check_date, serialized_object
 from community_metrics.constants import URL_API, HTTP_OK
 
 
@@ -15,7 +14,7 @@ class ReadmeView(APIView):
         '''
         return if a repository have a readme or not
         '''
-        readme = filter_object(Readme)
+        readme = Readme.objects.all().filter(owner=owner, repo=repo)
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']

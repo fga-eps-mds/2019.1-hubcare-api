@@ -6,14 +6,17 @@ import requests
 from datetime import datetime, timezone
 import os
 from community_metrics.functions \
-    import check_date, filter_object, serialized_object
+    import check_date, serialized_object
 from community_metrics.constants import HTTP_OK, URL_API
 
 
 class DescriptionView(APIView):
     def get(self, request, owner, repo):
 
-        description = filter_object(Description)
+        description = Description.objects.all().filter(
+            owner=owner,
+            repo=repo
+        )
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']

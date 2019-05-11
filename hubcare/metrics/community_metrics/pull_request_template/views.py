@@ -5,8 +5,7 @@ from pull_request_template.serializers import PullRequestTemplateSerializer
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.functions \
-    import check_date, filter_object, serialized_object
+from community_metrics.functions import check_date, serialized_object
 from community_metrics.constants import URL_API, HTTP_OK
 
 
@@ -15,7 +14,10 @@ class PullRequestTemplateView(APIView):
         '''
         return if a repository have a pull request template or not
         '''
-        pull_request_template = filter_object(PullRequestTemplate)
+        pull_request_template = PullRequestTemplate.objects.all().filter(
+            owner=owner,
+            repo=repo
+        )
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']
