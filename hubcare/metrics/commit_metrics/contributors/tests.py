@@ -27,10 +27,14 @@ class DifferentsAuthorsViewTest(TestCase):
     @mock.patch('differentauthors.views.requests_get',
                 side_effect=mocked_requests_get)
     def test_repository_not_existence(self, mock_get):
-        pass
+        request = self.factory.get('different_authors/cleber/cremilda')
+        response = DifferentsAuthorsView.as_view()(request, 'cleber', 'cremilda')
+        self.assertEqual(response.status_code, 404)
     
     def test_exists_in_db(self):
-        pass
+        request = self.factory.get('different_authors/cleber/cremilda')
+        response = DifferentsAuthorsView.as_view()(request, 'cleber', 'cremilda')
+        self.assertEqual(response.status_code, 200)
 
     @mock.patch('differentauthors.views.requests.get',
                 side_effect=mocked_requests_get)
