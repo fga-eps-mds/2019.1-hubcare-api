@@ -81,3 +81,11 @@ class HubcareApiViewTest(TestCase):
         self.assertEqual(response.data['active_indicator'], 0.88)
         self.assertEqual(response.data['welcoming_indicator'], 0.50)
         self.assertEqual(response.data['support_indicator'], 0.78)
+
+    def test_error_404(self, mock_get):
+        '''
+        test if a repository exists in Github
+        '''
+        request = self.factory.get('hubcare_indicators/cleber/cremilda/')
+        response = HubcareApiView.as_view()(request, 'cleber', 'cremilda')
+        self.assertEqual(response.status_code, 404)
