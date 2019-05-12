@@ -46,7 +46,14 @@ def mocked_requests_get(*args, **kwargs):
     elif args[0] == URL_COMMIT + 'commit_week/commit_week/test/repo_test':
         return MockResponse({'sum':'273'}, 200)
     elif args[0] == URL_COMMIT + 'contributors/different_authors/test/repo_test':
-        return MockResponse({'sum':'value'}, 200)
+        return MockResponse([
+                {'author':'CleberHiroshi23@gmail.com', 'numberCommits':7},
+                {'author':'Toyoshima321@hotmail.com', 'numberCommits':5},
+                {'author':'JacoVitor33@orkut.com', 'numberCommits':2},
+                {'author':'RomulanoFranchesco@msn.com', 'numberCommits':10},
+            ],
+            200
+        )
     elif args[0] == URL_ISSUE + 'activity_rate/test/repo_test':
         return MockResponse({'activity_rate_15_days':'1'}, 200)
     elif args[0] == URL_ISSUE + 'good_first_issue/test/repo_test':
@@ -54,7 +61,7 @@ def mocked_requests_get(*args, **kwargs):
     elif args[0] == URL_ISSUE + 'help_wanted/test/repo_test':
         return MockResponse({'rate':'0.7'}, 200)
     elif args[0] == URL_PR + 'acceptance_quality/test/repo_test':
-        return MockResponse({'metric':'0,6'}, 200)
+        return MockResponse({'metric':'0.6'}, 200)
 
     
 
