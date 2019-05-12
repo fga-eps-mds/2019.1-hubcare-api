@@ -6,6 +6,8 @@ from license.models import License
 from datetime import datetime, timezone
 import requests
 import os
+from community_metrics.functions import check_date, serialized_object
+from community_metrics.constants import URL_API, HTTP_OK, HTTP_NOT_FOUND
 
 
 class LicenseView(APIView):
@@ -19,13 +21,12 @@ class LicenseView(APIView):
         token = os.environ['TOKEN']
 
         if (not all_license):
-            url = 'https://api.github.com/repos/'
-            result = requests.get(url + owner + '/' + repo,
+            result = requests.get(URL_API + owner + '/' + repo,
                                   auth=(username, token))
 
             github_data = result.json()
 
-            if (result.status_code == 404):
+            if (result.status_code == HTTP_NOT_FOUND):
                 raise Http404
             elif (github_data['license'] is not None):
                 License.objects.create(
@@ -41,14 +42,13 @@ class LicenseView(APIView):
                     have_license=False,
                     date_time=datetime.now(timezone.utc)
                 )
-        elif(check_datetime(all_license)):
-            url = 'https://api.github.com/repos/'
-            result = requests.get(url + owner + '/' + repo,
+        elif(check_date(all_license)):
+            result = requests.get(URL_API + owner + '/' + repo,
                                   auth=(username, token))
 
             github_data = result.json()
 
-            if (result.status_code == 404):
+            if (result.status_code == HTTP_NOT_FOUND):
                 raise Http404
             elif (github_data['license'] is not None):
                 License.objects.filter(owner=owner, repo=repo).update(
@@ -66,12 +66,5 @@ class LicenseView(APIView):
                 )
 
         license = License.objects.all().filter(owner=owner, repo=repo)
-        license_serialized = LicenseSerializer(license, many=True)
+        license_serialized = serialized_object(LicenseSerializer, license)
         return Response(license_serialized.data[0])
-
-
-def check_datetime(license):
-    datetime_now = datetime.now(timezone.utc)
-    if(license and (datetime_now - license[0].date_time).days >= 1):
-        return True
-    return False

@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 import requests
 import json
 import os
+from community_metrics.functions import serialized_object
+from community_metrics.constants import URL_API, HTTP_OK, NINETY_DAYS
 
 
 class ReleaseNoteCheckView(APIView):
@@ -19,17 +21,17 @@ class ReleaseNoteCheckView(APIView):
             owner=owner,
             repo=repo
         )
-        releasenotecheck_serialized = ReleaseNoteCheckSerializers(
-            releasenotecheck,
-            many=True
-        )
+        releasenotecheck_serialized = serialized_object(
+            ReleaseNoteCheckSerializers,
+            releasenotecheck
+            )
         github_request = requests.get(
-            'https://api.github.com/repos/' + owner + '/' + repo + '/releases',
+            URL_API + owner + '/' + repo + '/releases',
             auth=(username, token)
         )
         github_data = github_request.json()
         present = datetime.today()
-        days = timedelta(days=90)
+        days = timedelta(days=NINETY_DAYS)
         releaseDays = present - days
         releaseLastNinetyDays = []
         response = False
