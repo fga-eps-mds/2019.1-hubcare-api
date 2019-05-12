@@ -71,4 +71,13 @@ class HubcareApiViewTest(TestCase):
         '''
         pass
 
-    
+    def test_hubcare_api(self, mock_get):
+        '''
+        test if hubcare API return: active indicator
+        '''
+        request = self.factory.get('hubcare_indicators/test/repo_test/')
+        response = HubcareApiView.as_view()(request, 'test', 'repo_test')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['active_indicator'], 0.88)
+        self.assertEqual(response.data['welcoming_indicator'], 0.50)
+        self.assertEqual(response.data['support_indicator'], 0.78)
