@@ -31,3 +31,7 @@ class DifferentsAuthorsViewTest(TestCase):
     
     def test_exists_in_db(self):
         pass
+
+    @mock.patch('differentauthors.views.requests.get',
+                side_effect=mocked_requests_get)
+    
