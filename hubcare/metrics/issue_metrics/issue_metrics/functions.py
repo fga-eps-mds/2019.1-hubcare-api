@@ -4,6 +4,7 @@ from rest_framework.response import Response
 import json
 import requests
 import os
+import re
 
 
 def check_datetime(object_date):
@@ -68,3 +69,49 @@ def get_metric_help_wanted(ObjectMetric, owner, repo):
     rate = '{"rate":\"' + str(rate) + '"}'
     rate_json = json.loads(rate)
     return rate_json
+
+
+def calculate_metric(issues_alive, open_issues):
+    '''
+    Calculate metrics for activity rate
+    '''
+    if(open_issues != 0):
+        metric = ((issues_alive / open_issues) - 0.5) * 4
+    else:
+        metric = 0
+
+    if metric > 1:
+        metric = 1
+    elif metric < 0:
+        metric = 0
+
+    return metric
+
+
+def get_all_issues(owner, repo):
+    '''
+    Get all the issues in the last 15 days
+    '''
+    github_page = requests.get(
+        'https://github.com/' + owner + '/' + repo + '/issues')
+    find = re.search(r'(.*) Open\n', github_page.text)
+    if (find is None):
+        return 0, 0
+    open_issues = int(find.group(1).replace(',', ''))
+
+    find = re.search(r'(.*) Closed\n', github_page.text)
+    closed_issues = int(find.group(1).replace(',', ''))
+
+    return open_issues, closed_issues
+
+
+def check_datetime_15_days(activity_rate):
+    '''
+    verifies if the time difference between the issue created and now is
+    greater than 15 days
+    '''
+    activity_rate = datetime.strptime(activity_rate, '%Y-%m-%dT%H:%M:%SZ')
+    datetime_now = datetime.now()
+    if((datetime_now - activity_rate).days <= 15):
+        return True
+    return False

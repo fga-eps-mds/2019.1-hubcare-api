@@ -4,7 +4,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import ActivityRateIssue
 from .serializers import ActivityRateIssueSerializers
-from issue_metrics.functions import check_datetime
+from issue_metrics.functions import check_datetime, \
+    calculate_metric, get_all_issues, check_datetime_15_days
+from issue_metrics.constants import ZERO
 from datetime import datetime, timezone
 import os
 
@@ -19,22 +21,22 @@ class ActivityRateIssueView(APIView):
         if(not activity_rate):
             open_issues, closed_issues = get_all_issues(owner, repo)
 
-            if(open_issues + closed_issues == 0):
+            if(open_issues + closed_issues == ZERO):
                 ActivityRateIssue.objects.create(
                     owner=owner,
                     repo=repo,
-                    activity_rate=0,
+                    activity_rate=ZERO,
                     date_time=datetime.now(timezone.utc),
-                    activity_rate_15_days=0,
-                    activity_rate_15_days_metric=0,
+                    activity_rate_15_days=ZERO,
+                    activity_rate_15_days_metric=ZERO,
                 )
             else:
                 issues_alive, not_alive = get_issues_15_day(owner, repo)
 
-                if(not_alive != 0):
+                if(not_alive != ZERO):
                     activity_rate_15_days = issues_alive / not_alive
                 else:
-                    activity_rate_15_days = 0
+                    activity_rate_15_days = ZERO
 
                 ActivityRateIssue.objects.create(
                     owner=owner,
@@ -54,10 +56,10 @@ class ActivityRateIssueView(APIView):
             open_issues, closed_issues = get_all_issues(owner, repo)
             issues_alive, not_alive = get_issues_15_day(owner, repo)
 
-            if(not_alive != 0):
+            if(not_alive != ZERO):
                 activity_rate_15_days = issues_alive / not_alive
             else:
-                activity_rate_15_days = 0
+                activity_rate_15_days = ZERO
 
             ActivityRateIssue.objects.filter(owner=owner, repo=repo).update(
                 activity_rate=(open_issues / (closed_issues + open_issues)),
@@ -76,24 +78,12 @@ class ActivityRateIssueView(APIView):
         return Response(activity_rate_serialized.data)
 
 
-def check_datetime_15_days(activity_rate):
-    '''
-    verifies if the time difference between the issue created and now is
-    greater than 15 days
-    '''
-    activity_rate = datetime.strptime(activity_rate, '%Y-%m-%dT%H:%M:%SZ')
-    datetime_now = datetime.now()
-    if((datetime_now - activity_rate).days <= 15):
-        return True
-    return False
-
-
 def get_issues_15_day(owner, repo):
     '''
     Get all the issues in the last 15 days
     '''
     page_number = 1
-    issues_alive = 0
+    issues_alive = ZERO
     issues_not_alive = 0
     u = 'https://api.github.com/repos/' + owner + '/' + repo + '/issues?&page='
     aux = True
@@ -126,37 +116,3 @@ def get_issues_15_day(owner, repo):
         print(issues_not_alive)
         page_number = page_number + 1
     return issues_alive, issues_not_alive
-
-
-def get_all_issues(owner, repo):
-    '''
-    Get all the issues in the last 15 days
-    '''
-    github_page = requests.get(
-        'https://github.com/' + owner + '/' + repo + '/issues')
-    find = re.search(r'(.*) Open\n', github_page.text)
-    if (find is None):
-        return 0, 0
-    open_issues = int(find.group(1).replace(',', ''))
-
-    find = re.search(r'(.*) Closed\n', github_page.text)
-    closed_issues = int(find.group(1).replace(',', ''))
-
-    return open_issues, closed_issues
-
-
-def calculate_metric(issues_alive, open_issues):
-    '''
-    Calculate metrics
-    '''
-    if(open_issues != 0):
-        metric = ((issues_alive / open_issues) - 0.5) * 4
-    else:
-        metric = 0
-
-    if metric > 1:
-        metric = 1
-    elif metric < 0:
-        metric = 0
-
-    return metric
