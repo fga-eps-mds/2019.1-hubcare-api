@@ -21,7 +21,7 @@ class GoodFirstIssueView(APIView):
             owner=owner,
             repo=repo
         )
-        url = constants.main_url + owner + '/' + repo
+        url = constants.MAIN_URL + owner + '/' + repo
         if(not good_first_issues):
             total_issues, good_first_issue = self.get_total_goodfirstissue(url)
             GoodFirstIssue.objects.create(
@@ -68,7 +68,7 @@ class GoodFirstIssueView(APIView):
                                             token)).json()
         total_issues = info_repo["open_issues_count"]
         page = '&page=1'
-        label_url = url + constants.label_good_first_issue_spaces
+        label_url = url + constants.LABEL_GOOD_FIRST_ISSUE_SPACES
         result = requests.get(label_url + page,
                               auth=(username,
                                     token)).json()
@@ -82,7 +82,7 @@ class GoodFirstIssueView(APIView):
                 result
             )
         else:
-            label_url = url + constants.label_goodfirstissue
+            label_url = url + constants.LABEL_GOODFIRSTISSUE
             result = requests.get(label_url + page,
                                   auth=(username,
                                         token)).json()
@@ -92,7 +92,7 @@ class GoodFirstIssueView(APIView):
                     result
                 )
             else:
-                label_url = url + constants.label_good_first_issue
+                label_url = url + constants.LABEL_GOOD_FIRST_ISSUE
                 result = requests.get(label_url + page,
                                       auth=(username,
                                             token)).json()

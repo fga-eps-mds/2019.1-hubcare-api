@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
-from issue_metrics.constants import main_url, ZERO
+from issue_metrics.constants \
+    import MAIN_URL, ZERO, ONE, FIFTEEN_DAYS
 from rest_framework.response import Response
 import json
 import requests
@@ -13,7 +14,7 @@ def check_datetime(object_date):
     greater than 24 hours
     '''
     datetime_now = datetime.now(timezone.utc)
-    if((datetime_now - object_date.date_time).days >= 1):
+    if((datetime_now - object_date.date_time).days >= ONE):
         return True
     return False
 
@@ -26,7 +27,7 @@ def get_metric_good_first_issue(ObjectMetric, owner, repo):
         owner=owner,
         repo=repo
     )[0]
-    if object_metric.total_issues != 0:
+    if object_metric.total_issues != ZERO:
         total_sample = object_metric.total_issues
         rate = object_metric.good_first_issue / total_sample
     else:
@@ -42,11 +43,11 @@ def count_all_label(url, result):
     '''
     username = os.environ['NAME']
     token = os.environ['TOKEN']
-    count = 1
+    count = ONE
     page = '&page='
     labels = ZERO
     while result:
-        count += 1
+        count += ONE
         labels += len(result)
         result = requests.get(url + page + str(count),
                               auth=(username, token)).json()
@@ -62,7 +63,7 @@ def get_metric_help_wanted(ObjectMetric, owner, repo):
         owner=owner,
         repo=repo
     )[0]
-    if help_wanted.total_issues != 0:
+    if help_wanted.total_issues != ZERO:
         rate = help_wanted.help_wanted_issues / help_wanted.total_issues
     else:
         rate = 0.0
@@ -75,15 +76,15 @@ def calculate_metric(issues_alive, open_issues):
     '''
     Calculate metrics for activity rate
     '''
-    if(open_issues != 0):
+    if(open_issues != ZERO):
         metric = ((issues_alive / open_issues) - 0.5) * 4
     else:
-        metric = 0
+        metric = ZERO
 
-    if metric > 1:
-        metric = 1
-    elif metric < 0:
-        metric = 0
+    if metric > ONE:
+        metric = ONE
+    elif metric < ZERO:
+        metric = ZERO
 
     return metric
 
@@ -96,7 +97,7 @@ def get_all_issues(owner, repo):
         'https://github.com/' + owner + '/' + repo + '/issues')
     find = re.search(r'(.*) Open\n', github_page.text)
     if (find is None):
-        return 0, 0
+        return ZERO, ZERO
     open_issues = int(find.group(1).replace(',', ''))
 
     find = re.search(r'(.*) Closed\n', github_page.text)
@@ -112,6 +113,6 @@ def check_datetime_15_days(activity_rate):
     '''
     activity_rate = datetime.strptime(activity_rate, '%Y-%m-%dT%H:%M:%SZ')
     datetime_now = datetime.now()
-    if((datetime_now - activity_rate).days <= 15):
+    if((datetime_now - activity_rate).days <= FIFTEEN_DAYS):
         return True
     return False

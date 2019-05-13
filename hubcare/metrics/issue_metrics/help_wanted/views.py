@@ -17,7 +17,7 @@ class HelpWantedView(APIView):
         returns help wanted issue rate
         '''
         help_wanted = HelpWanted.objects.all().filter(owner=owner, repo=repo)
-        url = constants.main_url + owner + '/' + repo
+        url = constants.MAIN_URL + owner + '/' + repo
         if(not help_wanted):
             total_issues, help_wanted_issues = self.get_total_helpwanted(url)
             HelpWanted.objects.create(
@@ -51,7 +51,7 @@ class HelpWantedView(APIView):
         info_repo = requests.get(url, auth=(username, token)).json()
         total_issues = info_repo["open_issues_count"]
         page = '&page=1'
-        label_url = url + constants.label_help_espace_wanted
+        label_url = url + constants.LABEL_HELP_ESPACE_WANTED
         result = requests.get(label_url + page,
                               auth=(username, token)).json()
 
@@ -61,7 +61,7 @@ class HelpWantedView(APIView):
         if result:
             help_wanted_issues = count_all_label(label_url, result)
         else:
-            label_url = url + constants.label_helpwanted
+            label_url = url + constants.LABEL_HELPWANTED
             result = requests.get(label_url + page,
                                   auth=(username, token)).json()
             if result:
@@ -70,7 +70,7 @@ class HelpWantedView(APIView):
                     result
                 )
             else:
-                label_url = url + constants.label_help_wanted
+                label_url = url + constants.LABEL_HELP_WANTED
                 result = requests.get(label_url + page,
                                       auth=(username, token)).json()
                 if result:

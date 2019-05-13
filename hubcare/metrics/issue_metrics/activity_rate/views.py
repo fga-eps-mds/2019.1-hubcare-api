@@ -82,9 +82,9 @@ def get_issues_15_day(owner, repo):
     '''
     Get all the issues in the last 15 days
     '''
-    page_number = 1
+    page_number = ONE
     issues_alive = ZERO
-    issues_not_alive = 0
+    issues_not_alive = ZERO
     u = 'https://api.github.com/repos/' + owner + '/' + repo + '/issues?&page='
     aux = True
 
@@ -100,12 +100,12 @@ def get_issues_15_day(owner, repo):
             print(activity)
             if(check_datetime_15_days(activity['updated_at'])):
                 if(activity['state'] == 'open'):
-                    issues_alive = issues_alive + 1
+                    issues_alive = issues_alive + ONE
                 else:
                     # Do nothing
                     pass
             if(activity['state'] == 'open'):
-                issues_not_alive = issues_not_alive + 1
+                issues_not_alive = issues_not_alive + ONE
             else:
                 # Do nothing
                 pass
@@ -114,5 +114,5 @@ def get_issues_15_day(owner, repo):
             aux = False
         print(issues_alive)
         print(issues_not_alive)
-        page_number = page_number + 1
+        page_number = page_number + ONE
     return issues_alive, issues_not_alive
