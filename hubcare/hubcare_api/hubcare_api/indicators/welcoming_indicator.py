@@ -4,7 +4,7 @@ import os
 
 
 def get_welcoming_indicator(owner, repo):
-    url_authors = 'contributors/different_authors/'
+    url_authors = 'contributors/'
     url = URL_COMMIT + url_authors + owner + '/' + repo
     cont_metric = requests.get(url)
     cont_total = len(cont_metric.json())

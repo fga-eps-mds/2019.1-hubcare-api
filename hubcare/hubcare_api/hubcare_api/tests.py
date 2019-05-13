@@ -1,6 +1,5 @@
 from django.test import RequestFactory, TestCase
 from unittest import mock
-from hubcare_api.models import HubcareAPI
 from hubcare_api.views import HubcareApiView
 from hubcare_api.constants import *
 
@@ -73,13 +72,6 @@ class HubcareApiViewTest(TestCase):
         setup test configs
         '''
         self.factory = RequestFactory()
-        self.hubcare_metrics = HubcareAPI.objects.create(
-            owner='cleber',
-            repo='desenho',
-            active_indicator=0.90,
-            welcoming_indicator=0.50,
-            support_indicator=0.75,
-        )
 
     @mock.patch('hubcare_api.views.requests.get',
                 side_effect=mocked_requests_get)
