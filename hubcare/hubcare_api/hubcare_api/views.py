@@ -9,7 +9,17 @@ import os
 
 
 class HubcareApiView(APIView):
+    '''
+        This is the main class view of the project, it gets data from a repo
+        Input: owner, repo
+        Output: indicators
+    '''
     def get(self, request, owner, repo):
+        '''
+            Getting data from a repo and indicate parameters
+            Input: owner, repo
+            Output: indicators
+        '''
         username = os.environ['NAME']
         token = os.environ['TOKEN']
         url = 'https://api.github.com/repos/'
