@@ -32,7 +32,7 @@
 #     elif args[0] == url2 + url_release:
 #         return MockResponse({"release": "value"}, 200)
 #     elif args[0] == url3 + url_release:
-#         return MockResponse({"release": None}, 200)    
+#         return MockResponse({"release": None}, 200)
 #     return MockResponse(None, 404)
 
 
@@ -59,7 +59,7 @@
 #             repo='not_exists',
 #             have_realease_note=True,
 #             date=datetime.now(timezone.utc)
-#         )        
+#         )
 
 #     def test_release_note_existence_in_db(self):
 #         '''
