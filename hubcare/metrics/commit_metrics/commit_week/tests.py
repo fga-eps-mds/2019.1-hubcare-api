@@ -6,6 +6,7 @@ from commit_week.models import CommitWeek
 from commit_week.views import CommitMonthView
 from commit_week.constants import *
 
+
 def mocked_requests_get(*args, **kwargs):
     '''
     This method will be used by the mock to replace requests.get
@@ -24,8 +25,10 @@ def mocked_requests_get(*args, **kwargs):
             '''
             return self.json_data
 
-    if args[0] == 'https://api.github.com/repos/test/repo_test/stats/participation':
-        return MockResponse({"all":[
+    aux_url = 'https://api.github.com/repos/test/repo_test/stats/participation'
+
+    if args[0] == aux_url:
+        return MockResponse({"all": [
                                 0,
                                 0,
                                 0,
@@ -77,7 +80,7 @@ def mocked_requests_get(*args, **kwargs):
                                 70,
                                 86,
                                 73,
-                                0]}, 
+                                0]},
                             200)
 
     return MockResponse(None, 404)
@@ -97,7 +100,7 @@ class CommitMonthViewTest(TestCase):
             repo='cremilda',
             date='2019-03-19'
         )
-        week_number=YEAR_WEEK
+        week_number = YEAR_WEEK
         for i in range(0, YEAR_WEEK, 1):
             self.commit_week = CommitWeek.objects.create(
                 week=week_number,
@@ -128,12 +131,11 @@ class CommitMonthViewTest(TestCase):
                 side_effect=mocked_requests_get)
     def test_sum(self, mock_get):
         '''
-            test sum 
+            test sum
         '''
         request = self.factory.get('commit_week/commit_week/test/repo_test')
         response = CommitMonthView.as_view()(request, 'test', 'repo_test')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['owner'],'test')
-        self.assertEqual(response.data['repo'],'repo_test')
-        self.assertEqual(response.data['sum'],273)
-    
+        self.assertEqual(response.data['owner'], 'test')
+        self.assertEqual(response.data['repo'], 'repo_test')
+        self.assertEqual(response.data['sum'], 273)
