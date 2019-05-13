@@ -6,7 +6,7 @@ from .models import ActivityRateIssue
 from .serializers import ActivityRateIssueSerializers
 from issue_metrics.functions import check_datetime, \
     calculate_metric, get_all_issues, check_datetime_15_days
-from issue_metrics.constants import ZERO
+from issue_metrics.constants import ONE, ZERO
 from datetime import datetime, timezone
 import os
 
