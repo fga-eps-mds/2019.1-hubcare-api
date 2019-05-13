@@ -44,19 +44,19 @@ class TestPullRequestTemplateView(TestCase):
             owner='owner_test',
             repo='repo_test',
             pull_request_template=True,
-            date=datetime.now(timezone.utc)
+            date_time=datetime.now(timezone.utc)
         )
         PullRequestTemplate.objects.create(
             owner='owner_date',
             repo='repo_date',
             pull_request_template=True,
-            date=datetime(2018, 4, 10, 16, 29, 43, 79043)
+            date_time=datetime(2018, 4, 10, 16, 29, 43, 79043)
         )
         PullRequestTemplate.objects.create(
             owner='owner_date2',
             repo='repo_date2',
             pull_request_template=True,
-            date=datetime(2018, 4, 10, 16, 29, 43, 79043)
+            date_time=datetime(2018, 4, 10, 16, 29, 43, 79043)
         )
 
     def test_exists_in_db(self):
@@ -127,7 +127,7 @@ class TestPullRequestTemplateView(TestCase):
         self.assertEqual(response.data['owner'], 'owner_date')
         self.assertEqual(response.data['repo'], 'repo_date')
         self.assertEqual(response.data['pull_request_template'], True)
-        response_date = response.data['date']
+        response_date = response.data['date_time']
         date_strp = datetime.strptime(response_date[0:10], "%Y-%m-%d").date()
         self.assertEqual(str(date_strp),
                          str(datetime.now(timezone.utc).date()))
@@ -152,7 +152,7 @@ class TestPullRequestTemplateView(TestCase):
         self.assertEqual(response.data['owner'], 'owner_date2')
         self.assertEqual(response.data['repo'], 'repo_date2')
         self.assertEqual(response.data['pull_request_template'], False)
-        response_date = response.data['date']
+        response_date = response.data['date_time']
         date_strp = datetime.strptime(response_date[0:10], "%Y-%m-%d").date()
         self.assertEqual(str(date_strp),
                          str(datetime.now(timezone.utc).date()))
