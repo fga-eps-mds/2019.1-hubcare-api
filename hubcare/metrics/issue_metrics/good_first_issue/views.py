@@ -5,7 +5,7 @@ from good_first_issue.serializers import GoodFirstIssueSerializer
 from datetime import datetime, timezone
 from issue_metrics import constants
 from issue_metrics.functions \
-    import check_datetime, get_metric_good_first_issue, count_all_good_first_issue
+    import check_datetime, get_metric_good_first_issue, count_all_label
 import requests
 import json
 import os
@@ -46,7 +46,13 @@ class GoodFirstIssueView(APIView):
                     timezone.utc
                 )
             )
-        return Response(get_metric_good_first_issue(GoodFirstIssue, owner, repo))
+        return Response(
+            get_metric_good_first_issue(
+                GoodFirstIssue,
+                owner,
+                repo
+            )
+        )
 
     def get_total_goodfirstissue(self, url):
         '''
@@ -71,7 +77,7 @@ class GoodFirstIssueView(APIView):
         checks possibilities for different aliases of good first issue
         '''
         if result:
-            good_first_issue = count_all_good_first_issue(
+            good_first_issue = count_all_label(
                 label_url,
                 result
             )
@@ -81,7 +87,7 @@ class GoodFirstIssueView(APIView):
                                   auth=(username,
                                         token)).json()
             if result:
-                good_first_issue = count_all_good_first_issue(
+                good_first_issue = count_all_label(
                     label_url,
                     result
                 )
@@ -91,9 +97,8 @@ class GoodFirstIssueView(APIView):
                                       auth=(username,
                                             token)).json()
                 if result:
-                    good_first_issue = count_all_good_first_issue(
+                    good_first_issue = count_all_label(
                         label_url,
                         result
                     )
         return total_issues, good_first_issue
-
