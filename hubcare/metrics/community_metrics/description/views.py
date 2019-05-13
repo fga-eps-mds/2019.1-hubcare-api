@@ -5,6 +5,9 @@ from description.models import Description
 import requests
 from datetime import datetime, timezone
 import os
+from community_metrics.functions \
+    import check_date, serialized_object
+from community_metrics.constants import HTTP_OK, URL_API
 
 
 class DescriptionView(APIView):
@@ -20,37 +23,32 @@ class DescriptionView(APIView):
 
         if (not description):
 
-            url = 'https://api.github.com/repos/'
-            github_request = requests.get(url + owner + '/' + repo,
-                                          auth=(username,
-                                                token))
-
+            github_request = requests.get(URL_API + owner + '/' + repo,
+                                          auth=(username, token))
             github_data = github_request.json()
 
-            if(github_request.status_code == 200):
+            if(github_request.status_code == HTTP_OK):
                 if(github_data['description'] is not None):
                     Description.objects.create(
                         owner=owner,
                         repo=repo,
                         description=True,
-                        date=datetime.now(timezone.utc)
+                        date_time=datetime.now(timezone.utc)
                     )
                 elif(github_data['description'] is None):
                     Description.objects.create(
                         owner=owner,
                         repo=repo,
                         description=False,
-                        date=datetime.now(timezone.utc)
+                        date_time=datetime.now(timezone.utc)
                     )
-        elif(date_check(description)):
-            url = 'https://api.github.com/repos/'
-            github_request = requests.get(url + owner + '/' + repo,
-                                          auth=(username,
-                                                token))
 
+        elif(check_date(description)):
+            github_request = requests.get(URL_API + owner + '/' + repo,
+                                          auth=(username, token))
             github_data = github_request.json()
 
-            if(github_request.status_code is 200):
+            if(github_request.status_code is HTTP_OK):
                 if(github_data['description'] is not None):
                     Description.objects.filter(
                         owner=owner,
@@ -59,7 +57,7 @@ class DescriptionView(APIView):
                         owner=owner,
                         repo=repo,
                         description=True,
-                        date=datetime.now(timezone.utc)
+                        date_time=datetime.now(timezone.utc)
                     )
                 elif(github_data['description'] is None):
                     Description.objects.filter(
@@ -69,23 +67,15 @@ class DescriptionView(APIView):
                         owner=owner,
                         repo=repo,
                         description=False,
-                        date=datetime.now(timezone.utc)
+                        date_time=datetime.now(timezone.utc)
                     )
 
         description = Description.objects.all().filter(
             owner=owner,
             repo=repo
         )
-        serialized = DescriptionSerializer(description, many=True)
-        return Response(serialized.data[0])
-
-
-def date_check(tested_variable):
-    '''
-    verifies if the time difference between the last update and now is
-    greater than 24 hours
-    '''
-    datetime_now = datetime.now(timezone.utc)
-    if(tested_variable and (datetime_now - tested_variable[0].date).days >= 1):
-        return True
-    return False
+        description_serialized = serialized_object(
+            DescriptionSerializer,
+            description
+        )
+        return Response(description_serialized.data[0])
