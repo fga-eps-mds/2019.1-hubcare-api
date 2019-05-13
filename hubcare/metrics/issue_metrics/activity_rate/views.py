@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import ActivityRateIssue
 from .serializers import ActivityRateIssueSerializers
+from issue_metrics.functions import check_datetime
 from datetime import datetime, timezone
 import os
 
@@ -23,7 +24,7 @@ class ActivityRateIssueView(APIView):
                     owner=owner,
                     repo=repo,
                     activity_rate=0,
-                    date=datetime.now(timezone.utc),
+                    date_time=datetime.now(timezone.utc),
                     activity_rate_15_days=0,
                     activity_rate_15_days_metric=0,
                 )
@@ -41,7 +42,7 @@ class ActivityRateIssueView(APIView):
                     activity_rate=(
                         open_issues / (closed_issues + open_issues)
                     ),
-                    date=datetime.now(timezone.utc),
+                    date_time=datetime.now(timezone.utc),
                     activity_rate_15_days=activity_rate_15_days,
                     activity_rate_15_days_metric=calculate_metric(
                         issues_alive,
@@ -60,7 +61,7 @@ class ActivityRateIssueView(APIView):
 
             ActivityRateIssue.objects.filter(owner=owner, repo=repo).update(
                 activity_rate=(open_issues / (closed_issues + open_issues)),
-                date=datetime.now(timezone.utc),
+                date_time=datetime.now(timezone.utc),
                 activity_rate_15_days=activity_rate_15_days,
                 activity_rate_15_days_metric=calculate_metric(issues_alive,
                                                               not_alive),
@@ -73,17 +74,6 @@ class ActivityRateIssueView(APIView):
             activity_rate, many=True)
 
         return Response(activity_rate_serialized.data)
-
-
-def check_datetime(activity_rate):
-    '''
-    verifies if the time difference between the last update and now is
-    greater than 24 hours
-    '''
-    datetime_now = datetime.now(timezone.utc)
-    if((datetime_now - activity_rate.date).days >= 1):
-        return True
-    return False
 
 
 def check_datetime_15_days(activity_rate):
