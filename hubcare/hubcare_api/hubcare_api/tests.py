@@ -1,12 +1,8 @@
 from django.test import RequestFactory, TestCase
 from unittest import mock
-from datetime import datetime
-from commit_week.views import CommitMonthView
-from hubcare.hubcare_api.hubcare_api.indicators.active_indicator import get_active_indicator
-from hubcare.hubcare_api.hubcare_api.indicators.support_indicator import get_support_indicator
-from hubcare.hubcare_api.hubcare_api.indicators.welcoming_indicator import get_welcoming_indicator
-from hubcare.hubcare_api.hubcare_api.views import HubcareApiView
-from hubcare.hubcare_api.hubcare_api.constants import *
+from hubcare_api.models import HubcareAPI
+from hubcare_api.views import HubcareApiView
+from hubcare_api.constants import *
 
 
 def mocked_requests_get(*args, **kwargs):
@@ -27,43 +23,43 @@ def mocked_requests_get(*args, **kwargs):
             '''
             return self.json_data
 
+    cont_authors = 'contributors/different_authors/test/repo_test'
+
     if args[0] == URL_COMMUNITY + 'code_of_conduct/test/repo_test':
-        return MockResponse({'code_of_conduct':'value'}, 200)
+        return MockResponse({'code_of_conduct': 'value'}, 200)
     elif args[0] == URL_COMMUNITY + 'contribution_guide/test/repo_test':
-        return MockResponse({'contribution_guide':'value'}, 200)
+        return MockResponse({'contribution_guide': 'value'}, 200)
     elif args[0] == URL_COMMUNITY + 'description/test/repo_test':
-        return MockResponse({'description':'value'}, 200)
+        return MockResponse({'description': 'value'}, 200)
     elif args[0] == URL_COMMUNITY + 'issue_template/test/repo_test':
-        return MockResponse({'issue_templates':'value'}, 200)
+        return MockResponse({'issue_templates': 'value'}, 200)
     elif args[0] == URL_COMMUNITY + 'license/test/repo_test':
-        return MockResponse({'have_license':'value'}, 200)
+        return MockResponse({'have_license': 'value'}, 200)
     elif args[0] == URL_COMMUNITY + 'pull_request_template/test/repo_test':
-        return MockResponse({'pull_request_template':'value'}, 200)
+        return MockResponse({'pull_request_template': 'value'}, 200)
     elif args[0] == URL_COMMUNITY + 'readme/test/repo_test':
-        return MockResponse({'readme':'value'}, 200)
+        return MockResponse({'readme': 'value'}, 200)
     elif args[0] == URL_COMMUNITY + 'release_note/test/repo_test':
-        return MockResponse({'response':'value'}, 200)
+        return MockResponse({'response': 'value'}, 200)
     elif args[0] == URL_COMMIT + 'commit_week/commit_week/test/repo_test':
-        return MockResponse({'sum':'273'}, 200)
-    elif args[0] == URL_COMMIT + 'contributors/different_authors/test/repo_test':
+        return MockResponse({'sum': '273'}, 200)
+    elif args[0] == URL_COMMIT + cont_authors:
         return MockResponse([
-                {'author':'CleberHiroshi23@gmail.com', 'numberCommits':7},
-                {'author':'Toyoshima321@hotmail.com', 'numberCommits':5},
-                {'author':'JacoVitor33@orkut.com', 'numberCommits':2},
-                {'author':'RomulanoFranchesco@msn.com', 'numberCommits':10},
+                {'author': 'CleberHiroshi23@gmail.com', 'numberCommits': 7},
+                {'author': 'Toyoshima321@hotmail.com', 'numberCommits': 5},
+                {'author': 'JacoVitor33@orkut.com', 'numberCommits': 2},
+                {'author': 'RomulanoFranchesco@msn.com', 'numberCommits': 10},
             ],
             200
         )
     elif args[0] == URL_ISSUE + 'activity_rate/test/repo_test':
-        return MockResponse({'activity_rate_15_days':'1'}, 200)
+        return MockResponse({'activity_rate_15_days': '1'}, 200)
     elif args[0] == URL_ISSUE + 'good_first_issue/test/repo_test':
-        return MockResponse({'rate':'0.8'}, 200)
+        return MockResponse({'rate': '0.8'}, 200)
     elif args[0] == URL_ISSUE + 'help_wanted/test/repo_test':
-        return MockResponse({'rate':'0.7'}, 200)
+        return MockResponse({'rate': '0.7'}, 200)
     elif args[0] == URL_PR + 'acceptance_quality/test/repo_test':
-        return MockResponse({'metric':'0.6'}, 200)
-
-    
+        return MockResponse({'metric': '0.6'}, 200)
 
     return MockResponse(None, 404)
 
@@ -76,8 +72,17 @@ class HubcareApiViewTest(TestCase):
         '''
         setup test configs
         '''
-        pass
+        self.factory = RequestFactory()
+        self.hubcare_metrics = HubcareAPI.objects.create(
+            owner='cleber',
+            repo='desenho',
+            active_indicator=0.90,
+            welcoming_indicator=0.50,
+            support_indicator=0.75,
+        )
 
+    @mock.patch('hubcare_api.views.requests.get',
+                side_effect=mocked_requests_get)
     def test_hubcare_api(self, mock_get):
         '''
         test if hubcare API return: active indicator
@@ -89,10 +94,20 @@ class HubcareApiViewTest(TestCase):
         self.assertEqual(response.data['welcoming_indicator'], 0.50)
         self.assertEqual(response.data['support_indicator'], 0.78)
 
-    def test_error_404(self, mock_get):
+    def test_exists_in_db(self):
         '''
-        test if a repository exists in Github
+        test if the indicators exists in local db
         '''
-        request = self.factory.get('hubcare_indicators/cleber/cremilda/')
-        response = HubcareApiView.as_view()(request, 'cleber', 'cremilda')
+        request = self.factory.get('hubcare_indicators/cleber/desenho/')
+        response = LicenseView.as_view()(request, 'cleber', 'desenho')
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('hubcare_api.views.requests.get',
+                side_effect=mocked_requests_get)
+    def test_repository_not_existence(self, mock_get):
+        '''
+        test if not exist repository in github api
+        '''
+        request = self.factory.get('hubcare_indicators/romulano/cremilda/')
+        response = HubcareApiView.as_view()(request, 'romulano', 'cremilda')
         self.assertEqual(response.status_code, 404)
