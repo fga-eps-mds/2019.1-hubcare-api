@@ -23,31 +23,36 @@ def mocked_request_get(*args, **kwargs):
             '''
             return self.json_data
 
-    url1 = 'https://api.github.com/repos/fga-eps-mds/2019.1-hubcare-api/'
-    url2 = 'https://api.github.com/repos/owner_date/repo_date/'
+    url1 = 'https://api.github.com/repos/fga-eps-mds/2019.1-hubcare-api'
+    url2 = 'https://api.github.com/repos/not_exists/not_exists'
+    url3 = 'https://api.github.com/repos/owner_date/repo_date'
+    url4 = 'https://api.github.com/repos/owner_date2/repo_date2'
     if args[0] == url1:
-        return MockResponse({'description': 'name'}, 200)
+        return MockResponse({'description': 'value'}, 200)
     elif args[0] == url2:
-        return MockResponse({'description': 'name'}, 200)
-
+        return MockResponse({'description': None}, 200)
+    elif args[0] == url3:
+        return MockResponse({'description': 'value'}, 200)
+    elif args[0] == url4:
+        return MockResponse({'description': None}, 200)
     return MockResponse(None, 404)
 
 
-class TestDescriptionView(TestCase):
+class DescriptionViewTest(TestCase):
     def setUp(self):
         '''
         Define Description objects to tests
         '''
         self.factory = RequestFactory()
         Description.objects.create(
-            owner='owner_test',
-            repo='repo_test',
+            owner='fga-eps-mds',
+            repo='2019.1-hubcare-api',
             description=True,
             date_time=datetime.now(timezone.utc)
         )
         Description.objects.create(
-            owner='fga-eps-mds',
-            repo='2019.1-hubcare-api',
+            owner='owner_test',
+            repo='repo_test',
             description=True,
             date_time=datetime.now(timezone.utc)
         )
@@ -61,7 +66,13 @@ class TestDescriptionView(TestCase):
             owner='owner_date',
             repo='repo_date',
             description=True,
-            date_time=datetime.now(timezone.utc)
+            date_time=datetime(2018, 5, 8, 15, 30, 45, 78910)
+        )
+        Description.objects.create(
+            owner='owner_date2',
+            repo='repo_date2',
+            description=True,
+            date_time=datetime(2018, 5, 8, 15, 30, 45, 78910)
         )
 
     def test_exists_in_db(self):
@@ -119,7 +130,7 @@ class TestDescriptionView(TestCase):
         '''
         test old date of description in database
         '''
-        url = 'description/owner_date/repo_date'
+        url = '/description/owner_date/repo_date'
         request = self.factory.get(url)
         response = DescriptionView.as_view()(
             request,
@@ -130,6 +141,31 @@ class TestDescriptionView(TestCase):
         self.assertEqual(response.data['owner'], 'owner_date')
         self.assertEqual(response.data['repo'], 'repo_date')
         self.assertEqual(response.data['description'], True)
+        response_date = response.data['date_time']
+        date_strp = datetime.strptime(response_date[0:10], "%Y-%m-%d").date()
+        self.assertEqual(str(date_strp),
+                         str(datetime.now(timezone.utc).date()))
+
+    @mock.patch('description.views.requests.get',
+                side_effect=mocked_request_get)
+    def test_date_description_not_exists(self, mock_get):
+        '''
+        test old date of description in database and
+        the description not exists
+        '''
+        url = '/description/owner_date2/repo_date2'
+        request = self.factory.get(url)
+
+        response = DescriptionView.as_view()(
+            request,
+            'owner_date2',
+            'repo_date2'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['owner'], 'owner_date2')
+        self.assertEqual(response.data['repo'], 'repo_date2')
+        self.assertEqual(response.data['description'], False)
         response_date = response.data['date_time']
         date_strp = datetime.strptime(response_date[0:10], "%Y-%m-%d").date()
         self.assertEqual(str(date_strp),
