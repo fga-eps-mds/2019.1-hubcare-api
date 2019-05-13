@@ -4,6 +4,8 @@ from good_first_issue.models import GoodFirstIssue
 from good_first_issue.serializers import GoodFirstIssueSerializer
 from datetime import datetime, timezone
 from issue_metrics import constants
+from issue_metrics.functions \
+    import check_datetime, get_metric_good_first_issue, count_all_good_first_issue
 import requests
 import json
 import os
@@ -44,7 +46,7 @@ class GoodFirstIssueView(APIView):
                     timezone.utc
                 )
             )
-        return Response(self.get_metric(owner, repo))
+        return Response(get_metric_good_first_issue(GoodFirstIssue, owner, repo))
 
     def get_total_goodfirstissue(self, url):
         '''
@@ -54,8 +56,8 @@ class GoodFirstIssueView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        total_issues = 0
-        good_first_issue = 0
+        total_issues = constants.ZERO
+        good_first_issue = constants.ZERO
         info_repo = requests.get(url, auth=(username,
                                             token)).json()
         total_issues = info_repo["open_issues_count"]
@@ -69,7 +71,7 @@ class GoodFirstIssueView(APIView):
         checks possibilities for different aliases of good first issue
         '''
         if result:
-            good_first_issue = self.count_all_good_first_issue(
+            good_first_issue = count_all_good_first_issue(
                 label_url,
                 result
             )
@@ -79,7 +81,7 @@ class GoodFirstIssueView(APIView):
                                   auth=(username,
                                         token)).json()
             if result:
-                good_first_issue = self.count_all_good_first_issue(
+                good_first_issue = count_all_good_first_issue(
                     label_url,
                     result
                 )
@@ -89,53 +91,9 @@ class GoodFirstIssueView(APIView):
                                       auth=(username,
                                             token)).json()
                 if result:
-                    good_first_issue = self.count_all_good_first_issue(
+                    good_first_issue = count_all_good_first_issue(
                         label_url,
                         result
                     )
         return total_issues, good_first_issue
 
-    def count_all_good_first_issue(self, url, result):
-        '''
-        returns the number of good first issue in all pages
-        '''
-        username = os.environ['NAME']
-        token = os.environ['TOKEN']
-        count = 1
-        page = '&page='
-        good_first_issue = 0
-        while result:
-            count += 1
-            good_first_issue += len(result)
-            result = requests.get(url + page + str(count),
-                                  auth=(username, token)).json()
-
-        return good_first_issue
-
-    def get_metric(self, owner, repo):
-        '''
-        returns the metric of the repository
-        '''
-        good_first_issues = GoodFirstIssue.objects.all().filter(
-            owner=owner,
-            repo=repo
-        )[0]
-        if good_first_issues.total_issues != 0:
-            total_sample = good_first_issues.total_issues
-            rate = good_first_issues.good_first_issue / total_sample
-        else:
-            rate = 0.0
-        rate = '{"rate":\"' + str(rate) + '"}'
-        rate_json = json.loads(rate)
-        return rate_json
-
-
-def check_datetime(good_first_issue):
-    '''
-    verifies if the time difference between the last update and now is
-    greater than 24 hours
-    '''
-    datetime_now = datetime.now(timezone.utc)
-    if((datetime_now - good_first_issue.date_time).days >= 1):
-        return True
-    return False
