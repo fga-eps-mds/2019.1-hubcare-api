@@ -7,7 +7,8 @@ from datetime import datetime, timezone
 import os
 from community_metrics.functions \
     import check_date, serialized_object
-from community_metrics.constants import HTTP_OK, URL_API
+from community_metrics.constants import HTTP_OK, URL_API, HTTP_NOT_FOUND
+from django.http import Http404
 
 
 class DescriptionView(APIView):
@@ -27,7 +28,10 @@ class DescriptionView(APIView):
                                           auth=(username, token))
             github_data = github_request.json()
 
-            if(github_request.status_code == HTTP_OK):
+            if (github_request.status_code == HTTP_NOT_FOUND):
+                raise Http404
+
+            elif(github_request.status_code == HTTP_OK):
                 if(github_data['description'] is not None):
                     Description.objects.create(
                         owner=owner,
@@ -48,27 +52,29 @@ class DescriptionView(APIView):
                                           auth=(username, token))
             github_data = github_request.json()
 
-            if(github_request.status_code is HTTP_OK):
-                if(github_data['description'] is not None):
-                    Description.objects.filter(
-                        owner=owner,
-                        repo=repo
-                    ).update(
-                        owner=owner,
-                        repo=repo,
-                        description=True,
-                        date_time=datetime.now(timezone.utc)
-                    )
-                elif(github_data['description'] is None):
-                    Description.objects.filter(
-                        owner=owner,
-                        repo=repo
-                    ).update(
-                        owner=owner,
-                        repo=repo,
-                        description=False,
-                        date_time=datetime.now(timezone.utc)
-                    )
+            if (github_request.status_code == HTTP_NOT_FOUND):
+                raise Http404
+
+            elif(github_data['description'] is not None):
+                Description.objects.filter(
+                    owner=owner,
+                    repo=repo
+                ).update(
+                    owner=owner,
+                    repo=repo,
+                    description=True,
+                    date_time=datetime.now(timezone.utc)
+                )
+            else:
+                Description.objects.filter(
+                    owner=owner,
+                    repo=repo
+                ).update(
+                    owner=owner,
+                    repo=repo,
+                    description=False,
+                    date_time=datetime.now(timezone.utc)
+                )
 
         description = Description.objects.all().filter(
             owner=owner,

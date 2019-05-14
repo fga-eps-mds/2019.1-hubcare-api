@@ -45,21 +45,9 @@ class DescriptionViewTest(TestCase):
         '''
         self.factory = RequestFactory()
         Description.objects.create(
-            owner='fga-eps-mds',
-            repo='2019.1-hubcare-api',
-            description=True,
-            date_time=datetime.now(timezone.utc)
-        )
-        Description.objects.create(
             owner='owner_test',
             repo='repo_test',
             description=True,
-            date_time=datetime.now(timezone.utc)
-        )
-        Description.objects.create(
-            owner='not_exists',
-            repo='not_exists',
-            description=False,
             date_time=datetime.now(timezone.utc)
         )
         Description.objects.create(
@@ -74,6 +62,21 @@ class DescriptionViewTest(TestCase):
             description=True,
             date_time=datetime(2018, 5, 8, 15, 30, 45, 78910)
         )
+        Description.objects.create(
+            owner='owner_out',
+            repo='repo_out',
+            description=False,
+            date_time=datetime(2018, 5, 8, 15, 30, 45, 76910)
+        )
+    @mock.patch('description.views.requests.get',
+                side_effect=mocked_request_get)
+    def test_repository_not_existence(self, mock_get):
+        '''
+        test if not exist repository in github api
+        '''
+        request = self.factory.get('/description/owner/repo')
+        response = DescriptionView.as_view()(request, 'owner', 'repo')
+        self.assertEqual(response.status_code, 404)
 
     def test_exists_in_db(self):
         '''
@@ -123,6 +126,16 @@ class DescriptionViewTest(TestCase):
         self.assertEqual(response.data['owner'], 'not_exists')
         self.assertEqual(response.data['repo'], 'not_exists')
         self.assertEqual(response.data['description'], False)
+
+    @mock.patch('description.views.requests.get',
+                side_effect=mocked_request_get)
+    def test_check_datetime_out(self, mock_get):
+        '''
+        test if not exist repository in github api yet
+        '''
+        request = self.factory.get('/description/owner_out/repo_out')
+        response = DescriptionView.as_view()(request, 'owner_out', 'repo_out')
+        self.assertEqual(response.status_code, 404)
 
     @mock.patch('description.views.requests.get',
                 side_effect=mocked_request_get)
