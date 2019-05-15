@@ -2,41 +2,70 @@ version: '2'
 services:
   community-metrics:
     image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/community_metrics:stable
+    environment:
+      PORT: '8002'
     stdin_open: true
     tty: true
     ports:
     - 8002:8002/tcp
     labels:
+      rap.le_host: community.hubcare.ml
       io.rancher.container.pull_image: always
+      rap.le_test: 'false'
+      rap.host: community.hubcare.ml
   pull-request-metrics:
     image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/pull_request_metrics:stable
+    environment:
+      PORT: '8004'
     stdin_open: true
     tty: true
     ports:
     - 8004:8004/tcp
     labels:
+      rap.le_host: pullrequest.hubcare.ml
       io.rancher.container.pull_image: always
+      rap.le_test: 'false'
+      rap.host: pullrequest.hubcare.ml
   hubcare-api:
     image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/hubcare_api:stable
+    environment:
+      PORT: '8000'
+      URL_COMMIT: https://commit.hubcare.ml/
+      URL_COMMUNITY: https://community.hubcare.ml/
+      URL_ISSUE: https://issue.hubcare.ml/
+      URL_PULL_REQUEST: https://pullrequest.hubcare.ml/
     stdin_open: true
     tty: true
     ports:
     - 8000:8000/tcp
     labels:
+      rap.le_host: gateway.hubcare.ml
       io.rancher.container.pull_image: always
-  issue-metrics:
-    image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/issue_metric:stable
-    stdin_open: true
-    tty: true
-    ports:
-    - 8003:8003/tcp
-    labels:
-      io.rancher.container.pull_image: always
+      rap.le_test: 'false'
+      rap.host: gateway.hubcare.ml
   commit-metrics:
     image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/commit_metrics:stable
+    environment:
+      PORT: '8001'
     stdin_open: true
     tty: true
     ports:
     - 8001:8001/tcp
     labels:
+      rap.le_host: commit.hubcare.ml
       io.rancher.container.pull_image: always
+      rap.le_test: 'false'
+      rap.host: commit.hubcare.ml
+  issue-metrics:
+    image: registry.gitlab.com/cjjcastro/2019-1-hubcare-api/issue_metric:stable
+    environment:
+      PORT: '8003'
+    stdin_open: true
+    tty: true
+    ports:
+    - 8003:8003/tcp
+    labels:
+      rap.le_host: issue.hubcare.ml
+      io.rancher.container.pull_image: always
+      rap.le_test: 'false'
+      rap.host: issue.hubcare.ml
