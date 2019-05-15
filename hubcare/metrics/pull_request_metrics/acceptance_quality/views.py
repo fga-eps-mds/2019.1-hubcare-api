@@ -5,11 +5,23 @@ from rest_framework.response import Response
 from .models import PullRequestQuality
 from .serializers import PullRequestQualitySerializers
 from datetime import datetime, timezone
+from acceptance_quality.constants import *
 import os
 
 
 class PullRequestQualityView(APIView):
+    '''
+        Check the quality of a pull request, based on metrics
+        Input: owner, repo
+        Output: Response calculated based on metrics
+    '''
     def get(self, request, owner, repo):
+        '''
+            Check the existence of pull requests validate
+            and fix it according to metrics
+            Input: owner, repo
+            Output: the quality of the PRs based on the metrics
+        '''
         pull_request_quality = PullRequestQuality.objects.all().filter(
             owner=owner, repo=repo)
         pull_request_qualityserialized = PullRequestQualitySerializers(
@@ -39,7 +51,7 @@ class PullRequestQualityView(APIView):
 
 def check_datetime(pull_request):
     '''
-    verifies if the time difference between the last update and now is
+    Verifies if the time difference between the last update and now is
     greater than 24 hours
     '''
     datetime_now = datetime.now(timezone.utc)
@@ -50,7 +62,7 @@ def check_datetime(pull_request):
 
 def check_datetime_days(pull_request, days):
     '''
-    verifies if the time difference between the issue created and now is
+    Verifies if the time difference between the issue created and now is
     greater than X days
     '''
     pull_request = datetime.strptime(pull_request, '%Y-%m-%dT%H:%M:%SZ')
@@ -62,7 +74,7 @@ def check_datetime_days(pull_request, days):
 
 def get_pull_request(owner, repo):
     '''
-    Get all the pr's in the last 60 days or the first 50
+    Get all the PRs in the last 60 days or the first 50 PRs
     '''
     username = os.environ['NAME']
     token = os.environ['TOKEN']
@@ -81,13 +93,14 @@ def get_pull_request(owner, repo):
             return 0
 
         for pr in github_data:
-            if(check_datetime_days(pr['created_at'], 60) and elements < 50):
+            if(check_datetime_days(pr['created_at'], NUM_PRS) and
+                    elements < LAST_PRS):
                 score = calculate_metric(owner, repo, pr)
                 print("score = ", score)
                 pull_request_score = pull_request_score + score
                 print("pull_request_score =", pull_request_score)
                 elements = elements + 1
-            elif(elements < 50):
+            elif(elements < LAST_PRS):
                 score = calculate_metric(owner, repo, pr)
                 print("score = ", score)
                 pull_request_score = pull_request_score + score
@@ -99,7 +112,7 @@ def get_pull_request(owner, repo):
             print("elementos = ", elements)
         if(github_data == []):
             aux = False
-        if(elements == 50):
+        if(elements == LAST_PRS):
             aux = False
         page_number = page_number + 1
     print("pull_request_score_total =", pull_request_score)
@@ -110,47 +123,42 @@ def get_pull_request(owner, repo):
 
 def calculate_metric(owner, repo, pr):
     '''
-    Calculate metric
+        Calculate metric
 
-    Situação	Discussão	Resultado
-
-    Merjado	Sim	1
-
-    Merjado	Não	0.9
-
-    Aberto	Recente (<=15 dias)	0.9
-
-    Fechado e sem Merge	Sim	0.7
-
-    Aberto	Antiga (>15 dias)	0.3
-
-    Fechado e sem Merge	Não	0.1
-
-    Aberto	Não / antiga	0
+        Status  |Have discussion  |Result
+        Merged  |Yes              |1
+        Merged  |No               |0.9
+        Open    |Recent(<=15 days)|0.9
+        Closed  |Yes              |0.7
+         (without Merge)
+        Open (Older (>15 days))   |0.3
+        Closed  |No               |0.1
+         (without Merge)
+        Open |No (old)            |0
     '''
     comments = get_comments(owner, repo, pr['number'])
 
     if pr['merged_at'] is not None and comments >= 1:
         score = 1
-        print("Merjado com Discussão")
+        print("Merged with discussio")
     elif pr['merged_at'] is not None and comments == 0:
         score = 0.9
-        print("Merjado sem Discussão")
+        print("Merged without discussion")
     elif pr['state'] == 'open' and check_datetime_days(pr['updated_at'], 15):
         score = 0.9
-        print("Aberto com Discussão Recente")
+        print("Open with recent discussion")
     elif pr['state'] == 'closed' and comments >= 1:
-        print("Fechado com Discussão")
+        print("Closed with discussion")
         score = 0.7
     elif pr['state'] == 'open' and not check_datetime_days(pr['updated_at'],
                                                            15):
-        print("Aberto com Discussão Antiga")
+        print("Open with old discussion")
         score = 0.3
     elif pr['state'] == 'closed' and comments == 0:
-        print("Fechado sem Discussão")
+        print("Closed without discussion")
         score = 0.1
     elif pr['state'] == 'open' and comments == 0:
-        print("Aberto sem Discussão")
+        print("Open without discussion")
         score = 0
     return score
 
