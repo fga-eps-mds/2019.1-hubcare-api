@@ -46,9 +46,10 @@ class DifferentsAuthorsView(APIView):
         listCommits = []
         listJson = []
 
-        if (github_request.status_code >= status_ok and
-                github_request.status_code <= status_no_content):
+        if(github_request.status_code == STATUS_ERROR):
+                raise Http404
 
+        else:
             for commit in github_data:
                 commit['commit']['committer']['date'].split('T')[0]
                 past = datetime.datetime.strptime(
@@ -63,4 +64,5 @@ class DifferentsAuthorsView(APIView):
             for author in authorsDistintCommits:
                 listJson.append({'author': author,
                                 'numberCommits': authorsCommits.count(author)})
+                                
         return Response(listJson)
