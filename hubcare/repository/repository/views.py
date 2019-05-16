@@ -37,42 +37,38 @@ class RepositoryView(APIView):
             Executes if repository exists
             '''
             if data.status_code >= 200 and data.status_code < 300:
-                response = self.create_response(1)
+                response = create_response(1)
                 return Response(response, status=status.HTTP_200_OK)
             else:
-                response = self.create_response(0)
+                response = create_response(0)
                 return Response(response, status=status.HTTP_404_NOT_FOUND)
         elif check_datetime(repository[0]):
-            response = self.create_response(2)
+            response = create_response(2)
             return Response(response, status.HTTP_200_OK)
         else:
-            response = self.create_response(3)
+            response = create_response(3)
             return Response(response, status=status.HTTP_200_OK)
 
-    def create_response(self, status):
-        response = {
-            'status': status,
-            'message': STATUS[str(status)],
-        }
-        return response
-    
-    def create_repository(self, owner, repo):
+    def post(self, request, owner, repo):
         repository = {
             'repo': repo,
             'owner': owner,
-            'date_time': datetime.now(timezone.utc)
+            'date': datetime.now(timezone.utc)
         }
         serializer = RepositorySerializer(data=repository)
         if serializer.is_valid():
             serializer.save()
-            return True
-        
-        return False
+            return Response('Repository added', status=status.HTTP_201_CREATED)
+        else:
+            return Response('Repository data is invalid', status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, owner, repo):
-        # repository.update(date_time=datetime.now(timezone.utc))
-
-        return Response('TO UPDATE')
+    def put(self, request, owner, repo):
+        repository = Repository.objects.filter(owner=owner, repo=repo)
+        try:
+            repository.update(date=datetime.now(timezone.utc))
+            return Response('Repository successfully updated', status=status.HTTP_200_OK)
+        except:
+            return Response('Error on updating status', status=status.HTTP_400_BAD_REQUEST)
 
 def check_datetime(object_date):
     '''
@@ -80,6 +76,13 @@ def check_datetime(object_date):
     greater than 24 hours
     '''
     datetime_now = datetime.now(timezone.utc)
-    if((datetime_now - object_date.date_time).days >= constants.ONE_DAY):
+    if((datetime_now - object_date.date).days >= constants.ONE_DAY):
         return True
     return False
+
+def create_response(status):
+    response = {
+        'status': status,
+        'message': STATUS[str(status)],
+    }
+    return response

@@ -9,5 +9,5 @@ class RepositorySerializer(serializers.ModelSerializer):
         fields = [
             'owner',
             'repo',
-            'date_time'
+            'date'
         ]
