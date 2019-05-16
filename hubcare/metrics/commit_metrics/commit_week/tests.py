@@ -5,6 +5,8 @@ from commit_metrics.models import Commit
 from commit_week.models import CommitWeek
 from commit_week.views import CommitMonthView
 from commit_week.constants import *
+from commit_week.apps import CommitWeekConfig
+from django.apps import apps
 
 
 def mocked_requests_get(*args, **kwargs):
@@ -139,3 +141,14 @@ class CommitMonthViewTest(TestCase):
         self.assertEqual(response.data['owner'], 'test')
         self.assertEqual(response.data['repo'], 'repo_test')
         self.assertEqual(response.data['sum'], 273)
+
+class CommitWeekConfigTest(TestCase):
+    '''
+    test all methods to commit week configs class
+    '''
+    def test_config(self):
+        self.assertEqual(CommitWeekConfig.name, 'commit_week')
+        self.assertEqual(
+            apps.get_app_config('commit_week').name,
+            'commit_week'
+        )
