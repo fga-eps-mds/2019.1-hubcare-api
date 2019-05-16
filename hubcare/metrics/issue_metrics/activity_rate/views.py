@@ -41,7 +41,7 @@ class ActivityRateIssueView(APIView):
             return Response(serializer.data,
                             status=status.HTTP_200_OK)
         else:
-            return Response('Error on creating repository',
+            return Response('Error on creating activity_rate metric',
                             status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, owner, repo):
@@ -64,7 +64,7 @@ class ActivityRateIssueView(APIView):
             return Response(serializer.data,
                             status=status.HTTP_200_OK)
         else:
-            return Response('Error on updating repository',
+            return Response('Error on updating activity_rate metric',
                             status=status.HTTP_400_BAD_REQUEST)
 
     def get_activity_rate(self, owner, repo):

@@ -47,8 +47,9 @@ class GoodFirstIssueView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response('Error on creating repository')
-    
+            return Response('Error on creating good first issue metric',
+                            status=status.HTTP_400_BAD_REQUEST)
+
     def put(self, request, owner, repo):
         '''
         Updates good first issue data for repository
@@ -72,7 +73,7 @@ class GoodFirstIssueView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response('Error on updating repository',
+            return Response('Error on updating good first issue metric',
                             status=status.HTTP_400_BAD_REQUEST)
 
     def get_total_goodfirstissue(self, url):
