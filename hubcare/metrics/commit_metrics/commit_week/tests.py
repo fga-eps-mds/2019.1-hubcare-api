@@ -142,6 +142,7 @@ class CommitMonthViewTest(TestCase):
         self.assertEqual(response.data['repo'], 'repo_test')
         self.assertEqual(response.data['sum'], 273)
 
+
 class CommitWeekConfigTest(TestCase):
     '''
     test all methods to commit week configs class

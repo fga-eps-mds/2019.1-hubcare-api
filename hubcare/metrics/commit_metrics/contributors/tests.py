@@ -45,7 +45,6 @@ def mocked_requests_get(*args, **kwargs):
                 }
             ], 200)
 
-
     return MockResponse(None, 404)
 
 
@@ -58,7 +57,7 @@ class ContributorsViewTest(TestCase):
         setup test configs
         '''
         self.factory = RequestFactory()
-    
+
     @mock.patch('contributors.views.requests.get',
                 side_effect=mocked_requests_get)
     def test_request(self, mock_get):
@@ -66,7 +65,11 @@ class ContributorsViewTest(TestCase):
         test request to github api
         '''
         request = self.factory.get('contributors/owner_test/repo_test')
-        response = DifferentsAuthorsView.as_view()(request, 'owner_test', 'repo_test')
+        response = DifferentsAuthorsView.as_view()(
+            request,
+            'owner_test',
+            'repo_test'
+        )
         self.assertEqual(response.status_code, 200)
 
 
