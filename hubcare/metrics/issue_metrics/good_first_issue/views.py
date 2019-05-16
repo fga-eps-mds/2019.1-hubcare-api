@@ -1,11 +1,11 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from good_first_issue.models import GoodFirstIssue
 from good_first_issue.serializers import GoodFirstIssueSerializer
-from datetime import datetime, timezone
 from issue_metrics import constants
 from issue_metrics.functions \
-    import check_datetime, get_metric_good_first_issue, count_all_label
+    import get_metric_good_first_issue, count_all_label
 import requests
 import json
 import os
@@ -14,45 +14,66 @@ import os
 class GoodFirstIssueView(APIView):
     def get(self, request, owner, repo):
         '''
-        returns good first issue rate
+        Returns good first issue data
         '''
 
-        good_first_issues = GoodFirstIssue.objects.all().filter(
-            owner=owner,
-            repo=repo
-        )
-        url = constants.MAIN_URL + owner + '/' + repo
-        if(not good_first_issues):
-            total_issues, good_first_issue = self.get_total_goodfirstissue(url)
-            GoodFirstIssue.objects.create(
-                owner=owner,
-                repo=repo,
-                total_issues=total_issues,
-                good_first_issue=good_first_issue,
-                date_time=datetime.now(
-                    timezone.utc
-                )
-            )
-        elif check_datetime(good_first_issues[0]):
-            good_first_issues = GoodFirstIssue.objects.get(
+        try:
+            good_first_issue = GoodFirstIssue.objects.all().filter(
                 owner=owner,
                 repo=repo
-            )
-            total_issues, good_first_issue = self.get_total_goodfirstissue(url)
-            GoodFirstIssue.objects.filter(owner=owner, repo=repo).update(
-                total_issues=total_issues,
-                good_first_issue=good_first_issue,
-                date_time=datetime.now(
-                    timezone.utc
-                )
-            )
-        return Response(
-            get_metric_good_first_issue(
-                GoodFirstIssue,
-                owner,
-                repo
-            )
-        )
+            )[0]
+            serializer = GoodFirstIssueSerializer(good_first_issue)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response('There is no repository to be viewed',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, owner, repo):
+        '''
+        Creates good first issue data for repository
+        '''
+
+        url = constants.MAIN_URL + owner + '/' + repo
+        total_issues, good_first_issue = self.get_total_goodfirstissue(url)
+        data = {
+            'owner': owner,
+            'repo': repo,
+            'total_issues': total_issues,
+            'good_first_issue:': good_first_issue
+        }
+
+        serializer = GoodFirstIssueSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response('Error on creating repository')
+    
+    def put(self, request, owner, repo):
+        '''
+        Updates good first issue data for repository
+        '''
+
+        good_first_issue_object = GoodFirstIssue.objects.filter(
+            owner=owner,
+            repo=repo
+        )[0]
+
+        url = constants.MAIN_URL + owner + '/' + repo
+        total_issues, good_first_issue = self.get_total_goodfirstissue(url)
+        data = {
+            'total_issues': total_issues,
+            'good_first_issue': good_first_issue
+        }
+
+        serializer = GoodFirstIssueSerializer(good_first_issue_object, data,
+                                              partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('Error on updating repository',
+                            status=status.HTTP_400_BAD_REQUEST)
 
     def get_total_goodfirstissue(self, url):
         '''

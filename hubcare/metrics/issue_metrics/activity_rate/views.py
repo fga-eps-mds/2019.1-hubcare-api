@@ -13,12 +13,15 @@ import os
 
 class ActivityRateIssueView(APIView):
     def get(self, request, owner, repo):
-        activity_rate = ActivityRateIssue.objects.all().filter(
-            owner=owner, repo=repo)[0]
-        activity_rate_serialized = ActivityRateIssueSerializer(
-            activity_rate)
+        try:
+            activity_rate = ActivityRateIssue.objects.all().filter(
+                owner=owner, repo=repo)[0]
+            activity_rate_serialized = ActivityRateIssueSerializer(
+                activity_rate)
 
-        return Response(activity_rate_serialized.data)
+            return Response(activity_rate_serialized.data)
+        except:
+            return Response('There is no repository to be viewed')
 
     def post(self, request, owner, repo):
         activity_rate, activity_rate_15_days, activity_rate_15_days_metric = \
@@ -38,7 +41,7 @@ class ActivityRateIssueView(APIView):
             return Response(serializer.data,
                             status=status.HTTP_200_OK)
         else:
-            return Response('Error on create repository',
+            return Response('Error on creating repository',
                             status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, owner, repo):
