@@ -6,7 +6,7 @@ import os
 def get_support_indicator(owner, repo):
     url = URL_COMMUNITY + 'readme/' + owner + '/' + repo
     readme_metric = requests.get(url)
-    readme_bool = readme_metric.json()[0]['readme']
+    readme_bool = readme_metric.json()['readme']
     readme_int = int(readme_bool)
 
     url = URL_COMMUNITY + 'issue_template/' + owner + '/' + repo
