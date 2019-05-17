@@ -8,17 +8,6 @@ import os
 import re
 
 
-def check_datetime(object_date):
-    '''
-    verifies if the time difference between the last update and now is
-    greater than 24 hours
-    '''
-    datetime_now = datetime.now(timezone.utc)
-    if((datetime_now - object_date.date_time).days >= ONE):
-        return True
-    return False
-
-
 def get_metric_good_first_issue(ObjectMetric, owner, repo):
     '''
     returns the metric of the repository
