@@ -13,58 +13,73 @@ from community_metrics.constants import URL_API, HTTP_OK, HTTP_NOT_FOUND
 class LicenseView(APIView):
     def get(self, request, owner, repo):
         '''
-        return if a repository have a license or not
+        Return if a repository have a license or not
         '''
-        all_license = License.objects.all().filter(owner=owner, repo=repo)
-
-        username = os.environ['NAME']
-        token = os.environ['TOKEN']
-
-        if (not all_license):
-            result = requests.get(URL_API + owner + '/' + repo,
-                                  auth=(username, token))
-
-            github_data = result.json()
-
-            if (result.status_code == HTTP_NOT_FOUND):
-                raise Http404
-            elif (github_data['license'] is not None):
-                License.objects.create(
-                    owner=owner,
-                    repo=repo,
-                    have_license=True,
-                    date_time=datetime.now(timezone.utc)
-                )
-            else:
-                License.objects.create(
-                    owner=owner,
-                    repo=repo,
-                    have_license=False,
-                    date_time=datetime.now(timezone.utc)
-                )
-        elif(check_date(all_license)):
-            result = requests.get(URL_API + owner + '/' + repo,
-                                  auth=(username, token))
-
-            github_data = result.json()
-
-            if (result.status_code == HTTP_NOT_FOUND):
-                raise Http404
-            elif (github_data['license'] is not None):
-                License.objects.filter(owner=owner, repo=repo).update(
-                    owner=owner,
-                    repo=repo,
-                    have_license=True,
-                    date_time=datetime.now(timezone.utc)
-                )
-            else:
-                License.objects.filter(owner=owner, repo=repo).update(
-                    owner=owner,
-                    repo=repo,
-                    have_license=False,
-                    date_time=datetime.now(timezone.utc)
-                )
-
         license = License.objects.all().filter(owner=owner, repo=repo)
         license_serialized = serialized_object(LicenseSerializer, license)
         return Response(license_serialized.data[0])
+
+    def post(self, request, owner, repo):
+        '''
+        Post a new license object
+        '''
+        github_data = get_github_request(owner, repo)
+
+        if (github_data['license'] is not None):
+            response = create_license(owner, repo, True)
+        else:
+            response = create_license(owner, repo, False)
+        return Response(response)
+
+    def put(self, request, owner, repo):
+        '''
+        Update license object
+        '''
+        github_data = get_github_request(owner, repo)
+
+        if (github_data['license'] is not None):
+            response = update_license(owner, repo, True)
+        else:
+            response = update_license(owner, repo, False)
+        return Response(response)
+
+
+def create_license(owner, repo, value):
+    '''
+    Create license object
+    '''
+    License.objects.create(
+        owner=owner,
+        repo=repo,
+        have_license=value,
+        date_time=datetime.now(timezone.utc)
+    )
+    license = License.objects.filter(owner=owner, repo=repo)
+    return serialized_object(LicenseSerializer, license).data[0]
+
+
+def update_license(owner, repo, value):
+    '''
+    Update license object
+    '''
+    License.objects.filter(owner=owner, repo=repo).update(
+        owner=owner,
+        repo=repo,
+        have_license=value,
+        date_time=datetime.now(timezone.utc)
+    )
+    license = License.objects.filter(owner=owner, repo=repo)
+    return serialized_object(LicenseSerializer, license).data[0]
+
+
+def get_github_request(owner, repo):
+    '''
+    Request github repository data
+    '''
+    username = os.environ['NAME']
+    token = os.environ['TOKEN']
+
+    url = '{0}{1}/{2}'.format(URL_API, owner, repo)
+    result = requests.get(url, auth=(username, token))
+
+    return result.json()
