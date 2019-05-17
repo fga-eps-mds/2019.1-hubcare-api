@@ -5,4 +5,8 @@ from commit_week.models import CommitWeek
 class CommitWeekSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommitWeek
-        fields = '__all__'
+        fields = [
+            'week',
+            'quantity',
+            'commit'
+        ]

@@ -1,11 +1,12 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from commit_metrics.models import Commit
 from commit_week.models import CommitWeek
 from commit_metrics.serializers import CommitSerializer
 from commit_week.serializers import CommitWeekSerializer
-from datetime import date
-from commit_week.constants import *
+from datetime import datetime, timezone, timedelta
+from commit_metrics.constants import *
 from django.http import Http404
 import requests
 import os
@@ -24,55 +25,130 @@ class CommitMonthView(APIView):
             Input: owner, repo
             Output: the sum of commits
         '''
-        commit = Commit.objects.all().filter(owner=owner, repo=repo)
-        serialized = CommitSerializer(commit, many=True)
+        # commit = Commit.objects.all().filter(owner=owner, repo=repo)
+        # serialized = CommitSerializer(commit, many=True)
+
+        data = Commit.objects.all()
+        serializer = CommitSerializer(data, many=True)
+ 
+        return Response(serializer.data) # REMOVER
 
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        if (not commit):
-            url = 'https://api.github.com/repos/'
-            url2 = '/stats/participation'
-            github_request = requests.get(url + owner + '/' + repo + url2,
-                                          auth=(username, token))
+        month = timedelta(days=30)
+        date_now = datetime.now()
+        last_month = str(date_now - month).replace(' ','-')
 
-            github_data = github_request.json()
+        url_since = '/commits?since='
+        url_page = '&per_page=100&page='
+        page = 1
+        commits_month = []
+        while True:
+            commits_month_request = requests.get(
+                MAIN_URL + owner + '/' + repo +
+                url_since + last_month +
+                url_page + str(page),
+                auth=(username, token)
+            ).json()
 
-            if(github_request.status_code == STATUS_ERROR):
-                raise Http404
-
+            if commits_month_request:
+                commits_month += commits_month_request
+                page += 1
             else:
-                commit = Commit.objects.create(
-                    owner=owner,
-                    repo=repo,
-                    date=date.today()
-                )
-                week_number = YEAR_WEEK
-                for i in range(0, YEAR_WEEK, 1):
-                    if len(github_data['all']) >= 1:
-                        commit_week = CommitWeek.objects.create(
-                            week=week_number,
-                            quantity=github_data['all'][i],
-                            commit=commit
-                        )
-                    week_number = week_number - 1
+                break
 
-        commit = Commit.objects.all().filter(owner=owner, repo=repo)
+        count = 0
+        for i in commits_month:
+            count += 1
+        print(count)
 
-        commits_week = CommitWeek.objects.all().filter(commit=commit.first())
+        return Response('ok')
+        # try:
+        #     commits_week = CommitWeek.objects.filter(
+        #         owner=owner,
+        #         repo=repo
+        #     )
+            
+        #     serializer = CommitWeekSerializer(commits_week, many=True)
+        #     return Response(serializer.data, status=status.HTTP_200_OK)
+        # except:
+        #     return Response('There is no repository for this metric',
+        #                     status=status.HTTP_400_BAD_REQUEST)
 
-        commits_week = CommitWeekSerializer(commits_week, many=True)
+        ###################################################################
+        # url2 = '/stats/participation'
+        # github_request = requests.get(MAIN_URL + owner + '/' + repo + url2,
+        #                                 auth=(username, token))
 
-        sum = 0
+        # github_data = github_request.json()
 
-        if commits_week.data:
-            for i in range(FIRST_WEEK, LAST_WEEK, 1):
-                sum += commits_week.data[i]['quantity']
+        # commit = Commit.objects.create(
+        #     owner=owner,
+        #     repo=repo,
+        # )
+        # week_number = YEAR_WEEK
+        # for i in range(0, YEAR_WEEK, 1):
+        #     if len(github_data['all']) >= 1:
+        #         commit_week = CommitWeek.objects.create(
+        #             week=week_number,
+        #             quantity=github_data['all'][i],
+        #             commit=commit
+        #         )
+        #     week_number = week_number - 1
 
-        data = {
-            "owner": owner,
-            "repo": repo,
-            "sum": sum,
-        }
+        # commit = Commit.objects.all().filter(owner=owner, repo=repo)
 
-        return Response(data)
+        # commits_week = CommitWeek.objects.all().filter(commit=commit.first())
+
+        # commits_week = CommitWeekSerializer(commits_week, many=True)
+
+        # sum = 0
+
+        # if commits_week.data:
+        #     for i in range(FIRST_WEEK, LAST_WEEK, 1):
+        #         sum += commits_week.data[i]['quantity']
+
+        # data = {
+        #     "owner": owner,
+        #     "repo": repo,
+        #     "sum": sum,
+        # }
+
+        # return Response(data)
+
+    def post(self, request, owner, repo):
+
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
+
+        commit = Commit.objects.create(
+            owner=owner,
+            repo=repo
+        )
+
+        github_request = requests.get(
+            MAIN_URL + owner + '/' + repo + WEEKLY_COMMITS,
+            auth=(username, token)
+        ).json()
+
+        commits_week_array = github_request['all'][FIRST_WEEK:LAST_WEEK]
+
+        total_quantity = 0
+        week = 1
+        for i in commits_week_array:
+            total_quantity += i
+            commit_week = CommitWeek.objects.create(
+                week = week,
+                quantity = i,
+                commit = commit
+            )
+            week += 1
+
+        commits_week = CommitWeek.objects.filter(
+            commit__owner=owner,
+            commit__repo=repo
+        )
+        serializer = CommitWeekSerializer(commits_week, many=True)
+
+        return Response(serializer.data)
