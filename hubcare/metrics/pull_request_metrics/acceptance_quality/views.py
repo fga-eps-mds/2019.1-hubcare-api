@@ -10,31 +10,35 @@ import os
 
 class PullRequestQualityView(APIView):
     def get(self, request, owner, repo):
-        pull_request_quality = PullRequestQuality.objects.all().filter(
-            owner=owner, repo=repo)
-        pull_request_qualityserialized = PullRequestQualitySerializers(
-            pull_request_quality, many=True)
+        '''
+        Returns the quality of the pull
+        requests from the repository
+        '''
+        return Response(get_object(owner, repo))
 
-        if(not pull_request_quality):
-            PullRequestQuality.objects.create(
-                owner=owner,
-                repo=repo,
-                date=datetime.now(timezone.utc),
-                metric=get_pull_request(owner, repo)
-            )
-        elif check_datetime(pull_request_quality[0]):
-            PullRequestQuality.objects.filter(owner=owner, repo=repo).update(
-                date=datetime.now(timezone.utc),
-                metric=get_pull_request(owner, repo)
-            )
+    def post(self, request, owner, repo):
+        '''
+        Post a new quality of the pull
+        requests from the repository
+        '''
+        PullRequestQuality.objects.create(
+            owner=owner,
+            repo=repo,
+            date=datetime.now(timezone.utc),
+            metric=get_pull_request(owner, repo)
+        )
+        return Response(get_object(owner, repo))
 
-        pull_request_quality = PullRequestQuality.objects.all().filter(
-            owner=owner, repo=repo)
-
-        pull_request_quality = PullRequestQualitySerializers(
-            pull_request_quality, many=True)
-
-        return Response(pull_request_quality.data)
+    def put(self, request, owner, repo):
+        '''
+        Update a quality of the pull requests
+        from the repository
+        '''
+        PullRequestQuality.objects.filter(owner=owner, repo=repo).update(
+            date=datetime.now(timezone.utc),
+            metric=get_pull_request(owner, repo)
+        )
+        return Response(get_object(owner, repo))
 
 
 def check_datetime(pull_request):
@@ -69,8 +73,10 @@ def get_pull_request(owner, repo):
     page_number = 1
     pull_request_score = 0
     elements = 0
-    url = 'https://api.github.com/repos/' + owner + '/' + repo + \
-          '/' + 'pulls?state=all&page='
+    url = 'https://api.github.com/repos/{0}/{1}/pulls?state=all&page='.format(
+        owner,
+        repo
+    )
     aux = True
     while aux:
         github_request = requests.get(url + str(page_number) + '&per_page=100',
@@ -110,47 +116,47 @@ def get_pull_request(owner, repo):
 
 def calculate_metric(owner, repo, pr):
     '''
-    Calculate metric
+    Calculate pull request quality metric
 
-    Situação	Discussão	Resultado
+    Situation	Discussion	Result
 
-    Merjado	Sim	1
+    Merged      Yes	        1
 
-    Merjado	Não	0.9
+    Merged	    No	        0.9
 
-    Aberto	Recente (<=15 dias)	0.9
+    Open    Recent (<=15 days)	0.9
 
-    Fechado e sem Merge	Sim	0.7
+    Closed and without merged	Yes     0.7
 
-    Aberto	Antiga (>15 dias)	0.3
+    Open	Old (>15 days)	0.3
 
-    Fechado e sem Merge	Não	0.1
+    Closed and without merged	No	0.1
 
-    Aberto	Não / antiga	0
+    Open        No/old      0
     '''
     comments = get_comments(owner, repo, pr['number'])
 
     if pr['merged_at'] is not None and comments >= 1:
         score = 1
-        print("Merjado com Discussão")
+        print("Merged with discussion")
     elif pr['merged_at'] is not None and comments == 0:
         score = 0.9
-        print("Merjado sem Discussão")
+        print("Merged without discussion")
     elif pr['state'] == 'open' and check_datetime_days(pr['updated_at'], 15):
         score = 0.9
-        print("Aberto com Discussão Recente")
+        print("Open with discussion recent")
     elif pr['state'] == 'closed' and comments >= 1:
-        print("Fechado com Discussão")
+        print("Closed with discussion")
         score = 0.7
     elif pr['state'] == 'open' and not check_datetime_days(pr['updated_at'],
                                                            15):
-        print("Aberto com Discussão Antiga")
+        print("Open without discussion")
         score = 0.3
     elif pr['state'] == 'closed' and comments == 0:
-        print("Fechado sem Discussão")
+        print("Closed without discussion")
         score = 0.1
     elif pr['state'] == 'open' and comments == 0:
-        print("Aberto sem Discussão")
+        print("Open without discussion")
         score = 0
     return score
 
@@ -171,3 +177,15 @@ def get_comments(owner, repo, number):
     print("comments = ", comments)
 
     return comments
+
+def get_object(owner, repo):
+    '''
+    Get pull request quality object
+    '''
+    quality = PullRequestQuality.objects.all().filter(
+        owner=owner, repo=repo)
+
+    quality = PullRequestQualitySerializers(
+        quality, many=True)
+
+    return quality.data
