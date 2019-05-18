@@ -122,6 +122,28 @@ It's set on [GitLab](https://gitlab.com/cjjcastro/2019-1-hubcare-api), so we can
 
 Please make sure to read the [Contributing Guide](https://github.com/fga-eps-mds/2019.1-hubcare-api/blob/master/.github/CONTRIBUTING.md) before making a pull request. After you've read, don't forget to take an issue!
 
+## Testing
+
+### Unit Test
+
+To execute all tests:
+
+```shell
+make test
+```
+
+To get a [Coveralls] report:
+
+```shell
+make coverage report
+```
+
+### Style Checking
+
+```shell
+make style
+```
+
 ## License
 
 Do whatever you want with this code, bro/sis. This is under [MIT License](./LICENSE).
