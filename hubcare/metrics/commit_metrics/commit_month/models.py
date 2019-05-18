@@ -5,4 +5,4 @@ class CommitMonth(models.Model):
     owner = models.CharField(max_length=150)
     repo = models.CharField(max_length=150)
     total_commits = models.IntegerField(default=0)
-    commits_week = models.CharField(max_length=200)
+    commits_week = models.TextField()

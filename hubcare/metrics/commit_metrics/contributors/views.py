@@ -4,8 +4,8 @@ from contributors.models import DifferentsAuthors
 from contributors.serializers \
     import DifferentsAuthorsSerializers
 from contributors.constants import *
+from datetime import datetime, timezone, timedelta
 import requests
-import datetime
 import os
 
 
@@ -38,20 +38,20 @@ class DifferentsAuthorsView(APIView):
             'https://api.github.com/repos/' + owner + '/' + repo + '/commits',
             auth=(username, token))
         github_data = github_request.json()
-        present = datetime.datetime.today()
-        days = datetime.timedelta(days=month_days)
+        present = datetime.today()
+        days = timedelta(days=month_days)
         commitsLastThirtyDays = []
         authorsCommits = []
         out = []
         listCommits = []
         listJson = []
 
-        if (github_request.status_code >= status_ok and
-                github_request.status_code <= status_no_content):
+        if (github_request.status_code >= 200 and
+                github_request.status_code <= 299):
 
             for commit in github_data:
                 commit['commit']['committer']['date'].split('T')[0]
-                past = datetime.datetime.strptime(
+                past = datetime.strptime(
                     commit['commit']['committer']['date'],
                     "%Y-%m-%dT%H:%M:%SZ")
                 commitsDay = present - days
@@ -64,3 +64,37 @@ class DifferentsAuthorsView(APIView):
                 listJson.append({'author': author,
                                 'numberCommits': authorsCommits.count(author)})
         return Response(listJson)
+    
+    def post(self, request, owner, repo):
+
+        print('time 1: ', datetime.now())
+
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
+
+        time_now = datetime.now()
+        period = timedelta(weeks=TOTAL_WEEKS)
+        since = str(time_now-period).replace(' ','-')
+        
+        url_since = '/commits?since='
+        url_page = '&per_page=100&page='
+        page = 1
+        all_commits = []
+        while True:
+            commits = requests.get(
+                MAIN_URL + owner + '/' + repo +
+                url_since + since +
+                url_page + str(page),
+                auth=(username, token)
+            ).json()
+
+            if commits:
+                all_commits += commits
+                page += 1
+            else:
+                break
+
+
+        print('time 2: ', datetime.now())
+
+        return Response(all_commits)
