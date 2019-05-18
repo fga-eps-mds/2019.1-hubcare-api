@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class ReleaseNoteCheck(models.Model):
+class ReleaseNote(models.Model):
 
     owner = models.CharField(max_length=200)
     repo = models.CharField(max_length=200)

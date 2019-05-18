@@ -18,55 +18,86 @@ class IssueTemplateView(APIView):
             owner=owner,
             repo=repo
         )
-
-        username = os.environ['NAME']
-        token = os.environ['TOKEN']
-
-        if(not issue_templates):
-            url = '/contents/.github/ISSUE_TEMPLATE'
-            result = URL_API + owner + '/' + repo + url
-            github_request = requests.get(result, auth=(username,
-                                                        token))
-            if(github_request.status_code == HTTP_OK):
-                IssueTemplate.objects.create(
-                    owner=owner,
-                    repo=repo,
-                    issue_templates=True,
-                    date_time=datetime.now(timezone.utc)
-                )
-            else:
-                IssueTemplate.objects.create(
-                    owner=owner,
-                    repo=repo,
-                    issue_templates=False,
-                    date_time=datetime.now(timezone.utc)
-                )
-        elif(check_date(issue_templates)):
-            url = '/contents/.github/ISSUE_TEMPLATE'
-            result = URL_API + owner + '/' + repo + url
-            github_request = requests.get(result, auth=(username,
-                                                        token))
-            if(github_request.status_code == HTTP_OK):
-                IssueTemplate.objects.filter(owner=owner, repo=repo).update(
-                    owner=owner,
-                    repo=repo,
-                    issue_templates=True,
-                    date_time=datetime.now(timezone.utc)
-                )
-            else:
-                IssueTemplate.objects.filter(owner=owner, repo=repo).update(
-                    owner=owner,
-                    repo=repo,
-                    issue_templates=False,
-                    date_time=datetime.now(timezone.utc)
-                )
-
-        issue_templates = IssueTemplate.objects.all().filter(
-            owner=owner,
-            repo=repo
-        )
         issue_serialized = serialized_object(
             IssueTemplateSerializer,
             issue_templates
             )
         return Response(issue_serialized.data[0])
+
+    def post(self, request, owner, repo):
+        '''
+        Post a new object
+        '''
+        github_request = get_github_request(owner, repo)
+        if(github_request.status_code == HTTP_OK):
+            response = create_issue_template(owner, repo, True)
+        else:
+            response = create_issue_template(owner, repo, False)
+        return Response(response)
+
+    def put(self, request, owner, repo):
+        '''
+        Update issue template object
+        '''
+        github_request = get_github_request(owner, repo)
+
+        if(github_request.status_code == HTTP_OK):
+            response = update_issue_template(owner, repo, True)
+        else:
+            response = update_issue_template(owner, repo, False)
+        return Response(response)
+
+
+def create_issue_template(owner, repo, value):
+    '''
+    Create a new object in database
+    '''
+    IssueTemplate.objects.create(
+        owner=owner,
+        repo=repo,
+        issue_templates=value,
+        date_time=datetime.now(timezone.utc)
+    )
+    issue_template = IssueTemplate.objects.filter(
+        owner=owner,
+        repo=repo
+    )
+    return serialized_object(
+        IssueTemplateSerializer,
+        issue_template
+    ).data[0]
+
+
+def update_issue_template(owner, repo, value):
+    '''
+    Update issue template object in database
+    '''
+    IssueTemplate.objects.filter(owner=owner, repo=repo).update(
+        owner=owner,
+        repo=repo,
+        issue_templates=value,
+        date_time=datetime.now(timezone.utc)
+    )
+    issue_template = IssueTemplate.objects.filter(
+        owner=owner,
+        repo=repo
+    )
+    return serialized_object(
+        IssueTemplateSerializer,
+        issue_template
+    ).data[0]
+
+
+def get_github_request(owner, repo):
+    '''
+    Request github repository data
+    '''
+    username = os.environ['NAME']
+    token = os.environ['TOKEN']
+
+    url = '{0}{1}/{2}/contents/.github/ISSUE_TEMPLATE'.format(
+        URL_API,
+        owner,
+        repo
+    )
+    return requests.get(url, auth=(username, token))
