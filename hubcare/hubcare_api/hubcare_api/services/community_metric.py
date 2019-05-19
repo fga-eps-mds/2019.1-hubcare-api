@@ -1,6 +1,7 @@
 from hubcare_api.constants import *
 from hubcare_api.services.request import Request
 
+
 def get_metric(owner, repo, request_type):
 
     r = Request()
@@ -41,8 +42,9 @@ def get_metric(owner, repo, request_type):
         metric.append(r.put(url_release_note))
         metric.append(r.put(url_readme))
         metric.append(r.put(url_description))
-        
+
     return metric
+
 
 def get_url(url_app, owner, repo):
     return URL_COMMUNITY + url_app + owner + '/' + repo + '/'

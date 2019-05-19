@@ -178,6 +178,7 @@ def get_comments(owner, repo, number):
 
     return comments
 
+
 def get_object(owner, repo):
     '''
     Get pull request quality object

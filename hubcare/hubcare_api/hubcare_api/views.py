@@ -31,7 +31,6 @@ class HubcareApiView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-
         repo_request = requests.get(URL_REPOSITORY + owner + '/' + repo).json()
         response = []
         if repo_request['status'] == 0:
@@ -42,17 +41,16 @@ class HubcareApiView(APIView):
             print(now)
             print('###################################')
 
-
             response.append(issue_metric.get_metric(owner, repo, 'post'))
             response.append(community_metric.get_metric(owner, repo, 'post'))
             response.append(commit_metric.get_metric(owner, repo, 'post'))
-            response.append(pull_request_metric.get_metric(owner, repo, 'post'))
-
+            response.append(pull_request_metric.get_metric(owner,
+                                                           repo, 'post'))
 
             print('############FINAL TIME#############')
             after = datetime.now()
             print(after)
-            print('TOTAL = ',(after-now))
+            print('TOTAL = ', (after-now))
             print('###################################')
             return Response(response)
         elif repo_request['status'] == 2:
@@ -61,17 +59,15 @@ class HubcareApiView(APIView):
             print(now)
             print('###################################')
 
-
             response.append(issue_metric.get_metric(owner, repo, 'put'))
             response.append(community_metric.get_metric(owner, repo, 'put'))
             response.append(commit_metric.get_metric(owner, repo, 'put'))
             response.append(pull_request_metric.get_metric(owner, repo, 'put'))
-            
 
             print('############FINAL TIME#############')
             after = datetime.now()
             print(after)
-            print('TOTAL = ',(after-now))
+            print('TOTAL = ', (after-now))
             print('###################################')
         elif repo_request['status'] == 3:
             print('###########INITIAL TIME GET############')
@@ -79,23 +75,19 @@ class HubcareApiView(APIView):
             print(now)
             print('###################################')
 
-
             response.append(issue_metric.get_metric(owner, repo, 'get'))
             response.append(community_metric.get_metric(owner, repo, 'get'))
             response.append(commit_metric.get_metric(owner, repo, 'get'))
-            response.append(pull_request_metric.get_metric(owner, repo, 'get'))
-            
+            response.append(pull_request_metric.get_metric(owner,
+                                                           repo, 'get'))
 
             print('############FINAL TIME#############')
             after = datetime.now()
             print(after)
-            print('TOTAL = ',(after-now))
+            print('TOTAL = ', (after-now))
             print('###################################')
 
         return Response(response)
-
-
-
 
         # url = 'https://api.github.com/repos/'
         # github_request = requests.get(url + owner + '/' + repo,
@@ -107,7 +99,8 @@ class HubcareApiView(APIView):
         #         owner,
         #         repo
         #     )
-        #     support_data = support_indicator.get_support_indicator(owner, repo)
+        #    support_data = support_indicator.get_support_indicator(owner,
+        #                                                            repo)
         #     hubcare_indicators = [
         #         {
         #             "active_indicator": float(

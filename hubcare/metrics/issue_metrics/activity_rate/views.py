@@ -13,7 +13,6 @@ import os
 from datetime import datetime, timezone
 
 
-
 class ActivityRateIssueView(APIView):
     def get(self, request, owner, repo):
         try:
@@ -23,7 +22,7 @@ class ActivityRateIssueView(APIView):
                 activity_rate)
 
             return Response(activity_rate_serialized.data)
-        except:
+        except RepositoryNotFound:
             return Response('There is no repository to be viewed')
 
     def post(self, request, owner, repo):

@@ -26,14 +26,14 @@ class HelpWantedView(APIView):
             )[0]
             serializer = HelpWantedSerializer(help_wanted)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
+        except RepositoryNotFound:
             return Response('There is no repository for this metric',
                             status=status.HTTP_400_BAD_REQUEST)
 
         # return Response(get_metric_help_wanted(HelpWanted, owner, repo))
 
     def post(self, request, owner, repo):
-        
+
         print('time help wanted 1', datetime.now())
         url = constants.MAIN_URL + owner + '/' + repo
         total_issues, help_wanted_issues = self.get_total_helpwanted(url)

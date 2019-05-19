@@ -1,6 +1,7 @@
 from hubcare_api.constants import *
 from hubcare_api.services.request import Request
 
+
 def get_metric(owner, repo, request_type):
 
     r = Request()
@@ -27,6 +28,7 @@ def get_metric(owner, repo, request_type):
         'good_first_issue': good_first_issue
     }
     return metric
+
 
 def get_url(url_app, owner, repo):
     return URL_ISSUE + url_app + owner + '/' + repo + '/'

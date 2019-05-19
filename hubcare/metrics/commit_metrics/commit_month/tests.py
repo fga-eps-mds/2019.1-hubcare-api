@@ -25,7 +25,8 @@
 #             '''
 #             return self.json_data
 
-#     aux_url = 'https://api.github.com/repos/test/repo_test/stats/participation'
+#     aux_url = 'https://api.github.com/repos/test/repo_test/' + \
+#               'stats/participation'
 
 #     if args[0] == aux_url:
 #         return MockResponse({"all": [
@@ -123,7 +124,9 @@
 #         '''
 #         test if a repository data exists in local db
 #         '''
-#         request = self.factory.get('commit_week/commit_week/cleber/cremilda')
+#         request = self.factory.get(
+#             'commit_week/commit_week/cleber/cremilda'
+#         )
 #         response = CommitMonthView.as_view()(request, 'cleber', 'cremilda')
 #         self.assertEqual(response.status_code, 200)
 

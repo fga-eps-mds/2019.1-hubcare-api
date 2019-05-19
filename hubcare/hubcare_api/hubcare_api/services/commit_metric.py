@@ -1,6 +1,7 @@
 from hubcare_api.constants import *
 from hubcare_api.services.request import Request
 
+
 def get_metric(owner, repo, request_type):
 
     r = Request()
@@ -13,8 +14,9 @@ def get_metric(owner, repo, request_type):
         metric.append(r.post(url_commit_month))
     elif request_type == 'put':
         metric.append(r.put(url_commit_month))
-        
+
     return metric
+
 
 def get_url(url_app, owner, repo):
     return URL_COMMIT + url_app + owner + '/' + repo + '/'

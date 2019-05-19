@@ -64,7 +64,7 @@ class DifferentsAuthorsView(APIView):
                 listJson.append({'author': author,
                                 'numberCommits': authorsCommits.count(author)})
         return Response(listJson)
-    
+
     def post(self, request, owner, repo):
 
         print('time 1: ', datetime.now())
@@ -74,8 +74,8 @@ class DifferentsAuthorsView(APIView):
 
         time_now = datetime.now()
         period = timedelta(weeks=TOTAL_WEEKS)
-        since = str(time_now-period).replace(' ','-')
-        
+        since = str(time_now-period).replace(' ', '-')
+
         url_since = '/commits?since='
         url_page = '&per_page=100&page='
         page = 1
@@ -93,7 +93,6 @@ class DifferentsAuthorsView(APIView):
                 page += 1
             else:
                 break
-
 
         print('time 2: ', datetime.now())
 

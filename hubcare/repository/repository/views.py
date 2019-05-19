@@ -60,15 +60,19 @@ class RepositoryView(APIView):
             serializer.save()
             return Response('Repository added', status=status.HTTP_201_CREATED)
         else:
-            return Response('Repository data is invalid', status=status.HTTP_400_BAD_REQUEST)
+            return Response('Repository data is invalid',
+                            status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, owner, repo):
         repository = Repository.objects.filter(owner=owner, repo=repo)
         try:
             repository.update(date=datetime.now(timezone.utc))
-            return Response('Repository successfully updated', status=status.HTTP_200_OK)
-        except:
-            return Response('Error on updating status', status=status.HTTP_400_BAD_REQUEST)
+            return Response('Repository successfully updated',
+                            status=status.HTTP_200_OK)
+        except UpdateError:
+            return Response('Error on updating status',
+                            status=status.HTTP_400_BAD_REQUEST)
+
 
 def check_datetime(object_date):
     '''
@@ -79,6 +83,7 @@ def check_datetime(object_date):
     if((datetime_now - object_date.date).days >= constants.ONE_DAY):
         return True
     return False
+
 
 def create_response(status):
     response = {

@@ -26,7 +26,7 @@ class GoodFirstIssueView(APIView):
             )[0]
             serializer = GoodFirstIssueSerializer(good_first_issue)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
+        except RepositoryNotFound:
             return Response('There is no repository to be viewed',
                             status=status.HTTP_400_BAD_REQUEST)
 

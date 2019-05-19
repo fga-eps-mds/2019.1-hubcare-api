@@ -20,7 +20,7 @@ class CommitMonthView(APIView):
         '''
             Input: owner, repo
             Output: the sum of commits
-        ''' 
+        '''
 
         try:
             commit = CommitMonth.objects.filter(
@@ -30,7 +30,7 @@ class CommitMonthView(APIView):
             serializer = CommitMonthSerializer(commit)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
+        except NotFound:
             return Response('There is no repository for this metric',
                             status=status.HTTP_404_NOT_FOUND)
 
