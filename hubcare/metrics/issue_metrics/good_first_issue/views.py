@@ -10,6 +10,8 @@ import requests
 import json
 import os
 
+from datetime import datetime, timezone
+
 
 class GoodFirstIssueView(APIView):
     def get(self, request, owner, repo):
@@ -33,6 +35,7 @@ class GoodFirstIssueView(APIView):
         Creates good first issue data for repository
         '''
 
+        print('time good_first_issue 1', datetime.now())
         url = constants.MAIN_URL + owner + '/' + repo
         total_issues, good_first_issue = self.get_total_goodfirstissue(url)
         data = {
@@ -45,6 +48,7 @@ class GoodFirstIssueView(APIView):
         serializer = GoodFirstIssueSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
+            print('time good_first_issue 2', datetime.now())
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response('Error on creating good first issue metric',

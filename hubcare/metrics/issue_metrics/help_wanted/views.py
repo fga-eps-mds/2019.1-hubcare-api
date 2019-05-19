@@ -10,6 +10,8 @@ import requests
 import json
 import os
 
+from datetime import datetime, timezone
+
 
 class HelpWantedView(APIView):
     def get(self, request, owner, repo):
@@ -31,6 +33,8 @@ class HelpWantedView(APIView):
         # return Response(get_metric_help_wanted(HelpWanted, owner, repo))
 
     def post(self, request, owner, repo):
+        
+        print('time help wanted 1', datetime.now())
         url = constants.MAIN_URL + owner + '/' + repo
         total_issues, help_wanted_issues = self.get_total_helpwanted(url)
         data = {
@@ -43,6 +47,7 @@ class HelpWantedView(APIView):
         serializer = HelpWantedSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
+            print('time help wanted 2', datetime.now())
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response('Error on creating help wanted metric',

@@ -10,6 +10,9 @@ from issue_metrics.functions import calculate_metric, \
 from issue_metrics.constants import ONE, ZERO
 import os
 
+from datetime import datetime, timezone
+
+
 
 class ActivityRateIssueView(APIView):
     def get(self, request, owner, repo):
@@ -24,23 +27,30 @@ class ActivityRateIssueView(APIView):
             return Response('There is no repository to be viewed')
 
     def post(self, request, owner, repo):
+        print('time activity_rate 1', datetime.now())
         activity_rate, activity_rate_15_days, activity_rate_15_days_metric = \
             self.get_activity_rate(owner, repo)
 
         data = {
             'owner': owner,
             'repo': repo,
-            'activity_rate': activity_rate,
-            'activity_rate_15_days': activity_rate_15_days,
-            'activity_rate_15_days_metric': activity_rate_15_days_metric
+            'activity_rate': float("{0:.2f}".format(activity_rate)),
+            'activity_rate_15_days': float("{0:.2f}".format(
+                activity_rate_15_days
+            )),
+            'activity_rate_15_days_metric': float("{0:.2f}".format(
+                activity_rate_15_days_metric
+            ))
         }
 
         serializer = ActivityRateIssueSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
+            print('time activity_rate 2', datetime.now())
             return Response(serializer.data,
                             status=status.HTTP_200_OK)
         else:
+            print(serializer.errors)
             return Response('Error on creating activity_rate metric',
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -52,9 +62,13 @@ class ActivityRateIssueView(APIView):
             self.get_activity_rate(owner, repo)
 
         data = {
-            'activity_rate': activity_rate,
-            'activity_rate_15_days': activity_rate_15_days,
-            'activity_rate_15_days_metric': activity_rate_15_days_metric
+            'activity_rate': float("{0:.2f}".format(activity_rate)),
+            'activity_rate_15_days': float("{0:.2f}".format(
+                activity_rate_15_days
+            )),
+            'activity_rate_15_days_metric': float("{0:.2f}".format(
+                activity_rate_15_days_metric
+            ))
         }
 
         serializer = ActivityRateIssueSerializer(activity_rate_object, data,
@@ -103,7 +117,6 @@ def get_issues_15_day(owner, repo):
         github_data = github_request.json()
 
         for activity in github_data:
-            print(activity)
             if(check_datetime_15_days(activity['updated_at'])):
                 if(activity['state'] == 'open'):
                     issues_alive = issues_alive + ONE
@@ -118,7 +131,5 @@ def get_issues_15_day(owner, repo):
 
         if(github_data == []):
             aux = False
-        print(issues_alive)
-        print(issues_not_alive)
         page_number = page_number + ONE
     return issues_alive, issues_not_alive
