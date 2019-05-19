@@ -9,13 +9,13 @@ def get_active_indicator(owner, repo):
     release_note_bool = release_note_metric.json()['response']
     release_note_int = int(release_note_bool)
 
-    url_authors = 'contributors/different_authors/'
+    url_authors = 'contributors/'
     url = URL_COMMIT + url_authors + owner + '/' + repo
     contributors_metric = requests.get(url)
     contributors_total = len(contributors_metric.json())
     contributors_int = int(contributors_total)
 
-    url = URL_COMMIT + 'commit_week/commit_week/' + owner + '/' + repo
+    url = URL_COMMIT + 'commit_week/' + owner + '/' + repo
     commit_week_metric = requests.get(url)
     commit_week_sum = commit_week_metric.json()['sum']
     commit_week_int = int(commit_week_sum)

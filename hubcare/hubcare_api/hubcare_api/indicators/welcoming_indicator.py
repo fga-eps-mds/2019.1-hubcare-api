@@ -4,7 +4,7 @@ import os
 
 
 def get_welcoming_indicator(owner, repo):
-    url_authors = 'contributors/different_authors/'
+    url_authors = 'contributors/'
     url = URL_COMMIT + url_authors + owner + '/' + repo
     cont_metric = requests.get(url)
     cont_total = len(cont_metric.json())
@@ -13,7 +13,7 @@ def get_welcoming_indicator(owner, repo):
     url_authors = 'contribution_guide/'
     url = URL_COMMUNITY + url_authors + owner + '/' + repo
     cont_guide_metric = requests.get(url)
-    cont_guide_bool = cont_guide_metric.json()[0]['contribution_guide']
+    cont_guide_bool = cont_guide_metric.json()['contribution_guide']
     cont_guide_int = int(cont_guide_bool)
 
     url_authors = 'help_wanted/'
@@ -49,7 +49,7 @@ def get_welcoming_indicator(owner, repo):
     url_authors = 'readme/'
     url = URL_COMMUNITY + url_authors + owner + '/' + repo
     readme_metrics = requests.get(url)
-    readme_bool = readme_metrics.json()[0]['readme']
+    readme_bool = readme_metrics.json()['readme']
     readme_int = int(readme_bool)
 
     url_authors = 'issue_template/'

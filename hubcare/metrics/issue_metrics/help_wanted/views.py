@@ -1,14 +1,16 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from help_wanted.models import HelpWanted
 from help_wanted.serializers import HelpWantedSerializer
-from datetime import datetime, timezone
 from issue_metrics import constants
 from issue_metrics.functions \
-    import check_datetime, get_metric_help_wanted, count_all_label
+    import get_metric_help_wanted, count_all_label
 import requests
 import json
 import os
+
+from datetime import datetime, timezone
 
 
 class HelpWantedView(APIView):
@@ -16,27 +18,61 @@ class HelpWantedView(APIView):
         '''
         returns help wanted issue rate
         '''
-        help_wanted = HelpWanted.objects.all().filter(owner=owner, repo=repo)
-        url = constants.MAIN_URL + owner + '/' + repo
-        if(not help_wanted):
-            total_issues, help_wanted_issues = self.get_total_helpwanted(url)
-            HelpWanted.objects.create(
-                owner=owner,
-                repo=repo,
-                total_issues=total_issues,
-                help_wanted_issues=help_wanted_issues,
-                date_time=datetime.now(timezone.utc)
-            )
-        elif check_datetime(help_wanted[0]):
-            help_wanted = HelpWanted.objects.get(owner=owner, repo=repo)
-            total_issues, help_wanted_issues = self.get_total_helpwanted(url)
-            HelpWanted.objects.filter(owner=owner, repo=repo).update(
-                total_issues=total_issues,
-                help_wanted_issues=help_wanted_issues,
-                date_time=datetime.now(timezone.utc)
-            )
 
-        return Response(get_metric_help_wanted(HelpWanted, owner, repo))
+        try:
+            help_wanted = HelpWanted.objects.all().filter(
+                owner=owner,
+                repo=repo
+            )[0]
+            serializer = HelpWantedSerializer(help_wanted)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except RepositoryNotFound:
+            return Response('There is no repository for this metric',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # return Response(get_metric_help_wanted(HelpWanted, owner, repo))
+
+    def post(self, request, owner, repo):
+
+        print('time help wanted 1', datetime.now())
+        url = constants.MAIN_URL + owner + '/' + repo
+        total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+        data = {
+            'owner': owner,
+            'repo': repo,
+            'total_issues': total_issues,
+            'help_wanted_issues': help_wanted_issues
+        }
+
+        serializer = HelpWantedSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            print('time help wanted 2', datetime.now())
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response('Error on creating help wanted metric',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, owner, repo):
+        help_wanted_object = HelpWanted.objects.filter(
+            owner=owner,
+            repo=repo
+        )[0]
+        url = constants.MAIN_URL + owner + '/' + repo
+        total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+        data = {
+            'total_issues': total_issues,
+            'help_wanted_issues': help_wanted_issues
+        }
+
+        serializer = HelpWantedSerializer(help_wanted_object, data,
+                                          partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('Error on updating help wanted metric',
+                            status=status.HTTP_400_BAD_REQUEST)
 
     def get_total_helpwanted(self, url):
         '''

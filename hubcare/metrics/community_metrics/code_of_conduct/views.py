@@ -14,53 +14,7 @@ class CodeOfConductView(APIView):
         '''
         return if a repository has a code of conduct or not
         '''
-        code_of_conduct = CodeOfConduct.objects.all().filter(
-            owner=owner,
-            repo=repo
-        )
-        username = os.environ['NAME']
-        token = os.environ['TOKEN']
-
-        if(not code_of_conduct):
-            url = '/contents/.github/CODE_OF_CONDUCT.md'
-            result = URL_API + owner + '/' + repo + url
-            github_request = requests.get(result, auth=(username,
-                                                        token))
-            if(github_request.status_code == HTTP_OK):
-                CodeOfConduct.objects.create(
-                    owner=owner,
-                    repo=repo,
-                    code_of_conduct=True,
-                    date_time=datetime.now(timezone.utc)
-                )
-            else:
-                CodeOfConduct.objects.create(
-                    owner=owner,
-                    repo=repo, code_of_conduct=False,
-                    date_time=datetime.now(timezone.utc)
-                )
-
-        elif(check_date(code_of_conduct)):
-            url = '/contents/.github/CODE_OF_CONDUCT.md'
-            result = URL_API + owner + '/' + repo + url
-            github_request = requests.get(result, auth=(username,
-                                                        token))
-            if(github_request.status_code == HTTP_OK):
-                CodeOfConduct.objects.filter(owner=owner, repo=repo).update(
-                    owner=owner,
-                    repo=repo,
-                    code_of_conduct=True,
-                    date_time=datetime.now(timezone.utc)
-                )
-            else:
-                CodeOfConduct.objects.filter(owner=owner, repo=repo).update(
-                    owner=owner,
-                    repo=repo,
-                    code_of_conduct=False,
-                    date_time=datetime.now(timezone.utc)
-                )
-
-        code_of_conduct = CodeOfConduct.objects.all().filter(
+        code_of_conduct = CodeOfConduct.objects.filter(
             owner=owner,
             repo=repo
         )
@@ -70,3 +24,87 @@ class CodeOfConductView(APIView):
         )
 
         return Response(code_of_conduct_serialized.data[0])
+
+    def post(self, request, owner, repo):
+        '''
+        Post a new object in database
+        '''
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
+
+        result = '{0}{1}/{2}/contents/.github/CODE_OF_CONDUCT.md'.format(
+            URL_API,
+            owner,
+            repo
+        )
+        github_request = requests.get(
+            result,
+            auth=(username, token)
+        )
+        if(github_request.status_code == HTTP_OK):
+            response = create_object(owner, repo, True)
+        else:
+            response = create_object(owner, repo, False)
+        return Response(response)
+
+    def put(self, request, owner, repo):
+        '''
+        Update object values in database
+        '''
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
+
+        result = '{0}{1}/{2}/contents/.github/CODE_OF_CONDUCT.md'.format(
+            URL_API,
+            owner,
+            repo
+        )
+        github_request = requests.get(
+            result,
+            auth=(username, token)
+        )
+        if(github_request.status_code == HTTP_OK):
+            response = update_object(owner, repo, True)
+        else:
+            response = update_object(owner, repo, False)
+        return Response(response)
+
+
+def create_object(owner, repo, code_of_conduct):
+    '''
+    Create code of conduct object in database
+    '''
+    CodeOfConduct.objects.create(
+        owner=owner,
+        repo=repo,
+        code_of_conduct=code_of_conduct,
+        date_time=datetime.now(timezone.utc)
+    )
+    code_of_conduct = CodeOfConduct.objects.all().filter(
+        owner=owner,
+        repo=repo
+    )
+    return serialized_object(
+        CodeOfConductSerializer,
+        code_of_conduct
+    ).data[0]
+
+
+def update_object(owner, repo, code_of_conduct):
+    '''
+    Update code of conduct object in database
+    '''
+    CodeOfConduct.objects.filter(owner=owner, repo=repo).update(
+        owner=owner,
+        repo=repo,
+        code_of_conduct=code_of_conduct,
+        date_time=datetime.now(timezone.utc)
+    )
+    code_of_conduct = CodeOfConduct.objects.all().filter(
+        owner=owner,
+        repo=repo
+    )
+    return serialized_object(
+        CodeOfConductSerializer,
+        code_of_conduct
+    ).data[0]
