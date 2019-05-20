@@ -38,8 +38,8 @@ class CommitMonthView(APIView):
         )
 
         if commit:
-            serializer = CommitMonthSerializer(commit, many=True)
-            return Response(serializer.data[0], status=status.HTTP_200_OK)
+            serializer = CommitMonthSerializer(commit[0])
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         commits_week, total_commits = self.get_commits_by_week(owner, repo)
 
@@ -56,15 +56,14 @@ class CommitMonthView(APIView):
     def put(self, request, owner, repo):
 
         commits_week, total_commits = self.get_commits_by_week(owner, repo)
-
-        commit_month = CommitMonth.objects.update(
-            commits_week=commits_week,
-            total_commits=total_commits
-        )        
+    
         commit_month_object = CommitMonth.objects.get(
             owner=owner,
             repo=repo
         )
+        commit_month_object.commits_week = commits_week
+        commit_month_object.total_commits = total_commits
+        commit_month_object.save()
         serializer = CommitMonthSerializer(commit_month_object)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -81,13 +80,18 @@ class CommitMonthView(APIView):
         github_request = requests.get(
             MAIN_URL + owner + '/' + repo + WEEKLY_COMMITS,
             auth=(username, token)
-        ).json()
+        )
 
-        commits_week_array = github_request['all'][FIRST_WEEK:LAST_WEEK]
-        total_commits = 0
-        for i in commits_week_array:
-            total_commits += i
+        if github_request.status_code >= 200 and github_request.status_code < 300:
+            github_request = github_request.json()
+            commits_week_array = github_request['all'][FIRST_WEEK:LAST_WEEK]
+            total_commits = 0
+            for i in commits_week_array:
+                total_commits += i
 
-        commits_week = json.dumps(commits_week_array)
+            commits_week = json.dumps(commits_week_array)
 
-        return commits_week, total_commits
+            return commits_week, total_commits
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)

@@ -5,7 +5,6 @@ from contribution_guide.serializers import ContributionGuideSerializer
 from datetime import date, datetime, timezone
 import requests
 import os
-from community_metrics.functions import check_date, serialized_object
 from community_metrics.constants import URL_API, HTTP_OK
 
 

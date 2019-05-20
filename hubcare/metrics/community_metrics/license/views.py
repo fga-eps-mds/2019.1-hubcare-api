@@ -6,7 +6,6 @@ from license.models import License
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.functions import check_date, serialized_object
 from community_metrics.constants import URL_API, HTTP_OK, HTTP_NOT_FOUND
 
 

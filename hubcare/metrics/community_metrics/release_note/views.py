@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from release_note.models import ReleaseNote
 from release_note.serializers import ReleaseNoteSerializer
 from datetime import datetime, timedelta, timezone
-from community_metrics.functions import serialized_object
 from community_metrics.constants import URL_API, HTTP_OK, NINETY_DAYS
 import requests
 import json

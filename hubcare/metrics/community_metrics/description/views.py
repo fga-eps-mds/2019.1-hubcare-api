@@ -5,8 +5,6 @@ from description.models import Description
 import requests
 from datetime import datetime, timezone
 import os
-from community_metrics.functions \
-    import check_date, serialized_object
 from community_metrics.constants import HTTP_OK, URL_API
 
 
