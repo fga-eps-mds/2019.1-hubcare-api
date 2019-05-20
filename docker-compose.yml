@@ -4,7 +4,7 @@ services:
   hubcare_api:
     container_name: hubcare_api 
     build:
-      context: ./hubcare/hubcare_api
+      context: ./docker
       dockerfile: Dockerfile
       args:
         NAME: ${NAME}
@@ -24,7 +24,7 @@ services:
   commit_metrics:
     container_name: commit_metrics 
     build:
-      context: ./hubcare/metrics/commit_metrics
+      context: ./docker
       dockerfile: Dockerfile
       args:
         NAME: ${NAME}
@@ -39,7 +39,7 @@ services:
   community_metrics:
     container_name: community_metrics 
     build:
-      context: ./hubcare/metrics/community_metrics
+      context: ./docker
       dockerfile: Dockerfile
       args:
         NAME: ${NAME}
@@ -54,7 +54,7 @@ services:
   issue_metrics:
     container_name: issue_metrics 
     build:
-      context: ./hubcare/metrics/issue_metrics
+      context: ./docker
       dockerfile: Dockerfile
       args:
         NAME: ${NAME}
@@ -69,7 +69,7 @@ services:
   pull_request_metrics:
     container_name: pull_request_metrics 
     build:
-      context: ./hubcare/metrics/pull_request_metrics
+      context: ./docker
       dockerfile: Dockerfile
       args:
         NAME: ${NAME}
@@ -80,3 +80,18 @@ services:
       - "./hubcare/metrics/pull_request_metrics:/code"
     ports:
       - "8004:8004"
+
+  repository:
+    container_name: repository
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+      args:
+        NAME: ${NAME}
+        TOKEN: ${TOKEN}
+    environment:
+      - PORT=8005
+    volumes:
+      - "./hubcare/repository:/code"
+    ports:
+      - "8005:8005"
