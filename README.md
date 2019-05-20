@@ -132,10 +132,10 @@ To execute all tests:
 make test
 ```
 
-To get a [Coveralls] report:
+To get a [Coveralls](https://docs.coveralls.io/) report:
 
 ```shell
-make coverage report
+make coverage
 ```
 
 ### Style Checking
