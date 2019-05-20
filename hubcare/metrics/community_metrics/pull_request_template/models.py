@@ -7,3 +7,6 @@ class PullRequestTemplate(models.Model):
     repo = models.CharField(max_length=200)
     pull_request_template = models.BooleanField(default=False)
     date_time = models.DateTimeField(default=None)
+
+    class Meta:
+        unique_together = (('owner', 'repo'),)

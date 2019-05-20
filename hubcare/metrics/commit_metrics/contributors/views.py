@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from contributors.models import DifferentsAuthors
 from contributors.serializers \
     import DifferentsAuthorsSerializers
-from contributors.constants import *
+from commit_metrics.constants import *
 from datetime import datetime, timezone, timedelta
 import requests
 import os
@@ -39,7 +39,7 @@ class DifferentsAuthorsView(APIView):
             auth=(username, token))
         github_data = github_request.json()
         present = datetime.today()
-        days = timedelta(days=month_days)
+        days = timedelta(days=MONTH_DAYS)
         commitsLastThirtyDays = []
         authorsCommits = []
         out = []
@@ -73,7 +73,7 @@ class DifferentsAuthorsView(APIView):
         token = os.environ['TOKEN']
 
         time_now = datetime.now()
-        period = timedelta(weeks=TOTAL_WEEKS)
+        period = timedelta(weeks=(LAST_WEEK-FIRST_WEEK))
         since = str(time_now-period).replace(' ', '-')
 
         url_since = '/commits?since='

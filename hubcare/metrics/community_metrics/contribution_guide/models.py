@@ -7,3 +7,6 @@ class ContributionGuide(models.Model):
     repo = models.CharField(max_length=200)
     contribution_guide = models.BooleanField(default=False)
     date_time = models.DateTimeField(default=None)
+
+    class Meta:
+        unique_together = (('owner', 'repo'),)

@@ -64,7 +64,7 @@ class RepositoryView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, owner, repo):
-        repository = Repository.objects.filter(owner=owner, repo=repo)
+        repository = Repository.objects.get(owner=owner, repo=repo)
         try:
             repository.update(date=datetime.now(timezone.utc))
             return Response('Repository successfully updated',

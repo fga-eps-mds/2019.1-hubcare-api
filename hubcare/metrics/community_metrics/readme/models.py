@@ -6,3 +6,6 @@ class Readme(models.Model):
     repo = models.CharField(max_length=150)
     readme = models.BooleanField(default=False)
     date_time = models.DateTimeField(default=None)
+
+    class Meta:
+        unique_together = (('owner', 'repo'),)

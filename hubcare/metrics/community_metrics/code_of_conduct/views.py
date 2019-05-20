@@ -23,7 +23,7 @@ class CodeOfConductView(APIView):
             code_of_conduct
         )
 
-        return Response(code_of_conduct_serialized.data[0])
+        return Response(code_of_conduct_serialized.data)
 
     def post(self, request, owner, repo):
         '''
@@ -107,4 +107,4 @@ def update_object(owner, repo, code_of_conduct):
     return serialized_object(
         CodeOfConductSerializer,
         code_of_conduct
-    ).data[0]
+    ).data

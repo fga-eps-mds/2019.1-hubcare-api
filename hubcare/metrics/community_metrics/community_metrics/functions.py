@@ -17,7 +17,6 @@ def serialized_object(object_serializer, object_for_filter_s):
     serialization of objects
     '''
     serializer_objects = object_serializer(
-            object_for_filter_s,
-            many=True
+            object_for_filter_s
         )
     return serializer_objects

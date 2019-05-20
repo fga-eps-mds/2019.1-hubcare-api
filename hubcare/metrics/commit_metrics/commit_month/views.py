@@ -22,64 +22,52 @@ class CommitMonthView(APIView):
             Output: the sum of commits
         '''
 
-        try:
-            commit = CommitMonth.objects.filter(
-                owner=owner,
-                repo=repo
-            )[0]
-            serializer = CommitMonthSerializer(commit)
+        commit = CommitMonth.objects.get(
+            owner=owner,
+            repo=repo
+        )
+        serializer = CommitMonthSerializer(commit)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except NotFound:
-            return Response('There is no repository for this metric',
-                            status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, owner, repo):
+        
+        commit = CommitMonth.objects.filter(
+            owner=owner,
+            repo=repo
+        )
 
-        print('time 1: ', datetime.now())
+        if commit:
+            serializer = CommitMonthSerializer(commit, many=True)
+            return Response(serializer.data[0], status=status.HTTP_200_OK)
 
         commits_week, total_commits = self.get_commits_by_week(owner, repo)
 
-        commit_month = {
-            'owner': owner,
-            'repo': repo,
-            'commits_week': commits_week,
-            'total_commits': total_commits
-        }
+        commit = CommitMonth.objects.create(
+            owner=owner,
+            repo=repo,
+            commits_week=commits_week,
+            total_commits=total_commits
+        )
+        serializer = CommitMonthSerializer(commit)
 
-        serializer = CommitMonthSerializer(data=commit_month)
-
-        print('time 2: ', datetime.now())
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response('Error on creating commit_month metric',
-                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, owner, repo):
 
-        commit_month_object = CommitMonth.objects.filter(
+        commits_week, total_commits = self.get_commits_by_week(owner, repo)
+
+        commit_month = CommitMonth.objects.update(
+            commits_week=commits_week,
+            total_commits=total_commits
+        )        
+        commit_month_object = CommitMonth.objects.get(
             owner=owner,
             repo=repo
-        )[0]
+        )
+        serializer = CommitMonthSerializer(commit_month_object)
 
-        commits_week, total_commits = self.get_commits_by_week(owner, repo)
-        commit_month = {
-            'commits_week': commits_week,
-            'total_commits': total_commits
-        }
-
-        serializer = CommitMonthSerializer(commit_month_object, commit_month,
-                                           partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response('Error on creating commit_month metric',
-                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_commits_by_week(self, owner, repo):
         '''
