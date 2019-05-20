@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from contribution_guide.models import ContributionGuide
@@ -14,15 +15,12 @@ class ContributionGuideView(APIView):
         Return if a repository have a contribution guide
         or not
         '''
-        contribution_guide = ContributionGuide.objects.all().filter(
+        contribution_guide = ContributionGuide.objects.get(
             owner=owner,
             repo=repo
         )
-        contribution_serialized = serialized_object(
-            ContributionGuideSerializer,
-            contribution_guide
-        )
-        return Response(contribution_serialized.data[0])
+        serializer = ContributionGuideSerializer(contribution_guide)
+        return Response(serializer.data)
 
     def post(self, request, owner, repo):
         '''
@@ -31,18 +29,29 @@ class ContributionGuideView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
+        contribution_guide = ContributionGuide.objects.filter(
+            owner=owner,
+            repo=repo
+        )
+        if contribution_guide:
+            serializer = ContributionGuideSerializer(contribution_guide[0])
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         url = '{0}{1}/{2}/contents/.github/CONTRIBUTING.md'.format(
             URL_API,
             owner,
             repo
         )
         github_request = requests.get(url, auth=(username, token))
-
-        if(github_request.status_code == HTTP_OK):
+        status_code = github_request.status_code
+        if status_code >= 200 and status_code < 300:
             response = create_contribution_guide(owner, repo, True)
-        else:
+        elif status_code == 404:
             response = create_contribution_guide(owner, repo, False)
-        return Response(response)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(response, status=status.HTTP_201_CREATED)
 
     def put(self, request, owner, repo):
         '''
@@ -58,48 +67,39 @@ class ContributionGuideView(APIView):
         )
         github_request = requests.get(url, auth=(username, token))
 
-        if(github_request.status_code == HTTP_OK):
+        status_code = github_request.status_code
+        if(status_code >= 200 and status_code < 300):
             response = update_contribution_guide(owner, repo, True)
-        else:
+        elif status_code == 404:
             response = update_contribution_guide(owner, repo, False)
-        return Response(response)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(response, status=status.HTTP_200_OK)
 
 
 def create_contribution_guide(owner, repo, value):
     '''
     Create a contribution guide object
     '''
-    ContributionGuide.objects.create(
+    contribution_guide = ContributionGuide.objects.create(
         owner=owner,
         repo=repo,
         contribution_guide=value,
-        date_time=datetime.now(timezone.utc)
     )
-    response = ContributionGuide.objects.all().filter(
-        owner=owner,
-        repo=repo
-    )
-    return serialized_object(
-        ContributionGuideSerializer,
-        response
-    ).data[0]
+    serializer = ContributionGuideSerializer(contribution_guide)
+    return serializer.data
 
 
 def update_contribution_guide(owner, repo, value):
     '''
     Update a contribution guide object
     '''
-    ContributionGuide.objects.filter(owner=owner, repo=repo).update(
-        owner=owner,
-        repo=repo,
-        contribution_guide=value,
-        date_time=datetime.now(timezone.utc)
-    )
-    response = ContributionGuide.objects.all().filter(
+    contribution_guide = ContributionGuide.objects.get(
         owner=owner,
         repo=repo
     )
-    return serialized_object(
-        ContributionGuideSerializer,
-        response
-    ).data[0]
+    contribution_guide.contribution_guide = value
+    contribution_guide.save()
+    serializer = ContributionGuideSerializer(contribution_guide)
+    return serializer.data

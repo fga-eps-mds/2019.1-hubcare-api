@@ -6,4 +6,6 @@ class DescriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Description
-        fields = '__all__'
+        fields = [
+            'description'
+        ]

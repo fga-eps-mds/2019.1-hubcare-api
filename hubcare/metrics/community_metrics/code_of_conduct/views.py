@@ -47,9 +47,10 @@ class CodeOfConductView(APIView):
             result,
             auth=(username, token)
         )
-        if github_request.status_code >= 200 and github_request.status_code < 300:
+        status_code = github_request.status_code
+        if status_code >= 200 and status_code < 300:
             response = create_object(owner, repo, True)
-        elif github_request.status_code == 404:
+        elif status_code == 404:
             response = create_object(owner, repo, False)
         else:
             return Response('Error on requesting GitHubAPI',
@@ -72,11 +73,15 @@ class CodeOfConductView(APIView):
             result,
             auth=(username, token)
         )
-        if(github_request.status_code == HTTP_OK):
+        status_code = github_request.status_code
+        if status_code >= 200 and status_code < 300:
             response = update_object(owner, repo, True)
-        else:
+        elif status_code == 404:
             response = update_object(owner, repo, False)
-        return Response(response)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(response, status=status.HTTP_201_CREATED)
 
 
 def create_object(owner, repo, code_of_conduct):
@@ -97,12 +102,11 @@ def update_object(owner, repo, code_of_conduct):
     '''
     Update code of conduct object in database
     '''
-    code_of_conduct_object = CodeOfConduct.objects.get(
+    code_of_conduct = CodeOfConduct.objects.get(
         owner=owner,
         repo=repo
     )
-    code_of_conduct_object.code_of_conduct = code_of_conduct
-    code_of_conduct_object.date_time = datetime.now()
-    code_of_conduct_object.save()
-    serializer = CodeOfConductSerializer(code_of_conduct_object)
+    code_of_conduct.code_of_conduct = code_of_conduct
+    code_of_conduct.save()
+    serializer = CodeOfConductSerializer(code_of_conduct)
     return serializer.data
