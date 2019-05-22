@@ -15,6 +15,7 @@ services:
       - URL_COMMUNITY=http://localhost:8002/
       - URL_ISSUE=http://localhost:8003/
       - URL_PULL_REQUEST=http://localhost:8004/
+      - URL_REPOSITORY=http://localhost:8005/
     volumes:
       - "./hubcare/hubcare_api:/code"
     ports:
