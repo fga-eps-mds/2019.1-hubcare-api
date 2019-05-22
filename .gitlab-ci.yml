@@ -45,6 +45,10 @@ unit_test:
     - pip install -r hubcare/metrics/pull_request_metrics/requirements.txt
     - python hubcare/metrics/pull_request_metrics/manage.py makemigrations
     - python hubcare/metrics/pull_request_metrics/manage.py migrate
+    # install requiriment to repository service
+    - pip install -r hubcare/repository/requirements.txt
+    - python hubcare/repository/manage.py makemigrations
+    - python hubcare/repository/manage.py migrate
   script:
     # Command to test our application
     - coverage run --source='.' --omit=$OMIT_COVERAGE hubcare/hubcare_api/manage.py test hubcare/hubcare_api/
@@ -52,6 +56,7 @@ unit_test:
     - coverage run --source='.' --omit=$OMIT_COVERAGE --append hubcare/metrics/community_metrics/manage.py test hubcare/metrics/community_metrics/
     - coverage run --source='.' --omit=$OMIT_COVERAGE --append hubcare/metrics/issue_metrics/manage.py test hubcare/metrics/issue_metrics/
     - coverage run --source='.' --omit=$OMIT_COVERAGE --append hubcare/metrics/pull_request_metrics/manage.py test hubcare/metrics/pull_request_metrics/
+    - coverage run --source='.' --omit=$OMIT_COVERAGE --append hubcare/repository/manage.py test hubcare/repository/
     - coverage report
     - coveralls
 
@@ -74,7 +79,7 @@ codestyle:
     - docker:dind
   script:
     # Build our image using docker
-    - docker build $IMAGEPATH --build-arg NAME=$NAME --build-arg TOKEN=$TOKEN -t registry.gitlab.com/cjjcastro/2019-1-hubcare-api/$DOCKERIMAGE:$DOCKERTAG
+    - docker build -f docker/Dockerfile $IMAGEPATH --build-arg NAME=$NAME --build-arg TOKEN=$TOKEN -t registry.gitlab.com/cjjcastro/2019-1-hubcare-api/$DOCKERIMAGE:$DOCKERTAG
 
     # Configure container registry to push using docker
     - docker login -u "$DOCKERLOGIN" -p "$DOCKERPASSWORD" registry.gitlab.com
@@ -150,6 +155,19 @@ release_pull_request_metrics_development:
   only: 
     - devel
 
+# Release to repository service
+release_repository_production:
+  extends: .release
+  environment: production_repository
+  only:
+    - master
+
+release_repository_development:
+  extends: .release
+  environment: development_repository
+  only:
+    - devel
+
 # Stage III - I
 # Deployment Phase
 # Production deploy
@@ -220,6 +238,20 @@ deploy_pull_request_metrics:
             --environment $RANCHER_ENVIRONMENT
             --stack $RANCHER_STACK
             --service pull-request-metrics"
+  only:
+    - master
+
+deploy_repository:
+  image: cdrx/rancher-gitlab-deploy
+  stage: deploy
+  script:
+    - "upgrade
+            --rancher-url $RANCHER_URL
+            --rancher-key $RANCHER_ACCESS_KEY
+            --rancher-secret $RANCHER_SECRET_KEY
+            --environment $RANCHER_ENVIRONMENT
+            --stack $RANCHER_STACK
+            --service repository"
   only:
     - master
 
