@@ -3,7 +3,7 @@ import re
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import PullRequestQuality
-from .serializers import PullRequestQualitySerializers
+from .serializers import PullRequestQualitySerializer
 from datetime import datetime, timezone
 import os
 
@@ -14,31 +14,43 @@ class PullRequestQualityView(APIView):
         Returns the quality of the pull
         requests from the repository
         '''
-        return Response(get_object(owner, repo))
+
+        quality = PullRequestQuality.objects.get(owner=owner, repo=repo)
+        serializer = PullRequestQualitySerializer(quality)
+        return Response(serializer.data)
 
     def post(self, request, owner, repo):
         '''
         Post a new quality of the pull
         requests from the repository
         '''
-        PullRequestQuality.objects.create(
+        pr_quality = PullRequestQuality.objects.filter(
+            owner=owner,
+            repo=repo
+        )
+        if pr_quality:
+            serializer = PullRequestQualitySerializer(pr_quality[0])
+            return Response(serializer.data)
+
+        pr_quality = PullRequestQuality.objects.create(
             owner=owner,
             repo=repo,
-            date=datetime.now(timezone.utc),
-            metric=get_pull_request(owner, repo)
+            acceptance_rate=get_pull_request(owner, repo)
         )
-        return Response(get_object(owner, repo))
+        serializer = PullRequestQualitySerializer(pr_quality)
+        return Response(serializer.data)
 
     def put(self, request, owner, repo):
         '''
         Update a quality of the pull requests
         from the repository
         '''
-        PullRequestQuality.objects.filter(owner=owner, repo=repo).update(
-            date=datetime.now(timezone.utc),
-            metric=get_pull_request(owner, repo)
-        )
-        return Response(get_object(owner, repo))
+        pr_quality = PullRequestQuality.objects.get(owner=owner, repo=repo)
+        pr_quality.acceptance_rate = get_pull_request(owner, repo)
+        pr_quality.save()
+
+        serializer = PullRequestQualitySerializer(pr_quality)
+        return Response(serializer.data)
 
 
 def check_datetime(pull_request):
@@ -177,16 +189,3 @@ def get_comments(owner, repo, number):
     print("comments = ", comments)
 
     return comments
-
-
-def get_object(owner, repo):
-    '''
-    Get pull request quality object
-    '''
-    quality = PullRequestQuality.objects.all().filter(
-        owner=owner, repo=repo)
-
-    quality = PullRequestQualitySerializers(
-        quality, many=True)
-
-    return quality.data
