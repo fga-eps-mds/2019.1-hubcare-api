@@ -7,13 +7,24 @@ def get_metric(owner, repo, request_type):
     r = Request()
     url_acceptance_quality = get_url('acceptance_quality/', owner, repo)
 
-    metric = []
     if request_type == 'get':
-        metric.append(r.get(url_acceptance_quality))
+        metric = {
+            "acceptance_quality": r.get(url_acceptance_quality)[
+                'acceptance_quality'
+            ]
+        }
     elif request_type == 'post':
-        metric.append(r.post(url_acceptance_quality))
+        metric = {
+            "acceptance_quality": r.post(url_acceptance_quality)[
+                'acceptance_rate'
+            ]
+        }
     elif request_type == 'put':
-        metric.append(r.put(url_acceptance_quality))
+        metric = {
+            "acceptance_quality": r.put(url_acceptance_quality)[
+                'acceptance_quality'
+            ]
+        }
 
     return metric
 

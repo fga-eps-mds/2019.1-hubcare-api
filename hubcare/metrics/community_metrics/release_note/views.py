@@ -29,7 +29,7 @@ class ReleaseNoteView(APIView):
         )
         if release_note:
             serializer = ReleaseNoteSerializer(release_note[0])
-            return serializer.data
+            return Response(serializer.data)
 
         release_note = ReleaseNote.objects.create(
             owner=owner,

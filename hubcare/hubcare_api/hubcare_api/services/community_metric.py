@@ -14,34 +14,51 @@ def get_metric(owner, repo, request_type):
     url_readme = get_url('readme/', owner, repo)
     url_description = get_url('description/', owner, repo)
 
-    metric = []
     if request_type == 'get':
-        metric.append(r.get(url_code_of_conduct))
-        metric.append(r.get(url_contribution_guide))
-        metric.append(r.get(url_issue_template))
-        metric.append(r.get(url_license))
-        metric.append(r.get(url_pull_request_template))
-        metric.append(r.get(url_release_note))
-        metric.append(r.get(url_readme))
-        metric.append(r.get(url_description))
+        metric = {
+            "code_of_conduct": r.get(url_code_of_conduct)['code_of_conduct'],
+            "contribution_guide": r.get(url_contribution_guide)[
+                'contribution_guide'
+            ],
+            "issue_template": r.get(url_issue_template)['issue_template'],
+            "license": r.get(url_license)['license'],
+            "pull_request_template": r.get(url_pull_request_template)[
+                'pull_request_template'
+            ],
+            "release_note": r.get(url_release_note)['release_note'],
+            "readme": r.get(url_readme)['readme'],
+            "description": r.get(url_description)['description'],
+        }
     elif request_type == 'post':
-        metric.append(r.post(url_code_of_conduct))
-        metric.append(r.post(url_contribution_guide))
-        metric.append(r.post(url_issue_template))
-        metric.append(r.post(url_license))
-        metric.append(r.post(url_pull_request_template))
-        metric.append(r.post(url_release_note))
-        metric.append(r.post(url_readme))
-        metric.append(r.post(url_description))
+        metric = {
+            "code_of_conduct": r.post(url_code_of_conduct)['code_of_conduct'],
+            "contribution_guide": r.post(url_contribution_guide)[
+                'contribution_guide'
+            ],
+            "issue_template": r.post(url_issue_template)['issue_template'],
+            "license": r.post(url_license)['license'],
+            "pull_request_template": r.post(url_pull_request_template)[
+                'pull_request_template'
+            ],
+            "release_note": r.post(url_release_note)['release_note'],
+            "readme": r.post(url_readme)['readme'],
+            "description": r.post(url_description)['description'],
+        }
     elif request_type == 'put':
-        metric.append(r.put(url_code_of_conduct))
-        metric.append(r.put(url_contribution_guide))
-        metric.append(r.put(url_issue_template))
-        metric.append(r.put(url_license))
-        metric.append(r.put(url_pull_request_template))
-        metric.append(r.put(url_release_note))
-        metric.append(r.put(url_readme))
-        metric.append(r.put(url_description))
+       metric = {
+            "code_of_conduct": r.put(url_code_of_conduct)['code_of_conduct'],
+            "contribution_guide": r.put(url_contribution_guide)[
+                'contribution_guide'
+            ],
+            "issue_template": r.put(url_issue_template)['issue_template'],
+            "license": r.put(url_license)['license'],
+            "pull_request_template": r.put(url_pull_request_template)[
+                'pull_request_template'
+            ],
+            "release_note": r.put(url_release_note)['release_note'],
+            "readme": r.put(url_readme)['readme'],
+            "description": r.put(url_description)['description'],
+        }
 
     return metric
 

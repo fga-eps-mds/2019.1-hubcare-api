@@ -31,7 +31,7 @@ class PullRequestTemplateView(APIView):
         )
         if pr_template:
             serializer = PullRequestTemplateSerializer(pr_template[0])
-            return serializer.data
+            return Response(serializer.data)
         github_request = get_github_request(owner, repo)
         status_code = github_request.status_code
         if status_code >=200 and status_code < 300:

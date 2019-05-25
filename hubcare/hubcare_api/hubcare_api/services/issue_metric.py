@@ -23,9 +23,12 @@ def get_metric(owner, repo, request_type):
         good_first_issue = r.put(url_good_first_issue)
 
     metric = {
-        'activity_rate': activity_rate,
-        'help_wanted': help_wanted,
-        'good_first_issue': good_first_issue
+        'activity_rate': activity_rate['activity_rate'],
+        'activity_rate_15_days': activity_rate['activity_rate_15_days'],
+        'activity_rate_15_days_metric': activity_rate[
+            'activity_rate_15_days_metric'],
+        'total_issues': help_wanted['total_issues'],
+        'good_first_issue': good_first_issue['good_first_issue']
     }
     return metric
 
