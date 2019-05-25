@@ -19,16 +19,12 @@ class GoodFirstIssueView(APIView):
         Returns good first issue data
         '''
 
-        try:
-            good_first_issue = GoodFirstIssue.objects.all().filter(
-                owner=owner,
-                repo=repo
-            )[0]
-            serializer = GoodFirstIssueSerializer(good_first_issue)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except RepositoryNotFound:
-            return Response('There is no repository to be viewed',
-                            status=status.HTTP_400_BAD_REQUEST)
+        good_first_issue = GoodFirstIssue.objects.get(
+            owner=owner,
+            repo=repo
+        )
+        serializer = GoodFirstIssueSerializer(good_first_issue)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, owner, repo):
         '''
@@ -36,49 +32,51 @@ class GoodFirstIssueView(APIView):
         '''
 
         print('time good_first_issue 1', datetime.now())
-        url = constants.MAIN_URL + owner + '/' + repo
-        total_issues, good_first_issue = self.get_total_goodfirstissue(url)
-        data = {
-            'owner': owner,
-            'repo': repo,
-            'total_issues': total_issues,
-            'good_first_issue:': good_first_issue
-        }
+        data = GoodFirstIssue.objects.filter(
+            owner=owner,
+            repo=repo
+        )
+        if data:
+            serializer = GoodFirstIssueSerializer(data[0])
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-        serializer = GoodFirstIssueSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            print('time good_first_issue 2', datetime.now())
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response('Error on creating good first issue metric',
-                            status=status.HTTP_400_BAD_REQUEST)
+        url = '{0}{1}/{2}'.format(
+            constants.MAIN_URL,
+            owner,
+            repo
+        )
+        total_issues, good_first_issue = self.get_total_goodfirstissue(url)
+        data = GoodFirstIssue.objects.create(
+            owner=owner,
+            repo=repo,
+            total_issues=total_issues,
+            good_first_issue=good_first_issue
+        )
+
+        serializer = GoodFirstIssueSerializer(data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, owner, repo):
         '''
         Updates good first issue data for repository
         '''
 
-        good_first_issue_object = GoodFirstIssue.objects.filter(
+        url = '{0}{1}/{2}'.format(
+            constants.MAIN_URL,
+            owner,
+            repo
+        )
+        total_issues, good_first_issue = self.get_total_goodfirstissue(url)
+        data = GoodFirstIssue.objects.get(
             owner=owner,
             repo=repo
-        )[0]
+        )
+        data.total_issues = total_issues
+        data.good_first_issue = good_first_issue
+        data.save()
 
-        url = constants.MAIN_URL + owner + '/' + repo
-        total_issues, good_first_issue = self.get_total_goodfirstissue(url)
-        data = {
-            'total_issues': total_issues,
-            'good_first_issue': good_first_issue
-        }
-
-        serializer = GoodFirstIssueSerializer(good_first_issue_object, data,
-                                              partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response('Error on updating good first issue metric',
-                            status=status.HTTP_400_BAD_REQUEST)
+        serializer = GoodFirstIssueSerializer(data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_total_goodfirstissue(self, url):
         '''

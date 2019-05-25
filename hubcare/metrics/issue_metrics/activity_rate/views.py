@@ -18,24 +18,18 @@ class ActivityRateIssueView(APIView):
         '''
         Return activity rate to repo issues
         '''
-        try:
-            activity_rate = ActivityRateIssue.objects.get(
-                owner=owner,
-                repo=repo
-            )
-            activity_rate_serialized = ActivityRateIssueSerializer(
-                activity_rate
-            )
+        activity_rate = ActivityRateIssue.objects.get(
+            owner=owner,
+            repo=repo
+        )
+        activity_rate_serialized = ActivityRateIssueSerializer(
+            activity_rate
+        )
 
-            return Response(
-                activity_rate_serialized.data,
-                status=status.HTTP_200_OK
-            )
-        except RepositoryNotFound:
-            return Response(
-                'There is no repository to be viewed',
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        return Response(
+            activity_rate_serialized.data,
+            status=status.HTTP_200_OK
+        )
 
     def post(self, request, owner, repo):
         '''
@@ -47,7 +41,7 @@ class ActivityRateIssueView(APIView):
         )
         if data:
             serializer = ActivityRateIssueSerializer(data[0])
-            return Response(serializer, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         activity_rate, activity_rate_15_days, activity_rate_15_days_metric = \
             self.get_activity_rate(owner, repo)

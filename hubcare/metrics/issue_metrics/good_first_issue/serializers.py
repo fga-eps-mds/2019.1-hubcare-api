@@ -6,4 +6,7 @@ class GoodFirstIssueSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GoodFirstIssue
-        fields = '__all__'
+        fields = [
+            'total_issues',
+            'good_first_issue'
+        ]
