@@ -30,8 +30,6 @@ class GoodFirstIssueView(APIView):
         '''
         Creates good first issue data for repository
         '''
-
-        print('time good_first_issue 1', datetime.now())
         data = GoodFirstIssue.objects.filter(
             owner=owner,
             repo=repo
