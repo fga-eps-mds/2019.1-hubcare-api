@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from issue_template.models import IssueTemplate
@@ -5,33 +6,42 @@ from issue_template.serializers import IssueTemplateSerializer
 from datetime import datetime, timezone
 import requests
 import os
-from community_metrics.constants import URL_API, HTTP_OK
+from community_metrics.constants import URL_API
 
 
 class IssueTemplateView(APIView):
     def get(self, request, owner, repo):
         '''
-        return if a repository have a readme or not
+        return if a repository issue template or not
         '''
-        issue_templates = IssueTemplate.objects.all().filter(
+        issue_template = IssueTemplate.objects.get(
             owner=owner,
             repo=repo
         )
-        issue_serialized = serialized_object(
-            IssueTemplateSerializer,
-            issue_templates
-            )
-        return Response(issue_serialized.data[0])
+        serializer = IssueTemplateSerializer(issue_template)
+        return Response(serializer.data)
 
     def post(self, request, owner, repo):
         '''
         Post a new object
         '''
+        issue_template = IssueTemplate.objects.filter(
+            owner=owner,
+            repo=repo
+        )
+        if issue_template:
+            serializer = IssueTemplateSerializer(issue_template[0])
+            return Response(serializer.data)
+
         github_request = get_github_request(owner, repo)
-        if(github_request.status_code == HTTP_OK):
+        status_code = github_request.status_code
+        if(status_code >= 200 and status_code < 300):
             response = create_issue_template(owner, repo, True)
-        else:
+        elif status_code == 404:
             response = create_issue_template(owner, repo, False)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(response)
 
     def put(self, request, owner, repo):
@@ -39,11 +49,14 @@ class IssueTemplateView(APIView):
         Update issue template object
         '''
         github_request = get_github_request(owner, repo)
-
-        if(github_request.status_code == HTTP_OK):
+        status_code = github_request.status_code
+        if(status_code >= 200 and status_code < 300):
             response = update_issue_template(owner, repo, True)
-        else:
+        elif status_code == 404:
             response = update_issue_template(owner, repo, False)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(response)
 
 
@@ -51,40 +64,25 @@ def create_issue_template(owner, repo, value):
     '''
     Create a new object in database
     '''
-    IssueTemplate.objects.create(
+    issue_template = IssueTemplate.objects.create(
         owner=owner,
         repo=repo,
-        issue_templates=value,
-        date_time=datetime.now(timezone.utc)
+        issue_template=value,
     )
-    issue_template = IssueTemplate.objects.filter(
-        owner=owner,
-        repo=repo
-    )
-    return serialized_object(
-        IssueTemplateSerializer,
-        issue_template
-    ).data[0]
+    serializer = IssueTemplateSerializer(issue_template)
+    return serializer.data
 
 
 def update_issue_template(owner, repo, value):
     '''
     Update issue template object in database
     '''
-    IssueTemplate.objects.filter(owner=owner, repo=repo).update(
-        owner=owner,
-        repo=repo,
-        issue_templates=value,
-        date_time=datetime.now(timezone.utc)
-    )
-    issue_template = IssueTemplate.objects.filter(
-        owner=owner,
-        repo=repo
-    )
-    return serialized_object(
-        IssueTemplateSerializer,
-        issue_template
-    ).data[0]
+    issue_template = IssueTemplate.objects.get(owner=owner, repo=repo)
+    issue_template.issue_template = value
+    issue_template.save()
+
+    serializer = IssueTemplateSerializer(issue_template)
+    return serializer.data
 
 
 def get_github_request(owner, repo):

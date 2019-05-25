@@ -15,43 +15,40 @@ class ReleaseNoteView(APIView):
         '''
         Return if a repository have a release note or not
         '''
-        readme = ReleaseNote.objects.filter(owner=owner, repo=repo)
-        readme_serialized = serialized_object(ReleaseNoteSerializer,  readme)
-        return Response(readme_serialized.data[0])
+        release_note = ReleaseNote.objects.get(owner=owner, repo=repo)
+        serializer = ReleaseNoteSerializer(release_note)
+        return Response(serializer.data)
 
     def post(self, request, owner, repo):
         '''
         Post release note object object
         '''
-        ReleaseNote.objects.create(
+        release_note = ReleaseNote.objects.filter(
+            owner=owner,
+            repo=repo
+        )
+        if release_note:
+            serializer = ReleaseNoteSerializer(release_note[0])
+            return serializer.data
+
+        release_note = ReleaseNote.objects.create(
             owner=owner,
             repo=repo,
-            have_realease_note=check_release_note(owner, repo),
-            date=datetime.now(timezone.utc)
+            release_note=check_release_note(owner, repo),
         )
-        release = ReleaseNote.objects.filter(owner=owner, repo=repo)
-        response = serialized_object(
-            ReleaseNoteSerializer,
-            release
-        ).data[0]
-        return Response(response)
+        serializer = ReleaseNoteSerializer(release_note)
+        return serializer.data
 
     def put(self, request, owner, repo):
         '''
         Update release note object
         '''
-        ReleaseNote.objects.filter(owner=owner, repo=repo).update(
-            owner=owner,
-            repo=repo,
-            have_realease_note=check_release_note(owner, repo),
-            date=datetime.now(timezone.utc)
-        )
-        release = ReleaseNote.objects.filter(owner=owner, repo=repo)
-        response = serialized_object(
-            ReleaseNoteSerializer,
-            release
-        ).data[0]
-        return Response(response)
+        release_note = ReleaseNote.objects.get(owner=owner, repo=repo)
+        release_note.release_note = check_release_note(owner, repo)
+        release_note.save()
+
+        serializer = ReleaseNoteSerializer(release_note)
+        return serializer.data
 
 
 def get_github_request(owner, repo):

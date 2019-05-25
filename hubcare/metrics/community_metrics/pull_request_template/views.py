@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from pull_request_template.models import PullRequestTemplate
@@ -13,26 +14,33 @@ class PullRequestTemplateView(APIView):
         '''
         Return if a repository have a pull request template or not
         '''
-        pull_request_template = PullRequestTemplate.objects.all().filter(
+        pull_request_template = PullRequestTemplate.objects.get(
             owner=owner,
             repo=repo
         )
-        pull_request_template_serializer = serialized_object(
-            PullRequestTemplateSerializer,
-            pull_request_template
-        )
-        return Response(pull_request_template_serializer.data[0])
+        serializer = PullRequestTemplateSerializer(pull_request_template)
+        return Response(serializer.data)
 
     def post(self, request, owner, repo):
         '''
         Post pull  request template object
         '''
+        pr_template = PullRequestTemplate.objects.filter(
+            owner=owner,
+            repo=repo
+        )
+        if pr_template:
+            serializer = PullRequestTemplateSerializer(pr_template[0])
+            return serializer.data
         github_request = get_github_request(owner, repo)
-
-        if(github_request.status_code == HTTP_OK):
+        status_code = github_request.status_code
+        if status_code >=200 and status_code < 300:
             response = create_pull_request_template(owner, repo, True)
-        else:
+        elif status_code == 404:
             response = create_pull_request_template(owner, repo, False)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(response)
 
     def put(self, request, owner, repo):
@@ -40,11 +48,14 @@ class PullRequestTemplateView(APIView):
         Update pull request template object
         '''
         github_request = get_github_request(owner, repo)
-
-        if(github_request.status_code == HTTP_OK):
+        status_code = github_request.status_code
+        if status_code >=200 and status_code < 300:
             response = update_pull_request_template(owner, repo, True)
-        else:
+        elif status_code == 404:
             response = update_pull_request_template(owner, repo, False)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(response)
 
 
@@ -52,40 +63,28 @@ def create_pull_request_template(owner, repo, value):
     '''
     Create pull request template object in database
     '''
-    PullRequestTemplate.objects.create(
+    pull_request_template = PullRequestTemplate.objects.create(
         owner=owner,
         repo=repo,
         pull_request_template=value,
-        date_time=datetime.now(timezone.utc)
     )
-    pull_request_template = PullRequestTemplate.objects.all().filter(
-        owner=owner,
-        repo=repo
-    )
-    return serialized_object(
-        PullRequestTemplateSerializer,
-        pull_request_template
-    ).data[0]
+    serializer = PullRequestTemplateSerializer(pull_request_template)
+    return serializer.data
 
 
 def update_pull_request_template(owner, repo, value):
     '''
     Update pull request template object in database
     '''
-    PullRequestTemplate.objects.filter().update(
-        owner=owner,
-        repo=repo,
-        pull_request_template=value,
-        date_time=datetime.now(timezone.utc)
-    )
-    pull_request_template = PullRequestTemplate.objects.all().filter(
+    pull_request_template = PullRequestTemplate.objects.get(
         owner=owner,
         repo=repo
     )
-    return serialized_object(
-        PullRequestTemplateSerializer,
-        pull_request_template
-    ).data[0]
+    pull_request_template.pull_request_template = value
+    pull_request_template.save()
+    
+    serializer = PullRequestTemplateSerializer(pull_request_template)
+    return serializer.data
 
 
 def get_github_request(owner, repo):

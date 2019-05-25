@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from readme.serializers import ReadmeSerializer
@@ -13,29 +14,43 @@ class ReadmeView(APIView):
         '''
         Return if a repository have a readme or not
         '''
-        readme = Readme.objects.filter(owner=owner, repo=repo)
-        readme_serialized = serialized_object(ReadmeSerializer,  readme)
-        return Response(readme_serialized.data[0])
+        readme = Readme.objects.get(owner=owner, repo=repo)
+        serializer = ReadmeSerializer(readme)
+        return Response(serializer.data)
 
     def post(self, request, owner, repo):
         '''
         Create readme object
         '''
-        github_request = get_github_request(owner, repo)
+        readme = Readme.objects.filter(
+            owner=owner,
+            repo=repo
+        )
+        if readme:
+            serializer = ReadmeSerializer(readme[0])
+            return Response(serializer.data)
 
-        if(github_request.status_code == HTTP_OK):
+        github_request = get_github_request(owner, repo)
+        status_code = github_request.status_code
+        if status_code >= 200 and status_code < 300:
             response = create_readme(owner, repo, True)
-        else:
+        elif status_code == 404:
             response = create_readme(owner, repo, False)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(response)
 
     def put(self, request, owner, repo):
         github_request = get_github_request(owner, repo)
-
-        if(github_request.status_code == HTTP_OK):
+        status_code = github_request.status_code
+        if status_code >= 200 and status_code < 300:
             response = update_readme(owner, repo, True)
-        else:
+        elif status_code == 404:
             response = update_readme(owner, repo, False)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(response)
 
 
@@ -43,28 +58,25 @@ def create_readme(owner, repo, value):
     '''
     Create readme object in database
     '''
-    Readme.objects.create(
+    readme = Readme.objects.create(
         owner=owner,
         repo=repo,
         readme=value,
-        date_time=datetime.now(timezone.utc)
     )
-    readme = Readme.objects.filter(owner=owner, repo=repo)
-    return serialized_object(ReadmeSerializer,  readme).data[0]
+    serializer = ReadmeSerializer(readme)
+    return serializer.data
 
 
 def update_readme(owner, repo, value):
     '''
     Update readme object in database
     '''
-    Readme.objects.filter(owner=owner, repo=repo).update(
-        owner=owner,
-        repo=repo,
-        readme=value,
-        date_time=datetime.now(timezone.utc)
-    )
-    readme = Readme.objects.filter(owner=owner, repo=repo)
-    return serialized_object(ReadmeSerializer,  readme).data[0]
+    readme = Readme.objects.get(owner=owner, repo=repo)
+    readme.readme = value
+    readme.save()
+    
+    serializer = ReadmeSerializer(readme)
+    return serializer.data
 
 
 def get_github_request(owner, repo):
