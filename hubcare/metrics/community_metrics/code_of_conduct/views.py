@@ -102,11 +102,11 @@ def update_object(owner, repo, code_of_conduct):
     '''
     Update code of conduct object in database
     '''
-    code_of_conduct = CodeOfConduct.objects.get(
+    code_of_conduct_object = CodeOfConduct.objects.get(
         owner=owner,
         repo=repo
     )
-    code_of_conduct.code_of_conduct = code_of_conduct
-    code_of_conduct.save()
-    serializer = CodeOfConductSerializer(code_of_conduct)
+    code_of_conduct_object.code_of_conduct = code_of_conduct
+    code_of_conduct_object.save()
+    serializer = CodeOfConductSerializer(code_of_conduct_object)
     return serializer.data

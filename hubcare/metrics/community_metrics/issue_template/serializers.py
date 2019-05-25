@@ -5,4 +5,6 @@ from issue_template.models import IssueTemplate
 class IssueTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = IssueTemplate
-        fields = '__all__'
+        fields = [
+            'issue_template'
+        ]

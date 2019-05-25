@@ -66,10 +66,11 @@ class RepositoryView(APIView):
     def put(self, request, owner, repo):
         repository = Repository.objects.get(owner=owner, repo=repo)
         try:
-            repository.update(date=datetime.now(timezone.utc))
+            repository.date = datetime.now(timezone.utc)
+            repository.save()
             return Response('Repository successfully updated',
                             status=status.HTTP_200_OK)
-        except UpdateError:
+        except Error:
             return Response('Error on updating status',
                             status=status.HTTP_400_BAD_REQUEST)
 
