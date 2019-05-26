@@ -8,7 +8,7 @@ from hubcare_api.services import issue_metric
 from hubcare_api.services import community_metric
 from hubcare_api.services import commit_metric
 from hubcare_api.services import pull_request_metric
-from hubcare_api.constants import URL_REPOSITORY
+from hubcare_api.constants import URL_REPOSITORY, TOTAL_WEEKS
 import requests
 import json
 import os
@@ -73,6 +73,9 @@ class HubcareApiView(APIView):
             }
             response = hubcare_indicators
             response.update(commit_graph)
+            repo_request = requests.put(
+                URL_REPOSITORY + owner + '/' + repo + '/'
+            )
 
             print('############FINAL TIME#############')
             after = datetime.now()
@@ -135,10 +138,15 @@ def get_hubcare_indicators(owner, repo, metrics):
 def get_commit_graph_axis(metrics):
     commits_week = metrics['commits_week']
     commits_week = json.loads(commits_week)
-    TOTAL_WEEKS = len(commits_week)
-    x_axis = []
-    y_axis = []
-    for i in range(TOTAL_WEEKS):
+    WEEKS = len(commits_week)
+    if WEEKS == 0:
+        x_axis = ['Week ' + str(i+1) for i in range(TOTAL_WEEKS)]
+        y_axis = [0] * TOTAL_WEEKS
+    else:
+        x_axis = []
+        y_axis = []
+
+    for i in range(WEEKS):
         x_axis.append('Week ' + str(i+1))
         y_axis.append(commits_week[i])
     commit_graph_axis = {

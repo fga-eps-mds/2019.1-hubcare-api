@@ -50,29 +50,20 @@ class RepositoryView(APIView):
             return Response(response, status=status.HTTP_200_OK)
 
     def post(self, request, owner, repo):
-        repository = {
-            'repo': repo,
-            'owner': owner,
-            'date': datetime.now(timezone.utc)
-        }
-        serializer = RepositorySerializer(data=repository)
-        if serializer.is_valid():
-            serializer.save()
-            return Response('Repository added', status=status.HTTP_201_CREATED)
-        else:
-            return Response('Repository data is invalid',
-                            status=status.HTTP_400_BAD_REQUEST)
+        repository = Repository.objects.create(
+            owner=owner,
+            repo=repo,
+            date=datetime.now(timezone.utc)
+        )
+        serializer = RepositorySerializer(repository)
+        return Response('Repository added', status=status.HTTP_201_CREATED)
 
     def put(self, request, owner, repo):
         repository = Repository.objects.get(owner=owner, repo=repo)
-        try:
-            repository.date = datetime.now(timezone.utc)
-            repository.save()
-            return Response('Repository successfully updated',
-                            status=status.HTTP_200_OK)
-        except Error:
-            return Response('Error on updating status',
-                            status=status.HTTP_400_BAD_REQUEST)
+        repository.date = datetime.now(timezone.utc)
+        repository.save()
+        return Response('Repository successfully updated',
+                        status=status.HTTP_200_OK)
 
 
 def check_datetime(object_date):
