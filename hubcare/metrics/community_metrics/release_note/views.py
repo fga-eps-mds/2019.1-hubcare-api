@@ -37,7 +37,7 @@ class ReleaseNoteView(APIView):
             release_note=check_release_note(owner, repo),
         )
         serializer = ReleaseNoteSerializer(release_note)
-        return serializer.data
+        return Response(serializer.data)
 
     def put(self, request, owner, repo):
         '''

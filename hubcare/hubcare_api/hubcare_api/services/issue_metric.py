@@ -28,7 +28,8 @@ def get_metric(owner, repo, request_type):
         'activity_rate_15_days_metric': activity_rate[
             'activity_rate_15_days_metric'],
         'total_issues': help_wanted['total_issues'],
-        'good_first_issue': good_first_issue['good_first_issue']
+        'help_wanted_issues': help_wanted['help_wanted_issues'],
+        'good_first_issue': good_first_issue['good_first_issue'],
     }
     return metric
 

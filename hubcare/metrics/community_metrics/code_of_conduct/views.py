@@ -92,7 +92,6 @@ def create_object(owner, repo, code_of_conduct):
         owner=owner,
         repo=repo,
         code_of_conduct=code_of_conduct,
-        date_time=datetime.now(timezone.utc)
     )
     serializer = CodeOfConductSerializer(code_of_conduct)
     return serializer.data
