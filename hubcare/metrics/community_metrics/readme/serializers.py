@@ -7,4 +7,6 @@ class ReadmeSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Readme
-        fields = '__all__'
+        fields = [
+            'readme'
+        ]

@@ -6,3 +6,6 @@ class CommitMonth(models.Model):
     repo = models.CharField(max_length=150)
     total_commits = models.IntegerField(default=0)
     commits_week = models.TextField()
+
+    class Meta:
+        unique_together = (('owner', 'repo'),)

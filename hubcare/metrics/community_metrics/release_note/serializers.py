@@ -5,4 +5,6 @@ from release_note.models import ReleaseNote
 class ReleaseNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReleaseNote
-        fields = '__all__'
+        fields = [
+            'release_note'
+        ]

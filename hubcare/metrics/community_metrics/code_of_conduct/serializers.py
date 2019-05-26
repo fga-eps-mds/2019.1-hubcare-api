@@ -5,4 +5,6 @@ from code_of_conduct.models import CodeOfConduct
 class CodeOfConductSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodeOfConduct
-        fields = '__all__'
+        fields = [
+            'code_of_conduct'
+        ]
