@@ -4,15 +4,15 @@ from rest_framework.response import Response
 from hubcare_api.indicators import active_indicator
 from hubcare_api.indicators import welcoming_indicator
 from hubcare_api.indicators import support_indicator
-import requests
-import os
-import json
-from hubcare_api.constants import URL_REPOSITORY
-
 from hubcare_api.services import issue_metric
 from hubcare_api.services import community_metric
 from hubcare_api.services import commit_metric
 from hubcare_api.services import pull_request_metric
+from hubcare_api.constants import URL_REPOSITORY
+import requests
+import json
+import os
+
 
 from datetime import datetime, timezone
 
@@ -35,7 +35,6 @@ class HubcareApiView(APIView):
         repo_request = requests.get(URL_REPOSITORY + owner + '/' + repo).json()
         response = []
         metrics = {}
-        print('repo_request = ', repo_request)
         if repo_request['status'] == 0:
             return Response(response)
         elif repo_request['status'] == 1:
@@ -51,7 +50,9 @@ class HubcareApiView(APIView):
             }
             response = hubcare_indicators
             response.update(commit_graph)
-            # repo_request = requests.post(URL_REPOSITORY + owner + '/' + repo)
+            repo_request = requests.post(
+                URL_REPOSITORY + owner + '/' + repo + '/'
+            )
 
             print('############FINAL TIME#############')
             after = datetime.now()
@@ -105,8 +106,8 @@ def get_metric(owner, repo, request_type):
     metrics = issue_metric.get_metric(owner, repo, request_type)
     metrics.update(community_metric.get_metric(owner, repo, request_type))
     metrics.update(commit_metric.get_metric(owner, repo, request_type))
-    metrics.update(pull_request_metric.get_metric(owner,
-                                                    repo, request_type))
+    metrics.update(pull_request_metric.get_metric(owner, repo,
+                                                  request_type))
     return metrics
 
 
@@ -117,9 +118,8 @@ def get_hubcare_indicators(owner, repo, metrics):
         repo,
         metrics
     )
-    support_data = support_indicator.get_support_indicator(owner,
-                                                            repo,
-                                                            metrics)
+    support_data = support_indicator.get_support_indicator(owner, repo,
+                                                           metrics)
     hubcare_indicators = {
         'active_indicator': float(
             '{0:.2f}'.format(active_data*100)),

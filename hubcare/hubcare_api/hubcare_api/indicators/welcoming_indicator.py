@@ -13,7 +13,7 @@ def get_welcoming_indicator(owner, repo, metric):
     code_cond_int = int(metric['code_of_conduct'])
     readme_int = int(metric['readme'])
     issue_temp_int = int(metric['issue_template'])
-    license_int = int(metric['license']   ) 
+    license_int = int(metric['license'])
     act_rate_float = float(metric['activity_rate_15_days'])
     pr_qua_float = float(metric['acceptance_quality'])
     # url_authors = 'contributors/'

@@ -48,7 +48,7 @@ class ReleaseNoteView(APIView):
         release_note.save()
 
         serializer = ReleaseNoteSerializer(release_note)
-        return serializer.data
+        return Response(serializer.data)
 
 
 def get_github_request(owner, repo):

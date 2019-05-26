@@ -45,7 +45,7 @@ def get_metric(owner, repo, request_type):
             "description": r.post(url_description)['description'],
         }
     elif request_type == 'put':
-       metric = {
+        metric = {
             "code_of_conduct": r.put(url_code_of_conduct)['code_of_conduct'],
             "contribution_guide": r.put(url_contribution_guide)[
                 'contribution_guide'

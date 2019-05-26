@@ -34,7 +34,7 @@ class PullRequestTemplateView(APIView):
             return Response(serializer.data)
         github_request = get_github_request(owner, repo)
         status_code = github_request.status_code
-        if status_code >=200 and status_code < 300:
+        if status_code >= 200 and status_code < 300:
             response = create_pull_request_template(owner, repo, True)
         elif status_code == 404:
             response = create_pull_request_template(owner, repo, False)
@@ -49,7 +49,7 @@ class PullRequestTemplateView(APIView):
         '''
         github_request = get_github_request(owner, repo)
         status_code = github_request.status_code
-        if status_code >=200 and status_code < 300:
+        if status_code >= 200 and status_code < 300:
             response = update_pull_request_template(owner, repo, True)
         elif status_code == 404:
             response = update_pull_request_template(owner, repo, False)
@@ -82,7 +82,7 @@ def update_pull_request_template(owner, repo, value):
     )
     pull_request_template.pull_request_template = value
     pull_request_template.save()
-    
+
     serializer = PullRequestTemplateSerializer(pull_request_template)
     return serializer.data
 

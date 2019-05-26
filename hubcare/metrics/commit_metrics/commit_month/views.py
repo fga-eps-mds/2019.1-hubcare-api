@@ -31,7 +31,7 @@ class CommitMonthView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, owner, repo):
-        
+
         commit = CommitMonth.objects.filter(
             owner=owner,
             repo=repo
@@ -56,7 +56,7 @@ class CommitMonthView(APIView):
     def put(self, request, owner, repo):
 
         commits_week, total_commits = self.get_commits_by_week(owner, repo)
-    
+
         commit_month_object = CommitMonth.objects.get(
             owner=owner,
             repo=repo
@@ -82,7 +82,8 @@ class CommitMonthView(APIView):
             auth=(username, token)
         )
 
-        if github_request.status_code >= 200 and github_request.status_code < 300:
+        status_code = github_request.status_code
+        if status_code >= 200 and status_code < 300:
             github_request = github_request.json()
             commits_week_array = github_request['all'][FIRST_WEEK:LAST_WEEK]
             total_commits = 0

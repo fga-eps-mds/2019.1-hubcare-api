@@ -74,7 +74,7 @@ def update_readme(owner, repo, value):
     readme = Readme.objects.get(owner=owner, repo=repo)
     readme.readme = value
     readme.save()
-    
+
     serializer = ReadmeSerializer(readme)
     return serializer.data
 
