@@ -1,5 +1,6 @@
 import requests
 import re
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from acceptance_quality.models import PullRequestQuality
@@ -105,20 +106,101 @@ def new_get_pull_request(owner, repo):
     token = os.environ['TOKEN']
     interval = timedelta(days=TOTAL_DAYS)
     date = str(datetime.now() - interval).split(' ')[0]
-    url = URL_PR + '+updated:>=' + date + \
+
+    url_updated = URL_PR + '+updated:>=' + date + \
           '+repo:' + owner + '/' + repo + \
           '&per_page=100'
+    updated_request = requests.get(url_updated, auth=(username, token))
+    updated_status = updated_request.status_code
 
-    github_request = requests.get(url, auth=(username, token))
-    data = github_request.json()
+    url_merged = url_updated.replace('updated', 'merged')
+    merged_request = requests.get(url_merged, auth=(username, token))
+    merged_status = merged_request.status_code
+
+    if updated_status != merged_status:
+        return Response('Error on requesting GitHub API',
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    elif updated_status >= 200 and updated_status < 300:
+        updated = updated_request.json()['items']
+        merged = merged_request.json()['items']
+        new_get_metric(updated, merged)
+    else:
+        return Response('Error on requesting GitHub API',
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return updated
+
+def new_get_metric(updated, merged):
+    '''
+    Calculate pull request quality metric
+
+    Situation	Discussion	Result
+
+    Merged      Yes	        1
+
+    Merged	    No	        0.9
+
+    Open    Recent (<=15 days)	0.9
+
+    Closed and without merged	Yes     0.7
+
+    Open	Old (>15 days)	0.3
+
+    Closed and without merged	No	0.1
+
+    Open        No/old      0
+    '''
 
     pr_number = 0
-    for i in data:
+    total_score = 0
+    merged_pos = 0
+    merged_size = len(merged)
+    categories = {
+        'merged_yes': 0,
+        'merged_no': 0,
+        'open_yes_new': 0,
+        'closed_yes': 0,
+        'open_yes_old': 0,
+        'closed_no': 0,
+        'open_no_old': 0
+    }
+    for i in updated:
         if pr_number >= TOTAL_PR:
             break
+        elif merged_pos < merged_size and i['id'] == merged[merged_pos]['id']:
+            if i['comments'] > 0:
+                total_score += 1
+                categories['merged_yes'] += 1
+            else:
+                total_score += 0.9
+                categories['merged_no'] += 1
+            merged_pos += 1
+        elif i['state'] == 'closed':
+            if i['comments'] > 0:
+                total_score += 0.7
+                categories['closed_yes'] += 1
+            else:
+                total_score += 0.1
+                categories['closed_no'] += 1
+        elif i['comments'] > 0:
+            if new_check_datetime(i['updated_at']):
+                total_score += 0.9
+                categories['open_yes_new'] += 1
+            else:
+                total_score += 0.3
+                categories['open_yes_old'] += 1
+        else:
+            categories['open_no_old'] += 1
         pr_number += 1
-    
-    return data
+    print ('total_score =', total_score/pr_number)
+
+def new_check_datetime(time_updated):
+    time_updated = datetime.strptime(time_updated, '%Y-%m-%dT%H:%M:%SZ')
+    last_updated = (datetime.now() - time_updated).days
+    print('last_updated = ', last_updated)
+    if last_updated <= 15:
+        return True
+    else:
+        return False
 
 def check_category(owner, repo, number):
 
