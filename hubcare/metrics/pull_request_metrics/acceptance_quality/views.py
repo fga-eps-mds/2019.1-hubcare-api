@@ -2,9 +2,10 @@ import requests
 import re
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import PullRequestQuality
-from .serializers import PullRequestQualitySerializer
-from datetime import datetime, timezone
+from acceptance_quality.models import PullRequestQuality
+from acceptance_quality.serializers import PullRequestQualitySerializer
+from datetime import datetime, timezone, timedelta
+from pull_request_metrics.constants import TOTAL_DAYS, URL_PR, TOTAL_PR
 import os
 
 
@@ -14,7 +15,7 @@ class PullRequestQualityView(APIView):
         Returns the quality of the pull
         requests from the repository
         '''
-
+        return Response('ok')
         quality = PullRequestQuality.objects.get(owner=owner, repo=repo)
         serializer = PullRequestQualitySerializer(quality)
         return Response(serializer.data)
@@ -24,21 +25,43 @@ class PullRequestQualityView(APIView):
         Post a new quality of the pull
         requests from the repository
         '''
-        pr_quality = PullRequestQuality.objects.filter(
-            owner=owner,
-            repo=repo
-        )
-        if pr_quality:
-            serializer = PullRequestQualitySerializer(pr_quality[0])
-            return Response(serializer.data)
 
-        pr_quality = PullRequestQuality.objects.create(
-            owner=owner,
-            repo=repo,
-            acceptance_rate=get_pull_request(owner, repo)
-        )
-        serializer = PullRequestQualitySerializer(pr_quality)
-        return Response(serializer.data)
+
+        print('############## INITIAL TIME ###############')
+        time_now = datetime.now()
+        print(time_now)
+        print('###########################################')
+
+        # return Response('ok')
+
+
+        data = new_get_pull_request(owner, repo)
+        # pr_quality = PullRequestQuality.objects.filter(
+        #     owner=owner,
+        #     repo=repo
+        # )
+        # if pr_quality:
+        #     serializer = PullRequestQualitySerializer(pr_quality[0])
+        #     return Response(serializer.data)
+
+        # pr_quality = PullRequestQuality.objects.create(
+        #     owner=owner,
+        #     repo=repo,
+        #     acceptance_rate=get_pull_request(owner, repo)
+        # )
+        pr_quality = PullRequestQuality()
+        pr_quality.owner = owner
+        pr_quality.repo = repo
+        # pr_quality. acceptance_rate = get_pull_request(owner, repo)
+        # serializer = PullRequestQualitySerializer(pr_quality)
+
+        print('############## FINAL TIME ###############')
+        time_after = datetime.now()
+        print(time_after)
+        print('TOTAL TIME = ', time_after - time_now)
+        print('###########################################')
+
+        return Response(data)
 
     def put(self, request, owner, repo):
         '''
@@ -75,6 +98,37 @@ def check_datetime_days(pull_request, days):
         return True
     return False
 
+
+def new_get_pull_request(owner, repo):
+
+    username = os.environ['NAME']
+    token = os.environ['TOKEN']
+    interval = timedelta(days=TOTAL_DAYS)
+    date = str(datetime.now() - interval).split(' ')[0]
+    url = URL_PR + '+updated:>=' + date + \
+          '+repo:' + owner + '/' + repo + \
+          '&per_page=100'
+
+    github_request = requests.get(url, auth=(username, token))
+    data = github_request.json()
+
+    pr_number = 0
+    for i in data:
+        if pr_number >= TOTAL_PR:
+            break
+        pr_number += 1
+    
+    return data
+
+def check_category(owner, repo, number):
+
+    url = 'https://api.github.com/repos/'
+    github_request = requests.get(
+        url + owner + '/' + repo + '/pulls' + '/' + str(number),
+        auth=(username, token)
+    )
+    if github_request.status_code == 404:
+        print('########### DEU RUIM ###########')
 
 def get_pull_request(owner, repo):
     '''
@@ -183,6 +237,8 @@ def get_comments(owner, repo, number):
     github_request = requests.get(
         url + owner + '/' + repo + '/pulls' + '/' + str(number),
         auth=(username, token))
+    if github_request.status_code == 404:
+        print('########### DEU RUIM ###########')
     github_data = github_request.json()
 
     comments = github_data['comments'] + github_data['review_comments']
