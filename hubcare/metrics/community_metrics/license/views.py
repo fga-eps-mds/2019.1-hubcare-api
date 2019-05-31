@@ -6,72 +6,82 @@ from license.models import License
 from datetime import datetime, timezone
 import requests
 import os
+from community_metrics.constants import URL_API, HTTP_OK, HTTP_NOT_FOUND
 
 
 class LicenseView(APIView):
     def get(self, request, owner, repo):
         '''
-        return if a repository have a license or not
+        Return if a repository have a license or not
         '''
-        all_license = License.objects.all().filter(owner=owner, repo=repo)
+        license = License.objects.get(owner=owner, repo=repo)
+        serializer = LicenseSerializer(license)
+        return Response(serializer.data)
 
-        username = os.environ['NAME']
-        token = os.environ['TOKEN']
+    def post(self, request, owner, repo):
+        '''
+        Post a new license object
+        '''
+        license = License.objects.filter(
+            owner=owner,
+            repo=repo
+        )
+        if license:
+            serializer = LicenseSerializer(license[0])
+            return Response(serializer.data)
 
-        if (not all_license):
-            url = 'https://api.github.com/repos/'
-            result = requests.get(url + owner + '/' + repo,
-                                  auth=(username, token))
+        github_data = get_github_request(owner, repo)
+        if (github_data['license'] is not None):
+            response = create_license(owner, repo, True)
+        else:
+            response = create_license(owner, repo, False)
+        return Response(response)
 
-            github_data = result.json()
+    def put(self, request, owner, repo):
+        '''
+        Update license object
+        '''
+        github_data = get_github_request(owner, repo)
 
-            if (result.status_code == 404):
-                raise Http404
-            elif (github_data['license'] is not None):
-                License.objects.create(
-                    owner=owner,
-                    repo=repo,
-                    have_license=True,
-                    date_time=datetime.now(timezone.utc)
-                )
-            else:
-                License.objects.create(
-                    owner=owner,
-                    repo=repo,
-                    have_license=False,
-                    date_time=datetime.now(timezone.utc)
-                )
-        elif(check_datetime(all_license)):
-            url = 'https://api.github.com/repos/'
-            result = requests.get(url + owner + '/' + repo,
-                                  auth=(username, token))
-
-            github_data = result.json()
-
-            if (result.status_code == 404):
-                raise Http404
-            elif (github_data['license'] is not None):
-                License.objects.filter(owner=owner, repo=repo).update(
-                    owner=owner,
-                    repo=repo,
-                    have_license=True,
-                    date_time=datetime.now(timezone.utc)
-                )
-            else:
-                License.objects.filter(owner=owner, repo=repo).update(
-                    owner=owner,
-                    repo=repo,
-                    have_license=False,
-                    date_time=datetime.now(timezone.utc)
-                )
-
-        license = License.objects.all().filter(owner=owner, repo=repo)
-        license_serialized = LicenseSerializer(license, many=True)
-        return Response(license_serialized.data[0])
+        if (github_data['license'] is not None):
+            response = update_license(owner, repo, True)
+        else:
+            response = update_license(owner, repo, False)
+        return Response(response)
 
 
-def check_datetime(license):
-    datetime_now = datetime.now(timezone.utc)
-    if(license and (datetime_now - license[0].date_time).days >= 1):
-        return True
-    return False
+def create_license(owner, repo, value):
+    '''
+    Create license object
+    '''
+    license = License.objects.create(
+        owner=owner,
+        repo=repo,
+        license=value,
+    )
+    serializer = LicenseSerializer(license)
+    return serializer.data
+
+
+def update_license(owner, repo, value):
+    '''
+    Update license object
+    '''
+    license = License.objects.get(owner=owner, repo=repo)
+    license.has_license = value
+    license.save()
+    serializer = LicenseSerializer(license)
+    return serializer.data
+
+
+def get_github_request(owner, repo):
+    '''
+    Request github repository data
+    '''
+    username = os.environ['NAME']
+    token = os.environ['TOKEN']
+
+    url = '{0}{1}/{2}'.format(URL_API, owner, repo)
+    result = requests.get(url, auth=(username, token))
+
+    return result.json()

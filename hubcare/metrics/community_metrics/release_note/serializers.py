@@ -1,8 +1,10 @@
 from rest_framework import serializers
-from release_note.models import ReleaseNoteCheck
+from release_note.models import ReleaseNote
 
 
-class ReleaseNoteCheckSerializers(serializers.ModelSerializer):
+class ReleaseNoteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ReleaseNoteCheck
-        fields = '__all__'
+        model = ReleaseNote
+        fields = [
+            'release_note'
+        ]

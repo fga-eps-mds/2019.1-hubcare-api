@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from description.serializers import DescriptionSerializer
@@ -5,87 +6,89 @@ from description.models import Description
 import requests
 from datetime import datetime, timezone
 import os
+from community_metrics.constants import HTTP_OK, URL_API
 
 
 class DescriptionView(APIView):
     def get(self, request, owner, repo):
-
-        description = Description.objects.all().filter(
+        '''
+        Return if a repository have a description
+        or not
+        '''
+        description = Description.objects.get(
             owner=owner,
             repo=repo
         )
+        serializer = DescriptionSerializer(description)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def post(self, request, owner, repo):
+        '''
+        Post a new object in database
+        '''
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        if (not description):
-
-            url = 'https://api.github.com/repos/'
-            github_request = requests.get(url + owner + '/' + repo,
-                                          auth=(username,
-                                                token))
-
-            github_data = github_request.json()
-
-            if(github_request.status_code == 200):
-                if(github_data['description'] is not None):
-                    Description.objects.create(
-                        owner=owner,
-                        repo=repo,
-                        description=True,
-                        date=datetime.now(timezone.utc)
-                    )
-                elif(github_data['description'] is None):
-                    Description.objects.create(
-                        owner=owner,
-                        repo=repo,
-                        description=False,
-                        date=datetime.now(timezone.utc)
-                    )
-        elif(date_check(description)):
-            url = 'https://api.github.com/repos/'
-            github_request = requests.get(url + owner + '/' + repo,
-                                          auth=(username,
-                                                token))
-
-            github_data = github_request.json()
-
-            if(github_request.status_code is 200):
-                if(github_data['description'] is not None):
-                    Description.objects.filter(
-                        owner=owner,
-                        repo=repo
-                    ).update(
-                        owner=owner,
-                        repo=repo,
-                        description=True,
-                        date=datetime.now(timezone.utc)
-                    )
-                elif(github_data['description'] is None):
-                    Description.objects.filter(
-                        owner=owner,
-                        repo=repo
-                    ).update(
-                        owner=owner,
-                        repo=repo,
-                        description=False,
-                        date=datetime.now(timezone.utc)
-                    )
-
-        description = Description.objects.all().filter(
+        description = Description.objects.filter(
             owner=owner,
             repo=repo
         )
-        serialized = DescriptionSerializer(description, many=True)
-        return Response(serialized.data[0])
+        if description:
+            serializer = DescriptionSerializer(description[0])
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        url = '{0}{1}/{2}'.format(URL_API, owner, repo)
+        github_request = requests.get(url, auth=(username, token))
+        status_code = github_request.status_code
+        if status_code >= 200 and status_code < 300:
+            github_data = github_request.json()
+            if(github_data['description'] is not None):
+                response = create_description(owner, repo, True)
+            else:
+                response = create_description(owner, repo, False)
+            return Response(response, status=status.HTTP_201_CREATED)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, owner, repo):
+        '''
+        Update description object
+        '''
+        username = os.environ['NAME']
+        token = os.environ['TOKEN']
+
+        url = '{0}{1}/{2}'.format(URL_API, owner, repo)
+        github_request = requests.get(url, auth=(username, token))
+        status_code = github_request.status_code
+        if status_code >= 200 and status_code < 300:
+            github_data = github_request.json()
+            if(github_data['description'] is not None):
+                response = update_description(owner, repo, True)
+            else:
+                response = update_description(owner, repo, False)
+            return Response(response, status=status.HTTP_200_OK)
+        else:
+            return Response('Error on requesting GitHubAPI',
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
-def date_check(tested_variable):
+def create_description(owner, repo, value):
     '''
-    verifies if the time difference between the last update and now is
-    greater than 24 hours
+    Create a decription object in database
     '''
-    datetime_now = datetime.now(timezone.utc)
-    if(tested_variable and (datetime_now - tested_variable[0].date).days >= 1):
-        return True
-    return False
+    description = Description.objects.create(
+        owner=owner,
+        repo=repo,
+        description=value,
+    )
+    serializer = DescriptionSerializer(description)
+    return serializer.data
+
+
+def update_description(owner, repo, value):
+    description = Description.objects.get(owner=owner, repo=repo)
+    description.description = value
+    description.save()
+    serializer = DescriptionSerializer(description)
+    return serializer.data

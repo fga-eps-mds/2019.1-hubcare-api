@@ -1,12 +1,16 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from help_wanted.models import HelpWanted
 from help_wanted.serializers import HelpWantedSerializer
-from datetime import datetime, timezone
 from issue_metrics import constants
+from issue_metrics.functions \
+    import get_metric_help_wanted, count_all_label
 import requests
 import json
 import os
+
+from datetime import datetime, timezone
 
 
 class HelpWantedView(APIView):
@@ -14,27 +18,61 @@ class HelpWantedView(APIView):
         '''
         returns help wanted issue rate
         '''
-        help_wanted = HelpWanted.objects.all().filter(owner=owner, repo=repo)
-        url = constants.main_url + owner + '/' + repo
-        if(not help_wanted):
-            total_issues, help_wanted_issues = self.get_total_helpwanted(url)
-            HelpWanted.objects.create(
-                owner=owner,
-                repo=repo,
-                total_issues=total_issues,
-                help_wanted_issues=help_wanted_issues,
-                date_time=datetime.now(timezone.utc)
-            )
-        elif check_datetime(help_wanted[0]):
-            help_wanted = HelpWanted.objects.get(owner=owner, repo=repo)
-            total_issues, help_wanted_issues = self.get_total_helpwanted(url)
-            HelpWanted.objects.filter(owner=owner, repo=repo).update(
-                total_issues=total_issues,
-                help_wanted_issues=help_wanted_issues,
-                date_time=datetime.now(timezone.utc)
-            )
+        help_wanted = HelpWanted.objects.get(
+            owner=owner,
+            repo=repo
+        )
+        serializer = HelpWantedSerializer(help_wanted)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return Response(self.get_metric(owner, repo))
+    def post(self, request, owner, repo):
+        '''
+        Create help wanted object
+        '''
+        data = HelpWanted.objects.filter(
+            owner=owner,
+            repo=repo
+        )
+        if data:
+            serializer = HelpWantedSerializer(data[0])
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        url = '{0}{1}/{2}'.format(
+            constants.MAIN_URL,
+            owner,
+            repo
+        )
+        total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+        data = HelpWanted.objects.create(
+            owner=owner,
+            repo=repo,
+            total_issues=total_issues,
+            help_wanted_issues=help_wanted_issues
+        )
+
+        serializer = HelpWantedSerializer(data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def put(self, request, owner, repo):
+        '''
+        Update help hanted object
+        '''
+        url = '{0}{1}/{2}'.format(
+            constants.MAIN_URL,
+            owner,
+            repo
+        )
+        total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+        data = HelpWanted.objects.get(
+            owner=owner,
+            repo=repo
+        )
+        data.total_issues = total_issues
+        data.help_wanted_issues = help_wanted_issues
+        data.save()
+
+        serializer = HelpWantedSerializer(data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_total_helpwanted(self, url):
         '''
@@ -49,7 +87,7 @@ class HelpWantedView(APIView):
         info_repo = requests.get(url, auth=(username, token)).json()
         total_issues = info_repo["open_issues_count"]
         page = '&page=1'
-        label_url = url + constants.label_help_espace_wanted
+        label_url = url + constants.LABEL_HELP_ESPACE_WANTED
         result = requests.get(label_url + page,
                               auth=(username, token)).json()
 
@@ -57,67 +95,23 @@ class HelpWantedView(APIView):
         checks possibilities for different aliases of help wanted
         '''
         if result:
-            help_wanted_issues = self.count_all_helpwanted(label_url, result)
+            help_wanted_issues = count_all_label(label_url, result)
         else:
-            label_url = url + constants.label_helpwanted
+            label_url = url + constants.LABEL_HELPWANTED
             result = requests.get(label_url + page,
                                   auth=(username, token)).json()
             if result:
-                help_wanted_issues = self.count_all_helpwanted(
+                help_wanted_issues = count_all_label(
                     label_url,
                     result
                 )
             else:
-                label_url = url + constants.label_help_wanted
+                label_url = url + constants.LABEL_HELP_WANTED
                 result = requests.get(label_url + page,
                                       auth=(username, token)).json()
                 if result:
-                    help_wanted_issues = self.count_all_helpwanted(
+                    help_wanted_issues = count_all_label(
                         label_url,
                         result
                     )
         return total_issues, help_wanted_issues
-
-    def count_all_helpwanted(self, url, result):
-        '''
-        returns the number of help wanted issues in all pages
-        '''
-        username = os.environ['NAME']
-        token = os.environ['TOKEN']
-
-        count = 1
-        page = '&page='
-        help_wanted_issues = 0
-        while result:
-            count += 1
-            help_wanted_issues += len(result)
-            result = requests.get(url + page + str(count),
-                                  auth=(username, token)).json()
-        return help_wanted_issues
-
-    def get_metric(self, owner, repo):
-        '''
-        returns the metric of the repository
-        '''
-        help_wanted = HelpWanted.objects.all().filter(
-            owner=owner,
-            repo=repo
-        )[0]
-        if help_wanted.total_issues != 0:
-            rate = help_wanted.help_wanted_issues / help_wanted.total_issues
-        else:
-            rate = 0.0
-        rate = '{"rate":\"' + str(rate) + '"}'
-        rate_json = json.loads(rate)
-        return rate_json
-
-
-def check_datetime(help_wanted):
-    '''
-    verifies if the time difference between the last update and now is
-    greater than 24 hours
-    '''
-    datetime_now = datetime.now(timezone.utc)
-    if((datetime_now - help_wanted.date_time).days >= 1):
-        return True
-    return False
