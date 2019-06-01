@@ -18,6 +18,7 @@ class PullRequestQualityView(APIView):
         Returns the quality of the pull
         requests from the repository
         '''
+
         pr_quality = PullRequestQuality.objects.get(owner=owner, repo=repo)
         serializer = PullRequestQualitySerializer(pr_quality)
         custom_serializer = customize_serializer(serializer.data)
@@ -39,12 +40,11 @@ class PullRequestQualityView(APIView):
             return Response(custom_serializer)
 
         updated, merged = get_pull_requests(owner, repo)
-        if updated:
+        if updated is not None:
             metric = get_metric(updated, merged)
         else:
             return Response('Error on requesting GitHub API',
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         pr_quality = PullRequestQuality.objects.create(
             owner=owner,
@@ -54,9 +54,7 @@ class PullRequestQualityView(APIView):
         )
         serializer = PullRequestQualitySerializer(pr_quality)
 
-        custom_serializer = {}
-        custom_serializer.update(serializer.data)
-        custom_serializer['categories'] = json.loads(custom_serializer['categories'])
+        custom_serializer = customize_serializer(serializer.data)
         return Response(custom_serializer)
 
     def put(self, request, owner, repo):
@@ -66,27 +64,28 @@ class PullRequestQualityView(APIView):
         '''
 
         updated, merged = get_pull_requests(owner, repo)
-        if updated:
+        if updated is not None:
             metric = get_metric(updated, merged)
         else:
             return Response('Error on requesting GitHub API',
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         pr_quality = PullRequestQuality.objects.get(owner=owner, repo=repo)
         pr_quality.acceptance_rate = metric['acceptance_rate']
-        pr_quality.categories=json.dumps(metric['categories'])
+        pr_quality.categories = json.dumps(metric['categories'])
         pr_quality.save()
 
         serializer = PullRequestQualitySerializer(pr_quality)
         custom_serializer = customize_serializer(serializer.data)
-        
+
         return Response(custom_serializer)
 
 
 def customize_serializer(data):
     custom_serializer = {}
     custom_serializer.update(data)
-    custom_serializer['categories'] = json.loads(custom_serializer['categories'])
+    categories_json = json.loads(custom_serializer['categories'])
+    custom_serializer['categories'] = categories_json
     return custom_serializer
 
 
@@ -97,8 +96,8 @@ def get_pull_requests(owner, repo):
     date = str(datetime.now() - interval).split(' ')[0]
 
     url_updated = URL_PR + '+updated:>=' + date + \
-          '+repo:' + owner + '/' + repo + \
-          '&per_page=100'
+        '+repo:' + owner + '/' + repo + \
+        '&per_page=100'
     updated_request = requests.get(url_updated, auth=(username, token))
     updated_status = updated_request.status_code
 
@@ -106,14 +105,18 @@ def get_pull_requests(owner, repo):
     merged_request = requests.get(url_merged, auth=(username, token))
     merged_status = merged_request.status_code
 
+    updated = []
+    merged = []
     if updated_status != merged_status:
         return None, None
     elif updated_status >= 200 and updated_status < 300:
         updated = updated_request.json()['items']
         merged = merged_request.json()['items']
+        return updated, merged
+    elif updated_status == 422:
+        return updated, merged
     else:
         return None, None
-    return updated, merged
 
 
 def get_metric(updated, merged):
@@ -123,18 +126,12 @@ def get_metric(updated, merged):
     Situation	Discussion	Result
 
     Merged      Yes	        1
-
     Merged	    No	        0.9
-
-    Open    Recent (<=15 days)	0.9
-
+    Open    (<=15 days)	    0.9
     Closed and without merged	Yes     0.7
-
-    Open	Old (>15 days)	0.3
-
+    Open	(>15 days)	    0.3
     Closed and without merged	No	0.1
-
-    Open        No/old      0
+    Open      No/old        0
     '''
 
     pr_number = 0
@@ -180,11 +177,17 @@ def get_metric(updated, merged):
             categories['open_no_old'] += 1
         pr_number += 1
 
+    if pr_number == 0:
+        acceptance_rate = 0
+    else:
+        acceptance_rate = (total_score/pr_number)
+
     response = {
-        'acceptance_rate': (total_score/pr_number),
+        'acceptance_rate': acceptance_rate,
         'categories': categories
     }
-    return  response
+    return response
+
 
 def check_datetime(time_updated):
     '''
