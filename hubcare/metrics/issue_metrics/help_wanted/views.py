@@ -4,8 +4,7 @@ from rest_framework.response import Response
 from help_wanted.models import HelpWanted
 from help_wanted.serializers import HelpWantedSerializer
 from issue_metrics import constants
-from issue_metrics.functions \
-    import get_metric_help_wanted, count_all_label
+from issue_metrics.functions import count_all_label
 import requests
 import json
 import os
@@ -43,11 +42,15 @@ class HelpWantedView(APIView):
             repo
         )
         total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+        if total_issues == 0:
+            rate = 0
+        else:
+            rate = help_wanted_issues/total_issues
         data = HelpWanted.objects.create(
             owner=owner,
             repo=repo,
             total_issues=total_issues,
-            help_wanted_issues=help_wanted_issues
+            help_wanted_issues=rate
         )
 
         serializer = HelpWantedSerializer(data)
@@ -63,12 +66,16 @@ class HelpWantedView(APIView):
             repo
         )
         total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+        if total_issues == 0:
+            rate = 0
+        else:
+            rate = help_wanted_issues/total_issues
         data = HelpWanted.objects.get(
             owner=owner,
             repo=repo
         )
         data.total_issues = total_issues
-        data.help_wanted_issues = help_wanted_issues
+        data.help_wanted_issues = rate
         data.save()
 
         serializer = HelpWantedSerializer(data)

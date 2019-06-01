@@ -102,7 +102,7 @@ class HubcareApiView(APIView):
             print('TOTAL = ', (after-now))
             print('###################################')
 
-        return Response([metrics])
+        return Response([response])
 
 
 def get_metric(owner, repo, request_type):
