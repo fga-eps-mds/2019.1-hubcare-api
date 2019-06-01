@@ -7,6 +7,6 @@ class PullRequestQualitySerializer(serializers.ModelSerializer):
     class Meta:
         model = PullRequestQuality
         fields = [
-            'acceptance_rate',
+            'acceptance_quality',
             'categories'
         ]

@@ -1,5 +1,3 @@
-import requests
-import re
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,8 +6,9 @@ from acceptance_quality.serializers import PullRequestQualitySerializer
 from datetime import datetime, timezone, timedelta
 from pull_request_metrics.constants import TOTAL_DAYS, URL_PR, TOTAL_PR, \
                                            LAST_UPDATED_TIME
-import os
+import requests
 import json
+import os
 
 
 class PullRequestQualityView(APIView):
@@ -18,7 +17,6 @@ class PullRequestQualityView(APIView):
         Returns the quality of the pull
         requests from the repository
         '''
-
         pr_quality = PullRequestQuality.objects.get(owner=owner, repo=repo)
         serializer = PullRequestQualitySerializer(pr_quality)
         custom_serializer = customize_serializer(serializer.data)
@@ -49,7 +47,7 @@ class PullRequestQualityView(APIView):
         pr_quality = PullRequestQuality.objects.create(
             owner=owner,
             repo=repo,
-            acceptance_rate=metric['acceptance_rate'],
+            acceptance_quality=metric['acceptance_quality'],
             categories=json.dumps(metric['categories'])
         )
         serializer = PullRequestQualitySerializer(pr_quality)
@@ -71,7 +69,7 @@ class PullRequestQualityView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         pr_quality = PullRequestQuality.objects.get(owner=owner, repo=repo)
-        pr_quality.acceptance_rate = metric['acceptance_rate']
+        pr_quality.acceptance_quality = metric['acceptance_quality']
         pr_quality.categories = json.dumps(metric['categories'])
         pr_quality.save()
 
@@ -178,12 +176,12 @@ def get_metric(updated, merged):
         pr_number += 1
 
     if pr_number == 0:
-        acceptance_rate = 0
+        acceptance_quality = 0
     else:
-        acceptance_rate = (total_score/pr_number)
+        acceptance_quality = (total_score/pr_number)
 
     response = {
-        'acceptance_rate': acceptance_rate,
+        'acceptance_quality': acceptance_quality,
         'categories': categories
     }
     return response
