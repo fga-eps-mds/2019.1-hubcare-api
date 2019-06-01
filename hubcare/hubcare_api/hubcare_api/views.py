@@ -36,7 +36,7 @@ class HubcareApiView(APIView):
         response = []
         metrics = {}
         if repo_request['status'] == 0:
-            return Response(response)
+            return Response([response])
         elif repo_request['status'] == 1:
             print('###########INITIAL TIME POST############')
             now = datetime.now()
@@ -59,7 +59,7 @@ class HubcareApiView(APIView):
             print(after)
             print('TOTAL = ', (after-now))
             print('###################################')
-            return Response(response)
+            return Response([response])
         elif repo_request['status'] == 2:
             print('###########INITIAL TIME PUT############')
             now = datetime.now()
@@ -102,7 +102,7 @@ class HubcareApiView(APIView):
             print('TOTAL = ', (after-now))
             print('###################################')
 
-        return Response(response)
+        return Response([metrics])
 
 
 def get_metric(owner, repo, request_type):

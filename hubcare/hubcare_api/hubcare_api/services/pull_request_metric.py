@@ -10,7 +10,7 @@ def get_metric(owner, repo, request_type):
     if request_type == 'get':
         metric = r.get(url_acceptance_quality)
     elif request_type == 'post':
-        metric = r.post(url_acceptance_quality)        
+        metric = r.post(url_acceptance_quality)
     elif request_type == 'put':
         metric = r.put(url_acceptance_quality)
 
