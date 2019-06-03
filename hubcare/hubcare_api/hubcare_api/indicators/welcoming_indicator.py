@@ -16,14 +16,10 @@ def get_welcoming_indicator(owner, repo, metric):
     license_int = int(metric['license'])
     act_rate_float = float(metric['activity_rate_15_days'])
     pr_qua_float = float(metric['acceptance_quality'])
-    # url_authors = 'contributors/'
-    # url = URL_COMMIT + url_authors + owner + '/' + repo
-    # cont_metric = requests.get(url)
-    # cont_total = len(cont_metric.json())
-    # cont_int = int(cont_total)
+    contributors_int = int(metric['differents_authors'])
 
     welcoming_metric = calculate_welcoming_metric(
-        # cont_int,
+        contributors_int,
         cont_guide_int,
         help_float,
         good_float,
@@ -41,7 +37,7 @@ def get_welcoming_indicator(owner, repo, metric):
 
 
 def calculate_welcoming_metric(
-    # cont_int,
+    contributors_int,
     cont_guide_int,
     help_float,
     good_float,
@@ -54,9 +50,9 @@ def calculate_welcoming_metric(
     act_rate_float,
     pr_qua_float
 ):
-    # cont_int = cont_int * METRIC_CONTRIBUTOR
-    # if(cont_int > 1):
-    #     cont_int = 1
+    contributors_int = contributors_int * METRIC_CONTRIBUTOR
+    if(contributors_int > 1):
+        contributors_int = 1
 
     media = ((act_rate_float - ISSUE_METRIC_ONE) * ISSUE_METRIC_TWO)
     act_rate_float = media
@@ -67,7 +63,7 @@ def calculate_welcoming_metric(
 
     WEIGHT_SUPPORT_2 = WEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2
     welcoming_metric = (
-        # cont_int * WEIGHT_CONTRIBUTORS_WELCO
+        contributors_int * WEIGHT_CONTRIBUTORS_WELCO
         + cont_guide_int * WEIGHT_CONTRIBUTION_GUIDE_WELCO
         + help_float * WEIGHT_HELP_WANTED_WELCO
         + good_float * WEIGHT_GOOD_FIRST_ISSUE_WELCO
