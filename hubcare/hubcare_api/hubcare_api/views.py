@@ -4,14 +4,15 @@ from rest_framework.response import Response
 from hubcare_api.indicators import active_indicator
 from hubcare_api.indicators import welcoming_indicator
 from hubcare_api.indicators import support_indicator
-import requests
-import os
-from hubcare_api.constants import URL_REPOSITORY
-
 from hubcare_api.services import issue_metric
 from hubcare_api.services import community_metric
 from hubcare_api.services import commit_metric
 from hubcare_api.services import pull_request_metric
+from hubcare_api.constants import URL_REPOSITORY, TOTAL_WEEKS
+import requests
+import json
+import os
+
 
 from datetime import datetime, timezone
 
@@ -33,36 +34,48 @@ class HubcareApiView(APIView):
 
         repo_request = requests.get(URL_REPOSITORY + owner + '/' + repo).json()
         response = []
+        metrics = {}
         if repo_request['status'] == 0:
-            return Response(response)
+            return Response([response])
         elif repo_request['status'] == 1:
             print('###########INITIAL TIME POST############')
             now = datetime.now()
             print(now)
             print('###################################')
 
-            response.append(issue_metric.get_metric(owner, repo, 'post'))
-            response.append(community_metric.get_metric(owner, repo, 'post'))
-            response.append(commit_metric.get_metric(owner, repo, 'post'))
-            response.append(pull_request_metric.get_metric(owner,
-                                                           repo, 'post'))
+            metrics = get_metric(owner, repo, 'post')
+            hubcare_indicators = get_hubcare_indicators(owner, repo, metrics)
+            commit_graph = {
+                'commit_graph': get_commit_graph_axis(metrics)
+            }
+            response = hubcare_indicators
+            response.update(commit_graph)
+            repo_request = requests.post(
+                URL_REPOSITORY + owner + '/' + repo + '/'
+            )
 
             print('############FINAL TIME#############')
             after = datetime.now()
             print(after)
             print('TOTAL = ', (after-now))
             print('###################################')
-            return Response(response)
+            return Response([response])
         elif repo_request['status'] == 2:
             print('###########INITIAL TIME PUT############')
             now = datetime.now()
             print(now)
             print('###################################')
 
-            response.append(issue_metric.get_metric(owner, repo, 'put'))
-            response.append(community_metric.get_metric(owner, repo, 'put'))
-            response.append(commit_metric.get_metric(owner, repo, 'put'))
-            response.append(pull_request_metric.get_metric(owner, repo, 'put'))
+            metrics = get_metric(owner, repo, 'put')
+            hubcare_indicators = get_hubcare_indicators(owner, repo, metrics)
+            commit_graph = {
+                'commit_graph': get_commit_graph_axis(metrics)
+            }
+            response = hubcare_indicators
+            response.update(commit_graph)
+            repo_request = requests.put(
+                URL_REPOSITORY + owner + '/' + repo + '/'
+            )
 
             print('############FINAL TIME#############')
             after = datetime.now()
@@ -75,11 +88,13 @@ class HubcareApiView(APIView):
             print(now)
             print('###################################')
 
-            response.append(issue_metric.get_metric(owner, repo, 'get'))
-            response.append(community_metric.get_metric(owner, repo, 'get'))
-            response.append(commit_metric.get_metric(owner, repo, 'get'))
-            response.append(pull_request_metric.get_metric(owner,
-                                                           repo, 'get'))
+            metrics = get_metric(owner, repo, 'get')
+            hubcare_indicators = get_hubcare_indicators(owner, repo, metrics)
+            commit_graph = {
+                'commit_graph': get_commit_graph_axis(metrics)
+            }
+            response = hubcare_indicators
+            response.update(commit_graph)
 
             print('############FINAL TIME#############')
             after = datetime.now()
@@ -87,31 +102,55 @@ class HubcareApiView(APIView):
             print('TOTAL = ', (after-now))
             print('###################################')
 
-        return Response(response)
+        return Response([response])
 
-        # url = 'https://api.github.com/repos/'
-        # github_request = requests.get(url + owner + '/' + repo,
-        #                               auth=(username, token))
 
-        # if github_request.status_code == 200:
-        #     active_data = active_indicator.get_active_indicator(owner, repo)
-        #     welcoming_data = welcoming_indicator.get_welcoming_indicator(
-        #         owner,
-        #         repo
-        #     )
-        #    support_data = support_indicator.get_support_indicator(owner,
-        #                                                            repo)
-        #     hubcare_indicators = [
-        #         {
-        #             "active_indicator": float(
-        #                 "{0:.2f}".format(active_data*100)),
-        #             "welcoming_indicator": float(
-        #                 "{0:.2f}".format(welcoming_data*100)),
-        #             "support_indicator": float(
-        #                 "{0:.2f}".format(support_data*100)),
-        #         }
-        #     ]
+def get_metric(owner, repo, request_type):
+    metrics = issue_metric.get_metric(owner, repo, request_type)
+    metrics.update(community_metric.get_metric(owner, repo, request_type))
+    metrics.update(commit_metric.get_metric(owner, repo, request_type))
+    metrics.update(pull_request_metric.get_metric(owner, repo,
+                                                  request_type))
+    return metrics
 
-        #     return Response(hubcare_indicators)
-        # else:
-        #     raise Http404
+
+def get_hubcare_indicators(owner, repo, metrics):
+    active_data = active_indicator.get_active_indicator(owner, repo, metrics)
+    welcoming_data = welcoming_indicator.get_welcoming_indicator(
+        owner,
+        repo,
+        metrics
+    )
+    support_data = support_indicator.get_support_indicator(owner, repo,
+                                                           metrics)
+    hubcare_indicators = {
+        'active_indicator': float(
+            '{0:.2f}'.format(active_data*100)),
+        'welcoming_indicator': float(
+            '{0:.2f}'.format(welcoming_data*100)),
+        'support_indicator': float(
+            '{0:.2f}'.format(support_data*100)),
+    }
+
+    return hubcare_indicators
+
+
+def get_commit_graph_axis(metrics):
+    commits_week = metrics['commits_week']
+    commits_week = json.loads(commits_week)
+    WEEKS = len(commits_week)
+    if WEEKS == 0:
+        x_axis = ['Week ' + str(i+1) for i in range(TOTAL_WEEKS)]
+        y_axis = [0] * TOTAL_WEEKS
+    else:
+        x_axis = []
+        y_axis = []
+
+    for i in range(WEEKS):
+        x_axis.append('Week ' + str(i+1))
+        y_axis.append(commits_week[i])
+    commit_graph_axis = {
+        'x_axis': x_axis,
+        'y_axis': y_axis
+    }
+    return commit_graph_axis

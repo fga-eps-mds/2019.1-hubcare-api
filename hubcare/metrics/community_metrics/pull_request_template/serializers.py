@@ -5,4 +5,6 @@ from pull_request_template.models import PullRequestTemplate
 class PullRequestTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PullRequestTemplate
-        fields = '__all__'
+        fields = [
+            'pull_request_template'
+        ]

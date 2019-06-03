@@ -6,3 +6,6 @@ class DifferentsAuthors(models.Model):
     repo = models.CharField(max_length=30)
     commits = models.CharField(max_length=150)
     date = models.DateField(max_length=150)
+
+    class Meta:
+        unique_together = (('owner', 'repo'),)

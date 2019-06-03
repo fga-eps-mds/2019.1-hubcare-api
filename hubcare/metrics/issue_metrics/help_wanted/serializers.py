@@ -6,4 +6,7 @@ class HelpWantedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HelpWanted
-        fields = '__all__'
+        fields = [
+            'total_issues',
+            'help_wanted_issues'
+        ]

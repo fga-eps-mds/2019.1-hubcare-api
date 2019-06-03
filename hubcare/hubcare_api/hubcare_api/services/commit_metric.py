@@ -7,13 +7,24 @@ def get_metric(owner, repo, request_type):
     r = Request()
     url_commit_month = get_url('commit_month/', owner, repo)
 
-    metric = []
     if request_type == 'get':
-        metric.append(r.get(url_commit_month))
+        response = r.get(url_commit_month)
+        metric = {
+            "total_commits": response['total_commits'],
+            "commits_week": response['commits_week'],
+        }
     elif request_type == 'post':
-        metric.append(r.post(url_commit_month))
+        response = r.post(url_commit_month)
+        metric = {
+            "total_commits": response['total_commits'],
+            "commits_week": response['commits_week'],
+        }
     elif request_type == 'put':
-        metric.append(r.put(url_commit_month))
+        response = r.put(url_commit_month)
+        metric = {
+            "total_commits": response['total_commits'],
+            "commits_week": response['commits_week'],
+        }
 
     return metric
 

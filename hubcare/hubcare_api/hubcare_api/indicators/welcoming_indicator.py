@@ -3,81 +3,27 @@ import requests
 import os
 
 
-def get_welcoming_indicator(owner, repo):
-    url_authors = 'contributors/'
-    url = URL_COMMIT + url_authors + owner + '/' + repo
-    cont_metric = requests.get(url)
-    cont_total = len(cont_metric.json())
-    cont_int = int(cont_total)
+def get_welcoming_indicator(owner, repo, metric):
 
-    url_authors = 'contribution_guide/'
-    url = URL_COMMUNITY + url_authors + owner + '/' + repo
-    cont_guide_metric = requests.get(url)
-    cont_guide_bool = cont_guide_metric.json()['contribution_guide']
-    cont_guide_int = int(cont_guide_bool)
-
-    url_authors = 'help_wanted/'
-    url = URL_ISSUE + url_authors + owner + '/' + repo
-    help_metric = requests.get(url)
-    help_rate = help_metric.json()['rate']
-    help_float = float(help_rate)
-
-    url_authors = 'good_first_issue/'
-    url = URL_ISSUE + url_authors + owner + '/' + repo
-    good_metric = requests.get(url)
-    good_rate = good_metric.json()['rate']
-    good_float = float(good_rate)
-
-    url_authors = 'pull_request_template/'
-    url = URL_COMMUNITY + url_authors + owner + '/' + repo
-    prt_metric = requests.get(url)
-    prt_bool = prt_metric.json()['pull_request_template']
-    prt_int = int(prt_bool)
-
-    url_authors = 'description/'
-    url = URL_COMMUNITY + url_authors + owner + '/' + repo
-    description_metric = requests.get(url)
-    description_bool = description_metric.json()['description']
-    description_int = int(description_bool)
-
-    url_authors = 'code_of_conduct/'
-    url = URL_COMMUNITY + url_authors + owner + '/' + repo
-    code_cond_metric = requests.get(url)
-    code_cond_bool = code_cond_metric.json()['code_of_conduct']
-    code_cond_int = int(code_cond_bool)
-
-    url_authors = 'readme/'
-    url = URL_COMMUNITY + url_authors + owner + '/' + repo
-    readme_metrics = requests.get(url)
-    readme_bool = readme_metrics.json()['readme']
-    readme_int = int(readme_bool)
-
-    url_authors = 'issue_template/'
-    url = URL_COMMUNITY + url_authors + owner + '/' + repo
-    issue_temp_metric = requests.get(url)
-    issue_temp_bool = issue_temp_metric.json()['issue_templates']
-    issue_temp_int = int(issue_temp_bool)
-
-    url_authors = 'license/'
-    url = URL_COMMUNITY + url_authors + owner + '/' + repo
-    license_metric = requests.get(url)
-    license_bool = license_metric.json()['have_license']
-    license_int = int(license_bool)
-
-    url_authors = 'activity_rate/'
-    url = URL_ISSUE + url_authors + owner + '/' + repo
-    act_rate_metric = requests.get(url)
-    act_rate_str = act_rate_metric.json()[0]['activity_rate_15_days']
-    act_rate_float = float(act_rate_str)
-
-    url_authors = 'acceptance_quality/'
-    url = URL_PR + url_authors + owner + '/' + repo
-    pr_qua_metric = requests.get(url)
-    pr_qua_str = pr_qua_metric.json()[0]['metric']
-    pr_qua_float = float(pr_qua_str)
+    cont_guide_int = int(metric['contribution_guide'])
+    help_float = float(metric['help_wanted_issues'])
+    good_float = float(metric['good_first_issue'])
+    prt_int = int(metric['pull_request_template'])
+    description_int = int(metric['description'])
+    code_cond_int = int(metric['code_of_conduct'])
+    readme_int = int(metric['readme'])
+    issue_temp_int = int(metric['issue_template'])
+    license_int = int(metric['license'])
+    act_rate_float = float(metric['activity_rate_15_days'])
+    pr_qua_float = float(metric['acceptance_quality'])
+    # url_authors = 'contributors/'
+    # url = URL_COMMIT + url_authors + owner + '/' + repo
+    # cont_metric = requests.get(url)
+    # cont_total = len(cont_metric.json())
+    # cont_int = int(cont_total)
 
     welcoming_metric = calculate_welcoming_metric(
-        cont_int,
+        # cont_int,
         cont_guide_int,
         help_float,
         good_float,
@@ -95,7 +41,7 @@ def get_welcoming_indicator(owner, repo):
 
 
 def calculate_welcoming_metric(
-    cont_int,
+    # cont_int,
     cont_guide_int,
     help_float,
     good_float,
@@ -108,9 +54,9 @@ def calculate_welcoming_metric(
     act_rate_float,
     pr_qua_float
 ):
-    cont_int = cont_int * METRIC_CONTRIBUTOR
-    if(cont_int > 1):
-        cont_int = 1
+    # cont_int = cont_int * METRIC_CONTRIBUTOR
+    # if(cont_int > 1):
+    #     cont_int = 1
 
     media = ((act_rate_float - ISSUE_METRIC_ONE) * ISSUE_METRIC_TWO)
     act_rate_float = media
@@ -119,19 +65,19 @@ def calculate_welcoming_metric(
     if(act_rate_float < 1):
         act_rate_float = 0
 
-    HEIGHT_SUPPORT_2 = HEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2
+    WEIGHT_SUPPORT_2 = WEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2
     welcoming_metric = (
-        cont_int * HEIGHT_CONTRIBUTORS_WELCO
-        + cont_guide_int * HEIGHT_CONTRIBUTION_GUIDE_WELCO
-        + help_float * HEIGHT_HELP_WANTED_WELCO
-        + good_float * HEIGHT_GOOD_FIRST_ISSUE_WELCO
-        + prt_int * HEIGHT_PR_TEMPLATE_WELCO
-        + description_int * HEIGHT_DESCRIPTION_WELCO
-        + code_cond_int * HEIGHT_CODE_OF_CONDUCT_WELCO
-        + readme_int * HEIGHT_README_WELCO
-        + issue_temp_int * HEIGHT_ISSUE_TEMPLATE_WELCO
-        + license_int * HEIGHT_LICENSE_WELCO
-        + act_rate_float * HEIGHT_ACT_MET_2
-        + pr_qua_float * HEIGHT_PR_QUALITY) / WELCOMING_METRIC_QUESTION
+        # cont_int * WEIGHT_CONTRIBUTORS_WELCO
+        + cont_guide_int * WEIGHT_CONTRIBUTION_GUIDE_WELCO
+        + help_float * WEIGHT_HELP_WANTED_WELCO
+        + good_float * WEIGHT_GOOD_FIRST_ISSUE_WELCO
+        + prt_int * WEIGHT_PR_TEMPLATE_WELCO
+        + description_int * WEIGHT_DESCRIPTION_WELCO
+        + code_cond_int * WEIGHT_CODE_OF_CONDUCT_WELCO
+        + readme_int * WEIGHT_README_WELCO
+        + issue_temp_int * WEIGHT_ISSUE_TEMPLATE_WELCO
+        + license_int * WEIGHT_LICENSE_WELCO
+        + act_rate_float * WEIGHT_ACT_MET_2
+        + pr_qua_float * WEIGHT_PR_QUALITY) / WELCOMING_METRIC_QUESTION
 
     return welcoming_metric

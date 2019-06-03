@@ -4,8 +4,7 @@ from rest_framework.response import Response
 from help_wanted.models import HelpWanted
 from help_wanted.serializers import HelpWantedSerializer
 from issue_metrics import constants
-from issue_metrics.functions \
-    import get_metric_help_wanted, count_all_label
+from issue_metrics.functions import count_all_label
 import requests
 import json
 import os
@@ -18,61 +17,69 @@ class HelpWantedView(APIView):
         '''
         returns help wanted issue rate
         '''
-
-        try:
-            help_wanted = HelpWanted.objects.all().filter(
-                owner=owner,
-                repo=repo
-            )[0]
-            serializer = HelpWantedSerializer(help_wanted)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except RepositoryNotFound:
-            return Response('There is no repository for this metric',
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        # return Response(get_metric_help_wanted(HelpWanted, owner, repo))
-
-    def post(self, request, owner, repo):
-
-        print('time help wanted 1', datetime.now())
-        url = constants.MAIN_URL + owner + '/' + repo
-        total_issues, help_wanted_issues = self.get_total_helpwanted(url)
-        data = {
-            'owner': owner,
-            'repo': repo,
-            'total_issues': total_issues,
-            'help_wanted_issues': help_wanted_issues
-        }
-
-        serializer = HelpWantedSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            print('time help wanted 2', datetime.now())
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response('Error on creating help wanted metric',
-                            status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, owner, repo):
-        help_wanted_object = HelpWanted.objects.filter(
+        help_wanted = HelpWanted.objects.get(
             owner=owner,
             repo=repo
-        )[0]
-        url = constants.MAIN_URL + owner + '/' + repo
-        total_issues, help_wanted_issues = self.get_total_helpwanted(url)
-        data = {
-            'total_issues': total_issues,
-            'help_wanted_issues': help_wanted_issues
-        }
+        )
+        serializer = HelpWantedSerializer(help_wanted)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        serializer = HelpWantedSerializer(help_wanted_object, data,
-                                          partial=True)
-        if serializer.is_valid():
-            serializer.save()
+    def post(self, request, owner, repo):
+        '''
+        Create help wanted object
+        '''
+        data = HelpWanted.objects.filter(
+            owner=owner,
+            repo=repo
+        )
+        if data:
+            serializer = HelpWantedSerializer(data[0])
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+        url = '{0}{1}/{2}'.format(
+            constants.MAIN_URL,
+            owner,
+            repo
+        )
+        total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+        if total_issues == 0:
+            rate = 0
         else:
-            return Response('Error on updating help wanted metric',
-                            status=status.HTTP_400_BAD_REQUEST)
+            rate = help_wanted_issues/total_issues
+        data = HelpWanted.objects.create(
+            owner=owner,
+            repo=repo,
+            total_issues=total_issues,
+            help_wanted_issues=rate
+        )
+
+        serializer = HelpWantedSerializer(data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def put(self, request, owner, repo):
+        '''
+        Update help hanted object
+        '''
+        url = '{0}{1}/{2}'.format(
+            constants.MAIN_URL,
+            owner,
+            repo
+        )
+        total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+        if total_issues == 0:
+            rate = 0
+        else:
+            rate = help_wanted_issues/total_issues
+        data = HelpWanted.objects.get(
+            owner=owner,
+            repo=repo
+        )
+        data.total_issues = total_issues
+        data.help_wanted_issues = rate
+        data.save()
+
+        serializer = HelpWantedSerializer(data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_total_helpwanted(self, url):
         '''

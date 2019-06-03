@@ -6,8 +6,6 @@ class CommitMonthSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommitMonth
         fields = [
-            'owner',
-            'repo',
             'total_commits',
             'commits_week'
         ]

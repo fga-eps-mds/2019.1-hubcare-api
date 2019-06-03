@@ -6,4 +6,8 @@ class ActivityRateIssueSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ActivityRateIssue
-        fields = '__all__'
+        fields = [
+            'activity_rate',
+            'activity_rate_15_days',
+            'activity_rate_15_days_metric'
+        ]

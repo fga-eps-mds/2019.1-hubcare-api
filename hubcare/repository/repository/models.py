@@ -5,3 +5,6 @@ class Repository(models.Model):
     owner = models.CharField(max_length=100)
     repo = models.CharField(max_length=100)
     date = models.DateTimeField(default=None)
+
+    class Meta:
+        unique_together = (('owner', 'repo'),)
