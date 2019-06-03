@@ -12,18 +12,18 @@ import os
 class DifferentsAuthorsView(APIView):
     '''
         Get the number of different authors from a repo using GitHub Api of the
-        last 30 days and return the total sum
+        last 14 days and return the total sum
         Input: owner, repo
-        Output: A list with the different authors o the last 30 days
-        and save data
+        Output: Number of different authors in the last 14 days
+        if the number is less than 4 if more than 4 and save data
     '''
     def get(self, request, owner, repo):
         '''
             Check the existence of the repo, if so get the number different
-            authors of the last 30 days and save the data.
+            authors of the last 14 days and save the data.
             Input: owner, repo
-            Output: A list with the different authors o the last 30 days
-            and save data
+            Output: A list with the different authors o the last 14 days
+            if the number is less than 4 if more than 4 and save data
         '''
         differentsauthors = DifferentsAuthors.objects.all().filter(
             owner=owner,
@@ -39,12 +39,9 @@ class DifferentsAuthorsView(APIView):
             auth=(username, token))
         github_data = github_request.json()
         present = datetime.today()
-        days = timedelta(days=MONTH_DAYS)
-        commitsLastThirtyDays = []
+        days = timedelta(days=DAYS_14)
         authorsCommits = []
-        out = []
-        listCommits = []
-        listJson = []
+        startTime = datetime.now()
 
         if (github_request.status_code >= 200 and
                 github_request.status_code <= 299):
@@ -56,14 +53,13 @@ class DifferentsAuthorsView(APIView):
                     "%Y-%m-%dT%H:%M:%SZ")
                 commitsDay = present - days
                 if((past > commitsDay)):
-                    commitsLastThirtyDays.append(
-                        commit['commit']['committer']['date'].split('T')[0])
                     authorsCommits.append(commit['commit']['author']['email'])
-            authorsDistintCommits = set(authorsCommits)
-            for author in authorsDistintCommits:
-                listJson.append({'author': author,
-                                'numberCommits': authorsCommits.count(author)})
-        return Response(listJson)
+                    print(commit['commit']['author']['email'])
+                    if(len(set(authorsCommits))>=NUMBER_AUTHORS):
+                        print(datetime.now() - startTime)
+                        return Response(len(set(authorsCommits)))
+        print(datetime.now() - startTime)
+        return Response(len(set(authorsCommits)))
 
     def post(self, request, owner, repo):
 
