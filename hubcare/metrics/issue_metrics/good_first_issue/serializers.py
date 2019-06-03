@@ -8,5 +8,6 @@ class GoodFirstIssueSerializer(serializers.ModelSerializer):
         model = GoodFirstIssue
         fields = [
             'total_issues',
-            'good_first_issue'
+            'good_first_issue',
+            'good_first_issue_rate',
         ]

@@ -8,5 +8,6 @@ class HelpWantedSerializer(serializers.ModelSerializer):
         model = HelpWanted
         fields = [
             'total_issues',
-            'help_wanted_issues'
+            'help_wanted_issues',
+            'help_wanted_rate'
         ]
