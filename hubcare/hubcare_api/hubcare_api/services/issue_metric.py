@@ -32,8 +32,12 @@ def get_metric(owner, repo, request_type):
         'dead_issues': activity_rate['dead_issues'],
         'help_wanted_issues': help_wanted['help_wanted_issues'],
         'help_wanted_rate': help_wanted['help_wanted_rate'],
+        'help_wanted_max_rate': help_wanted[
+            'help_wanted_max_rate'],
         'good_first_issue': good_first_issue['good_first_issue'],
         'good_first_issue_rate': good_first_issue['good_first_issue_rate'],
+        'good_first_issue_max_rate': good_first_issue[
+            'good_first_issue_max_rate'],
     }
 
     issue_metric = {
