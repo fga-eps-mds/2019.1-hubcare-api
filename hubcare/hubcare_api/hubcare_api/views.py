@@ -163,7 +163,7 @@ def get_hubcare_indicators(owner, repo, metrics):
 
 def get_pull_request_graph(metrics):
     metrics = metrics['pull_request_metric']
-    categories = metrics ['categories']
+    categories = metrics['categories']
     x_axis = [
         'merged_yes',
         'merged_no',
@@ -176,7 +176,7 @@ def get_pull_request_graph(metrics):
     y_axis = []
     for i in x_axis:
         y_axis.append(categories[i])
-    
+
     pull_request_graph_axis = {
         'x_axis': x_axis,
         'y_axis': y_axis
@@ -190,7 +190,8 @@ def get_commit_graph(metrics):
     commits_week = json.loads(commits_week)
     WEEKS = len(commits_week)
     if WEEKS == 0:
-        x_axis = [str(TOTAL_WEEKS-i) + ' weeks ago' for i in range(TOTAL_WEEKS-1)]
+        x_axis = [str(TOTAL_WEEKS-i) + ' weeks ago'
+                  for i in range(TOTAL_WEEKS-1)]
         x_axis.append('this week')
         y_axis = [0] * TOTAL_WEEKS
     else:
@@ -200,7 +201,7 @@ def get_commit_graph(metrics):
     for i in range(WEEKS-1):
         x_axis.append(str(WEEKS-i) + ' weeks ago')
         y_axis.append(commits_week[i])
-    
+
     if WEEKS > 0:
         x_axis.append('this week')
         y_axis.append(commits_week[-1])
