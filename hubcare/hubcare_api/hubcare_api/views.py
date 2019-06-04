@@ -94,7 +94,7 @@ class HubcareApiView(APIView):
             print(now)
             print('###################################')
 
-            metrics = get_metric(owner, repo, 'get')
+            metrics = get_metric(owner, repo, 'put')
             hubcare_indicators = get_hubcare_indicators(owner, repo,
                                                         metrics)
 

@@ -43,8 +43,8 @@ class ActivityRateIssueView(APIView):
             serializer = ActivityRateIssueSerializer(data[0])
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        activity_rate, activity_rate_15_days, activity_rate_15_days_metric = \
-            self.get_activity_rate(owner, repo)
+        activity_rate, activity_rate_15_days, activity_rate_15_days_metric, \
+            active_issues, dead_issues = self.get_activity_rate(owner, repo)
 
         data = ActivityRateIssue.objects.create(
             owner=owner,
@@ -55,7 +55,9 @@ class ActivityRateIssueView(APIView):
             )),
             activity_rate_15_days_metric=float("{0:.2f}".format(
                 activity_rate_15_days_metric
-            ))
+            )),
+            active_issues=active_issues,
+            dead_issues=dead_issues
         )
 
         serializer = ActivityRateIssueSerializer(data)
@@ -65,8 +67,8 @@ class ActivityRateIssueView(APIView):
         activity_rate_object = ActivityRateIssue.objects.all().filter(
             owner=owner, repo=repo)[0]
 
-        activity_rate, activity_rate_15_days, activity_rate_15_days_metric = \
-            self.get_activity_rate(owner, repo)
+        activity_rate, activity_rate_15_days, activity_rate_15_days_metric, \
+            active_issues, dead_issues = self.get_activity_rate(owner, repo)
 
         data = ActivityRateIssue.objects.get(
             owner=owner,
@@ -79,6 +81,8 @@ class ActivityRateIssueView(APIView):
         data.activity_rate_15_days_metric = float("{0:.2f}".format(
                 activity_rate_15_days_metric
             ))
+        data.active_issues = active_issues
+        data.dead_issues = dead_issues
         data.save()
 
         serializer = ActivityRateIssueSerializer(data)
@@ -98,7 +102,9 @@ class ActivityRateIssueView(APIView):
             activity_rate = open_issues / (closed_issues + open_issues)
 
         metric = calculate_metric(issues_alive, not_alive)
-        return activity_rate, activity_rate_15_days, metric
+        dead_issues = not_alive - issues_alive
+        return activity_rate, activity_rate_15_days, metric, issues_alive, \
+            dead_issues
 
 
 def get_issues_15_day(owner, repo):
