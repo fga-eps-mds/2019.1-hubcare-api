@@ -4,10 +4,15 @@ import os
 
 
 def get_active_indicator(owner, repo, metric):
-    release_note_int = int(metric['release_note'])
-    commit_week_int = metric['total_commits']
-    pr_qua_float = float(metric['acceptance_quality'])
-    activity_rate = float(metric['activity_rate_15_days'])
+    community_metric = metric['community_metric']
+    pull_request_metric = metric['pull_request_metric']
+    issue_metric = metric['issue_metric']
+    commit_metric = metric['commit_metric']
+
+    release_note_int = int(community_metric['release_note'])
+    commit_week_int = commit_metric['total_commits']
+    pr_qua_float = float(pull_request_metric['acceptance_quality'])
+    activity_rate = float(issue_metric['activity_rate_15_days'])
 
     # url_authors = 'contributors/'
     # url = URL_COMMIT + url_authors + owner + '/' + repo

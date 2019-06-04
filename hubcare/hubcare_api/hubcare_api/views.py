@@ -111,7 +111,7 @@ class HubcareApiView(APIView):
             print('TOTAL = ', (after-now))
             print('###################################')
 
-        return Response([response])
+        return Response([metrics])
 
 
 def create_response(metrics, indicators, commit_graph, pull_request_graph):
@@ -133,14 +133,10 @@ def get_metric(owner, repo, request_type):
     metrics.update(pull_request_metric.get_metric(owner, repo,
                                                   request_type))
 
-    metrics = {
-        'metrics': metrics
-    }
     return metrics
 
 
 def get_hubcare_indicators(owner, repo, metrics):
-    metrics = metrics['metrics']
     active_data = active_indicator.get_active_indicator(owner, repo, metrics)
     welcoming_data = welcoming_indicator.get_welcoming_indicator(
         owner,
@@ -166,7 +162,7 @@ def get_hubcare_indicators(owner, repo, metrics):
 
 
 def get_pull_request_graph(metrics):
-    metrics = metrics['metrics']
+    metrics = metrics['pull_request_metric']
     categories = metrics ['categories']
     x_axis = [
         'merged_yes',
@@ -189,7 +185,7 @@ def get_pull_request_graph(metrics):
 
 
 def get_commit_graph(metrics):
-    metrics = metrics['metrics']
+    metrics = metrics['commit_metric']
     commits_week = metrics['commits_week']
     commits_week = json.loads(commits_week)
     WEEKS = len(commits_week)

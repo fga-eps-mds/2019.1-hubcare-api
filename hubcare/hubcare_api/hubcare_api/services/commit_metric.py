@@ -10,23 +10,27 @@ def get_metric(owner, repo, request_type):
     if request_type == 'get':
         response = r.get(url_commit_month)
         metric = {
-            "total_commits": response['total_commits'],
-            "commits_week": response['commits_week'],
+            'total_commits': response['total_commits'],
+            'commits_week': response['commits_week'],
         }
     elif request_type == 'post':
         response = r.post(url_commit_month)
         metric = {
-            "total_commits": response['total_commits'],
-            "commits_week": response['commits_week'],
+            'total_commits': response['total_commits'],
+            'commits_week': response['commits_week'],
         }
     elif request_type == 'put':
         response = r.put(url_commit_month)
         metric = {
-            "total_commits": response['total_commits'],
-            "commits_week": response['commits_week'],
+            'total_commits': response['total_commits'],
+            'commits_week': response['commits_week'],
         }
+    
+    commit_metric = {
+        'commit_metric': metric
+    }
 
-    return metric
+    return commit_metric
 
 
 def get_url(url_app, owner, repo):

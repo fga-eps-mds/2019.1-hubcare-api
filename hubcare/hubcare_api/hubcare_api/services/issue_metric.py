@@ -33,7 +33,12 @@ def get_metric(owner, repo, request_type):
         'good_first_issue': good_first_issue['good_first_issue'],
         'good_first_issue_rate': good_first_issue['good_first_issue_rate'],
     }
-    return metric
+
+    issue_metric = {
+        'issue_metric': metric
+    }
+
+    return issue_metric
 
 
 def get_url(url_app, owner, repo):

@@ -59,8 +59,12 @@ def get_metric(owner, repo, request_type):
             "readme": r.put(url_readme)['readme'],
             "description": r.put(url_description)['description'],
         }
+    
+    community_metric = {
+        'community_metric': metric
+    }
 
-    return metric
+    return community_metric
 
 
 def get_url(url_app, owner, repo):
