@@ -95,8 +95,8 @@ class GoodFirstIssueView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        total_issues = constants.ZERO
-        good_first_issue = constants.ZERO
+        total_issues = 0
+        good_first_issue = 0
         info_repo = requests.get(url, auth=(username,
                                             token)).json()
         total_issues = info_repo["open_issues_count"]

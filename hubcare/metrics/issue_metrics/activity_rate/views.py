@@ -82,8 +82,8 @@ class ActivityRateIssueView(APIView):
 
         serializer = ActivityRateIssueSerializer(activity_object)
         return Response(serializer.data)
-        
-        
+
+
 def get_number_issues(owner, repo):
     interval = timedelta(days=TOTAL_DAYS)
     date = str(datetime.now() - interval).split(' ')[0]
@@ -109,13 +109,11 @@ def get_number_issues(owner, repo):
 def request_issues(url):
     username = os.environ['NAME']
     token = os.environ['TOKEN']
-    issues = requests.get(url, auth=(username,token)).json()
+    issues = requests.get(url, auth=(username, token)).json()
     return issues
 
 
 def calculate_metric(open_issues, active_issues):
-    print('open_issues = ', open_issues)
-    print('active_issues = ', active_issues)
     if open_issues == 0:
         metric = 0
     else:

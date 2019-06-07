@@ -24,12 +24,10 @@ def get_metric(owner, repo, request_type):
 
     metric = {
         'activity_rate': activity_rate['activity_rate'],
-        'activity_rate_15_days': activity_rate['activity_rate_15_days'],
-        'activity_rate_15_days_metric': activity_rate[
-            'activity_rate_15_days_metric'],
-        'total_issues': help_wanted['total_issues'],
+        'activity_max_rate': activity_rate['activity_max_rate'],
         'active_issues': activity_rate['active_issues'],
         'dead_issues': activity_rate['dead_issues'],
+        'total_issues': help_wanted['total_issues'],
         'help_wanted_issues': help_wanted['help_wanted_issues'],
         'help_wanted_rate': help_wanted['help_wanted_rate'],
         'help_wanted_max_rate': help_wanted[

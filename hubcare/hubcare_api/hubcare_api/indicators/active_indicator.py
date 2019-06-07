@@ -12,7 +12,7 @@ def get_active_indicator(owner, repo, metric):
     release_note_int = int(community_metric['release_note'])
     commit_week_int = commit_metric['total_commits']
     pr_qua_float = float(pull_request_metric['acceptance_quality'])
-    activity_rate = float(issue_metric['activity_rate_15_days'])
+    activity_rate = float(issue_metric['activity_rate'])
 
     # url_authors = 'contributors/'
     # url = URL_COMMIT + url_authors + owner + '/' + repo
