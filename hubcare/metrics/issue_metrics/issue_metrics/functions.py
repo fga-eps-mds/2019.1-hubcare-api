@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from issue_metrics.constants \
-    import MAIN_URL, ZERO, ONE, FIFTEEN_DAYS
+    import MAIN_URL, FIFTEEN_DAYS
 from rest_framework.response import Response
 import json
 import requests
