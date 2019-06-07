@@ -8,8 +8,7 @@ class ActivityRateIssueSerializer(serializers.ModelSerializer):
         model = ActivityRateIssue
         fields = [
             'activity_rate',
-            'activity_rate_15_days',
-            'activity_rate_15_days_metric',
+            'activity_max_rate',
             'active_issues',
             'dead_issues'
         ]

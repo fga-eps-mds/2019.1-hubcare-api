@@ -7,7 +7,7 @@ from activity_rate.models import ActivityRateIssue
 from activity_rate.serializers import ActivityRateIssueSerializer
 # from issue_metrics.functions import calculate_metric, \
 #         get_all_issues, check_datetime_15_days
-from issue_metrics.constants import ISSUE_URL, TOTAL_DAYS
+from issue_metrics.constants import ISSUE_URL, TOTAL_DAYS, ACTIVITY_MAX_RATE
 import os
 
 from datetime import datetime, timezone, timedelta
@@ -33,44 +33,85 @@ class ActivityRateIssueView(APIView):
 
     def post(self, request, owner, repo):
         '''
-        Create new activity rate object
+        Creates new activity rate object
         '''
 
-        data = ActivityRateIssue.objects.filter(
+        activity_object = ActivityRateIssue.objects.filter(
             owner=owner,
             repo=repo
         )
-        # if data:
-        #     serializer = ActivityRateIssueSerializer(data[0])
-        #     return Response(serializer.data, status=status.HTTP_200_OK)
+        if activity_object:
+            serializer = ActivityRateIssueSerializer(activity_object[0])
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-        interval = timedelta(days=TOTAL_DAYS)
-        date = str(datetime.now() - interval).split(' ')[0]
-        print('date = ', date)
-
-        open_url = ISSUE_URL + '+repo:' + owner + '/' + repo
-        open_issues = get_issues(open_url)
-
-        active_url = open_url + '+created:<=' + date + '+updated:>=' + date
-        active_issues = get_issues(active_url)
-
-        new_url = open_url + '+created:>=' + date
-        new_issues = get_issues(new_url)
-
-        open_issues = open_issues['total_count']
-        active_issues = active_issues['total_count']
-        new_issues = new_issues['total_count']
-        active_issues += new_issues
-
+        open_issues, active_issues = get_number_issues(owner, repo)
         metric = calculate_metric(open_issues, active_issues)
-        return Response(metric)
+        dead_issues = open_issues - active_issues
+
+        activity_object = ActivityRateIssue.objects.create(
+            owner=owner,
+            repo=repo,
+            activity_rate=metric,
+            activity_max_rate=ACTIVITY_MAX_RATE,
+            active_issues=active_issues,
+            dead_issues=dead_issues
+        )
+
+        serializer = ActivityRateIssueSerializer(activity_object)
+        return Response(serializer.data)
+
+    def put(self, request, owner, repo):
+        '''
+        Updates activity rate object
+        '''
+
+        activity_object = ActivityRateIssue.objects.get(
+            owner=owner,
+            repo=repo
+        )
+
+        open_issues, active_issues = get_number_issues(owner, repo)
+        metric = calculate_metric(open_issues, active_issues)
+        dead_issues = open_issues - active_issues
+
+        activity_object.activity_rate = metric
+        activity_object.max_rate = ACTIVITY_MAX_RATE
+        activity_object.active_issues = active_issues
+        activity_object.dead_issues = dead_issues
+        activity_object.save()
+
+        serializer = ActivityRateIssueSerializer(activity_object)
+        return Response(serializer.data)
+        
+        
+def get_number_issues(owner, repo):
+    interval = timedelta(days=TOTAL_DAYS)
+    date = str(datetime.now() - interval).split(' ')[0]
+
+    open_url = ISSUE_URL + '+repo:' + owner + '/' + repo
+    open_issues = request_issues(open_url)
+
+    active_url = open_url + '+created:<=' + date + '+updated:>=' + date
+    active_issues = request_issues(active_url)
+
+    new_url = open_url + '+created:>=' + date
+    new_issues = request_issues(new_url)
+
+    open_issues = open_issues['total_count']
+    active_issues = active_issues['total_count']
+    new_issues = new_issues['total_count']
+
+    active_issues += new_issues
+
+    return open_issues, active_issues
 
 
-def get_issues(url):
+def request_issues(url):
     username = os.environ['NAME']
     token = os.environ['TOKEN']
     issues = requests.get(url, auth=(username,token)).json()
     return issues
+
 
 def calculate_metric(open_issues, active_issues):
     print('open_issues = ', open_issues)
