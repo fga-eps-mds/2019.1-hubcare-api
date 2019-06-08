@@ -11,6 +11,8 @@ class ActivityRateIssue(models.Model):
     activity_rate_15_days_metric = models.DecimalField(max_digits=5,
                                                        decimal_places=2,
                                                        default=0.00)
+    active_issues = models.IntegerField(default=0)
+    dead_issues = models.IntegerField(default=0)
 
     class Meta:
         unique_together = (('owner', 'repo'),)

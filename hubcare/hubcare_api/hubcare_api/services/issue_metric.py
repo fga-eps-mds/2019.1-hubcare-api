@@ -28,10 +28,23 @@ def get_metric(owner, repo, request_type):
         'activity_rate_15_days_metric': activity_rate[
             'activity_rate_15_days_metric'],
         'total_issues': help_wanted['total_issues'],
+        'active_issues': activity_rate['active_issues'],
+        'dead_issues': activity_rate['dead_issues'],
         'help_wanted_issues': help_wanted['help_wanted_issues'],
+        'help_wanted_rate': help_wanted['help_wanted_rate'],
+        'help_wanted_max_rate': help_wanted[
+            'help_wanted_max_rate'],
         'good_first_issue': good_first_issue['good_first_issue'],
+        'good_first_issue_rate': good_first_issue['good_first_issue_rate'],
+        'good_first_issue_max_rate': good_first_issue[
+            'good_first_issue_max_rate'],
     }
-    return metric
+
+    issue_metric = {
+        'issue_metric': metric
+    }
+
+    return issue_metric
 
 
 def get_url(url_app, owner, repo):

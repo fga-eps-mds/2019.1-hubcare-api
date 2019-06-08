@@ -60,7 +60,11 @@ def get_metric(owner, repo, request_type):
             "description": r.put(url_description)['description'],
         }
 
-    return metric
+    community_metric = {
+        'community_metric': metric
+    }
+
+    return community_metric
 
 
 def get_url(url_app, owner, repo):

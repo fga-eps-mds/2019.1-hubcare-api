@@ -14,7 +14,11 @@ def get_metric(owner, repo, request_type):
     elif request_type == 'put':
         metric = r.put(url_acceptance_quality)
 
-    return metric
+    pull_request_metric = {
+        'pull_request_metric': metric
+    }
+
+    return pull_request_metric
 
 
 def get_url(url_app, owner, repo):
