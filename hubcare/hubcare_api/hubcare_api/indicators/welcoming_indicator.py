@@ -9,15 +9,15 @@ def get_welcoming_indicator(owner, repo, metric):
     issue_metric = metric['issue_metric']
 
     cont_guide_int = int(community_metric['contribution_guide'])
-    help_float = float(issue_metric['help_wanted_issues'])
-    good_float = float(issue_metric['good_first_issue'])
+    help_float = float(issue_metric['help_wanted_rate'])
+    good_float = float(issue_metric['good_first_issue_rate'])
     prt_int = int(community_metric['pull_request_template'])
     description_int = int(community_metric['description'])
     code_cond_int = int(community_metric['code_of_conduct'])
     readme_int = int(community_metric['readme'])
     issue_temp_int = int(community_metric['issue_template'])
     license_int = int(community_metric['license'])
-    act_rate_float = float(issue_metric['activity_rate_15_days'])
+    act_rate_float = float(issue_metric['activity_rate'])
     pr_qua_float = float(pull_request_metric['acceptance_quality'])
     # url_authors = 'contributors/'
     # url = URL_COMMIT + url_authors + owner + '/' + repo
