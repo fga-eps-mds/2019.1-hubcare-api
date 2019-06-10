@@ -7,5 +7,7 @@ class CommitMonthSerializer(serializers.ModelSerializer):
         model = CommitMonth
         fields = [
             'total_commits',
-            'commits_week'
+            'commits_week',
+            'commits_high_score',
+            'commits_last_period'
         ]

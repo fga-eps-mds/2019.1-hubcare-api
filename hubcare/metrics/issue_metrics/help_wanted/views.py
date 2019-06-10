@@ -50,7 +50,9 @@ class HelpWantedView(APIView):
             owner=owner,
             repo=repo,
             total_issues=total_issues,
-            help_wanted_issues=rate
+            help_wanted_issues=help_wanted_issues,
+            help_wanted_rate=rate,
+            help_wanted_max_rate=constants.HELP_WANTED_MAX_RATE
         )
 
         serializer = HelpWantedSerializer(data)
@@ -75,7 +77,9 @@ class HelpWantedView(APIView):
             repo=repo
         )
         data.total_issues = total_issues
-        data.help_wanted_issues = rate
+        data.help_wanted_issues = help_wanted_issues
+        data.help_wanted_rate = rate
+        data.help_wanted_max_rate = constants.HELP_WANTED_MAX_RATE
         data.save()
 
         serializer = HelpWantedSerializer(data)

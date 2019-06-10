@@ -51,7 +51,9 @@ class GoodFirstIssueView(APIView):
             owner=owner,
             repo=repo,
             total_issues=total_issues,
-            good_first_issue=rate
+            good_first_issue=good_first_issue,
+            good_first_issue_max_rate=constants.GOOD_FIRST_ISSUE_MAX_RATE,
+            good_first_issue_rate=rate
         )
 
         serializer = GoodFirstIssueSerializer(data)
@@ -77,7 +79,9 @@ class GoodFirstIssueView(APIView):
             repo=repo
         )
         data.total_issues = total_issues
-        data.good_first_issue = rate
+        data.good_first_issue = good_first_issue
+        data.good_first_issue_rate = rate
+        data.good_first_issue_max_rate = constants.GOOD_FIRST_ISSUE_MAX_RATE
         data.save()
 
         serializer = GoodFirstIssueSerializer(data)
@@ -91,8 +95,8 @@ class GoodFirstIssueView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        total_issues = constants.ZERO
-        good_first_issue = constants.ZERO
+        total_issues = 0
+        good_first_issue = 0
         info_repo = requests.get(url, auth=(username,
                                             token)).json()
         total_issues = info_repo["open_issues_count"]
