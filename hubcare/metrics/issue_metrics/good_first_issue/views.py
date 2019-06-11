@@ -3,9 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from good_first_issue.models import GoodFirstIssue
 from good_first_issue.serializers import GoodFirstIssueSerializer
+from issue_metrics.functions import count_all_label
 from issue_metrics import constants
-from issue_metrics.functions \
-    import get_metric_good_first_issue, count_all_label
 import requests
 import json
 import os
@@ -44,11 +43,17 @@ class GoodFirstIssueView(APIView):
             repo
         )
         total_issues, good_first_issue = self.get_total_goodfirstissue(url)
+        if total_issues == 0:
+            rate = 0
+        else:
+            rate = good_first_issue/total_issues
         data = GoodFirstIssue.objects.create(
             owner=owner,
             repo=repo,
             total_issues=total_issues,
-            good_first_issue=good_first_issue
+            good_first_issue=good_first_issue,
+            good_first_issue_max_rate=constants.GOOD_FIRST_ISSUE_MAX_RATE,
+            good_first_issue_rate=rate
         )
 
         serializer = GoodFirstIssueSerializer(data)
@@ -65,12 +70,18 @@ class GoodFirstIssueView(APIView):
             repo
         )
         total_issues, good_first_issue = self.get_total_goodfirstissue(url)
+        if total_issues == 0:
+            rate = 0
+        else:
+            rate = good_first_issue/total_issues
         data = GoodFirstIssue.objects.get(
             owner=owner,
             repo=repo
         )
         data.total_issues = total_issues
         data.good_first_issue = good_first_issue
+        data.good_first_issue_rate = rate
+        data.good_first_issue_max_rate = constants.GOOD_FIRST_ISSUE_MAX_RATE
         data.save()
 
         serializer = GoodFirstIssueSerializer(data)
@@ -84,8 +95,8 @@ class GoodFirstIssueView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        total_issues = constants.ZERO
-        good_first_issue = constants.ZERO
+        total_issues = 0
+        good_first_issue = 0
         info_repo = requests.get(url, auth=(username,
                                             token)).json()
         total_issues = info_repo["open_issues_count"]

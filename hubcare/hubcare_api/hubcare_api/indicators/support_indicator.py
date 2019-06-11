@@ -4,48 +4,16 @@ import os
 
 
 def get_support_indicator(owner, repo, metric):
+    metric_community = metric['community_metric']
+    metric_issue = metric['issue_metric']
 
-    readme_int = int(metric['readme'])
-    # url = URL_COMMUNITY + 'readme/' + owner + '/' + repo
-    # readme_metric = requests.get(url)
-    # readme_bool = readme_metric.json()['readme']
-    # readme_int = int(readme_bool)
-
-    issue_temp_int = int(metric['issue_template'])
-    # url = URL_COMMUNITY + 'issue_template/' + owner + '/' + repo
-    # issue_temp_metric = requests.get(url)
-    # issue_temp_bool = issue_temp_metric.json()['issue_templates']
-    # issue_temp_int = int(issue_temp_bool)
-
-    license_int = int(metric['license'])
-    # url = URL_COMMUNITY + 'license/' + owner + '/' + repo
-    # license_metric = requests.get(url)
-    # license_bool = license_metric.json()['have_license']
-    # license_int = int(license_bool)
-
-    description_int = int(metric['description'])
-    # url = URL_COMMUNITY + 'description/' + owner + '/' + repo
-    # description_metric = requests.get(url)
-    # description_bool = description_metric.json()['description']
-    # description_int = int(description_bool)
-
-    code_cond_int = int(metric['code_of_conduct'])
-    # url = URL_COMMUNITY + 'code_of_conduct/' + owner + '/' + repo
-    # code_cond_metric = requests.get(url)
-    # code_cond_bool = code_cond_metric.json()['code_of_conduct']
-    # code_cond_int = int(code_cond_bool)
-
-    release_note_int = int(metric['release_note'])
-    # url = URL_COMMUNITY + 'release_note/' + owner + '/' + repo
-    # release_note_metric = requests.get(url)
-    # release_note_bool = release_note_metric.json()['response']
-    # release_note_int = int(release_note_bool)
-
-    issue_act_float = float(metric['activity_rate'])
-    # url = URL_ISSUE + 'activity_rate/' + owner + '/' + repo
-    # issue_act_metric = requests.get(url)
-    # issue_act = issue_act_metric.json()[0]['activity_rate_15_days']
-    # issue_act_float = float(issue_act)
+    readme_int = int(metric_community['readme'])
+    issue_temp_int = int(metric_community['issue_template'])
+    license_int = int(metric_community['license'])
+    description_int = int(metric_community['description'])
+    code_cond_int = int(metric_community['code_of_conduct'])
+    release_note_int = int(metric_community['release_note'])
+    issue_act_float = float(metric_issue['activity_rate'])
 
     support_metric = calculate_support_metric(
         readme_int,
@@ -56,8 +24,6 @@ def get_support_indicator(owner, repo, metric):
         release_note_int,
         issue_act_float
     )
-    # else:
-    #     return False
 
     return support_metric
 

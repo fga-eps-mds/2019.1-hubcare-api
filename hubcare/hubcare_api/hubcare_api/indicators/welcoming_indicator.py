@@ -4,26 +4,26 @@ import os
 
 
 def get_welcoming_indicator(owner, repo, metric):
+    community_metric = metric['community_metric']
+    pull_request_metric = metric['pull_request_metric']
+    issue_metric = metric['issue_metric']
+    commit_metric = metric['commit_metric']
 
-    cont_guide_int = int(metric['contribution_guide'])
-    help_float = float(metric['help_wanted_issues'])
-    good_float = float(metric['good_first_issue'])
-    prt_int = int(metric['pull_request_template'])
-    description_int = int(metric['description'])
-    code_cond_int = int(metric['code_of_conduct'])
-    readme_int = int(metric['readme'])
-    issue_temp_int = int(metric['issue_template'])
-    license_int = int(metric['license'])
-    act_rate_float = float(metric['activity_rate_15_days'])
-    pr_qua_float = float(metric['acceptance_quality'])
-    # url_authors = 'contributors/'
-    # url = URL_COMMIT + url_authors + owner + '/' + repo
-    # cont_metric = requests.get(url)
-    # cont_total = len(cont_metric.json())
-    # cont_int = int(cont_total)
+    cont_guide_int = int(community_metric['contribution_guide'])
+    help_float = float(issue_metric['help_wanted_rate'])
+    good_float = float(issue_metric['good_first_issue_rate'])
+    prt_int = int(community_metric['pull_request_template'])
+    description_int = int(community_metric['description'])
+    code_cond_int = int(community_metric['code_of_conduct'])
+    readme_int = int(community_metric['readme'])
+    issue_temp_int = int(community_metric['issue_template'])
+    license_int = int(community_metric['license'])
+    act_rate_float = float(issue_metric['activity_rate'])
+    pr_qua_float = float(pull_request_metric['acceptance_quality'])
+    contributors_int = int(commit_metric['differents_authors'])
 
     welcoming_metric = calculate_welcoming_metric(
-        # cont_int,
+        contributors_int,
         cont_guide_int,
         help_float,
         good_float,
@@ -41,7 +41,7 @@ def get_welcoming_indicator(owner, repo, metric):
 
 
 def calculate_welcoming_metric(
-    # cont_int,
+    contributors_int,
     cont_guide_int,
     help_float,
     good_float,
@@ -54,9 +54,9 @@ def calculate_welcoming_metric(
     act_rate_float,
     pr_qua_float
 ):
-    # cont_int = cont_int * METRIC_CONTRIBUTOR
-    # if(cont_int > 1):
-    #     cont_int = 1
+    contributors_int = contributors_int * METRIC_CONTRIBUTOR
+    if(contributors_int > 1):
+        contributors_int = 1
 
     media = ((act_rate_float - ISSUE_METRIC_ONE) * ISSUE_METRIC_TWO)
     act_rate_float = media
@@ -67,7 +67,7 @@ def calculate_welcoming_metric(
 
     WEIGHT_SUPPORT_2 = WEIGHT_ISSUE_ACTIVE_SUPPORT_QUESTION_2
     welcoming_metric = (
-        # cont_int * WEIGHT_CONTRIBUTORS_WELCO
+        contributors_int * WEIGHT_CONTRIBUTORS_WELCO
         + cont_guide_int * WEIGHT_CONTRIBUTION_GUIDE_WELCO
         + help_float * WEIGHT_HELP_WANTED_WELCO
         + good_float * WEIGHT_GOOD_FIRST_ISSUE_WELCO

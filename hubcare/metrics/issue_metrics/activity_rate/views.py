@@ -5,12 +5,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from activity_rate.models import ActivityRateIssue
 from activity_rate.serializers import ActivityRateIssueSerializer
-from issue_metrics.functions import calculate_metric, \
-        get_all_issues, check_datetime_15_days
-from issue_metrics.constants import ONE, ZERO
+# from issue_metrics.functions import calculate_metric, \
+#         get_all_issues, check_datetime_15_days
+from issue_metrics.constants import ISSUE_URL, TOTAL_DAYS, ACTIVITY_MAX_RATE
 import os
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 
 class ActivityRateIssueView(APIView):
@@ -33,106 +33,93 @@ class ActivityRateIssueView(APIView):
 
     def post(self, request, owner, repo):
         '''
-        Create new activity rate object
+        Creates new activity rate object
         '''
-        data = ActivityRateIssue.objects.filter(
+
+        activity_object = ActivityRateIssue.objects.filter(
             owner=owner,
             repo=repo
         )
-        if data:
-            serializer = ActivityRateIssueSerializer(data[0])
+        if activity_object:
+            serializer = ActivityRateIssueSerializer(activity_object[0])
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        activity_rate, activity_rate_15_days, activity_rate_15_days_metric = \
-            self.get_activity_rate(owner, repo)
+        open_issues, active_issues = get_number_issues(owner, repo)
+        metric = calculate_metric(open_issues, active_issues)
+        dead_issues = open_issues - active_issues
 
-        data = ActivityRateIssue.objects.create(
+        activity_object = ActivityRateIssue.objects.create(
             owner=owner,
             repo=repo,
-            activity_rate=float("{0:.2f}".format(activity_rate)),
-            activity_rate_15_days=float("{0:.2f}".format(
-                activity_rate_15_days
-            )),
-            activity_rate_15_days_metric=float("{0:.2f}".format(
-                activity_rate_15_days_metric
-            ))
+            activity_rate=metric,
+            activity_max_rate=ACTIVITY_MAX_RATE,
+            active_issues=active_issues,
+            dead_issues=dead_issues
         )
 
-        serializer = ActivityRateIssueSerializer(data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = ActivityRateIssueSerializer(activity_object)
+        return Response(serializer.data)
 
     def put(self, request, owner, repo):
-        activity_rate_object = ActivityRateIssue.objects.all().filter(
-            owner=owner, repo=repo)[0]
+        '''
+        Updates activity rate object
+        '''
 
-        activity_rate, activity_rate_15_days, activity_rate_15_days_metric = \
-            self.get_activity_rate(owner, repo)
-
-        data = ActivityRateIssue.objects.get(
+        activity_object = ActivityRateIssue.objects.get(
             owner=owner,
             repo=repo
         )
-        data.activity_rate = float("{0:.2f}".format(activity_rate))
-        data.activity_rate_15_days = float("{0:.2f}".format(
-                activity_rate_15_days
-            ))
-        data.activity_rate_15_days_metric = float("{0:.2f}".format(
-                activity_rate_15_days_metric
-            ))
-        data.save()
 
-        serializer = ActivityRateIssueSerializer(data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        open_issues, active_issues = get_number_issues(owner, repo)
+        metric = calculate_metric(open_issues, active_issues)
+        dead_issues = open_issues - active_issues
 
-    def get_activity_rate(self, owner, repo):
-        open_issues, closed_issues = get_all_issues(owner, repo)
-        issues_alive, not_alive = get_issues_15_day(owner, repo)
-        if(not_alive != ZERO):
-            activity_rate_15_days = issues_alive / not_alive
-        else:
-            activity_rate_15_days = ZERO
+        activity_object.activity_rate = metric
+        activity_object.max_rate = ACTIVITY_MAX_RATE
+        activity_object.active_issues = active_issues
+        activity_object.dead_issues = dead_issues
+        activity_object.save()
 
-        if (closed_issues + open_issues) == 0:
-            activity_rate = 0
-        else:
-            activity_rate = open_issues / (closed_issues + open_issues)
-
-        metric = calculate_metric(issues_alive, not_alive)
-        return activity_rate, activity_rate_15_days, metric
+        serializer = ActivityRateIssueSerializer(activity_object)
+        return Response(serializer.data)
 
 
-def get_issues_15_day(owner, repo):
-    '''
-    Get all the issues in the last 15 days
-    '''
-    page_number = ONE
-    issues_alive = ZERO
-    issues_not_alive = ZERO
-    u = 'https://api.github.com/repos/' + owner + '/' + repo + '/issues?&page='
-    aux = True
+def get_number_issues(owner, repo):
+    interval = timedelta(days=TOTAL_DAYS)
+    date = str(datetime.now() - interval).split(' ')[0]
 
+    open_url = ISSUE_URL + '+repo:' + owner + '/' + repo
+    open_issues = request_issues(open_url)
+
+    active_url = open_url + '+created:<=' + date + '+updated:>=' + date
+    active_issues = request_issues(active_url)
+
+    new_url = open_url + '+created:>=' + date
+    new_issues = request_issues(new_url)
+
+    open_issues = open_issues['total_count']
+    active_issues = active_issues['total_count']
+    new_issues = new_issues['total_count']
+
+    active_issues += new_issues
+
+    return open_issues, active_issues
+
+
+def request_issues(url):
     username = os.environ['NAME']
     token = os.environ['TOKEN']
+    issues = requests.get(url, auth=(username, token)).json()
+    return issues
 
-    while aux:
-        github_request = requests.get(u + str(page_number) + '&per_page=100',
-                                      auth=(username, token))
-        github_data = github_request.json()
 
-        for activity in github_data:
-            if(check_datetime_15_days(activity['updated_at'])):
-                if(activity['state'] == 'open'):
-                    issues_alive = issues_alive + ONE
-                else:
-                    # Do nothing
-                    pass
-            if(activity['state'] == 'open'):
-                issues_not_alive = issues_not_alive + ONE
-            else:
-                # Do nothing
-                pass
-
-        if(github_data == []):
-            aux = False
-        page_number = page_number + ONE
-    return issues_alive, issues_not_alive
+def calculate_metric(open_issues, active_issues):
+    if open_issues == 0:
+        metric = 0
+    else:
+        metric = ((active_issues/open_issues)-0.5) * 4
+        if metric > 1:
+            metric = 1
+        if metric < 0:
+            metric = 0
+    return metric
