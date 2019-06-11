@@ -4,12 +4,12 @@ import os
 
 
 def get_active_indicator(owner, repo, metric):
-    contributors_int = int(metric['differents_authors'])
     community_metric = metric['community_metric']
     pull_request_metric = metric['pull_request_metric']
     issue_metric = metric['issue_metric']
     commit_metric = metric['commit_metric']
 
+    contributors_int = int(commit_metric['differents_authors'])
     release_note_int = int(community_metric['release_note'])
     pr_qua_float = float(pull_request_metric['acceptance_quality'])
     commit_week_int = commit_metric['total_commits']

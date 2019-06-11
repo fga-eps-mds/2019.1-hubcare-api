@@ -7,6 +7,7 @@ def get_welcoming_indicator(owner, repo, metric):
     community_metric = metric['community_metric']
     pull_request_metric = metric['pull_request_metric']
     issue_metric = metric['issue_metric']
+    commit_metric = metric['commit_metric']
 
     cont_guide_int = int(community_metric['contribution_guide'])
     help_float = float(issue_metric['help_wanted_rate'])
@@ -19,7 +20,7 @@ def get_welcoming_indicator(owner, repo, metric):
     license_int = int(community_metric['license'])
     act_rate_float = float(issue_metric['activity_rate'])
     pr_qua_float = float(pull_request_metric['acceptance_quality'])
-    contributors_int = int(metric['differents_authors'])
+    contributors_int = int(commit_metric['differents_authors'])
 
     welcoming_metric = calculate_welcoming_metric(
         contributors_int,

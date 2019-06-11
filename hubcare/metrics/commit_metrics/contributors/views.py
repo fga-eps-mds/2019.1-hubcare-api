@@ -28,7 +28,7 @@ class DifferentsAuthorsView(APIView):
             Output: A list with the different authors o the last 14 days
             if the number is less than 4 if more than 4 and save data
         '''
-        differents_authors = DifferentsAuthors.objects.all().filter(
+        differents_authors = DifferentsAuthors.objects.get(
             owner=owner,
             repo=repo
         )
@@ -76,30 +76,34 @@ class DifferentsAuthorsView(APIView):
     def get_contributors(self, owner, repo):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
-        github_request = requests.get(
-            'https://api.github.com/repos/' + owner + '/' + repo + '/commits',
-            auth=(username, token))
-        github_data = github_request.json()
+
         present = datetime.today()
         days = timedelta(days=DAYS_CONTRIBUTORS)
+        github_request = True
         authorsCommits = []
         startTime = datetime.now()
-
-        if (github_request.status_code >= 200 and
-                github_request.status_code <= 299):
-
-            for commit in github_data:
-                commit['commit']['committer']['date'].split('T')[0]
-                past = datetime.strptime(
-                    commit['commit']['committer']['date'],
-                    "%Y-%m-%dT%H:%M:%SZ")
-                commitsDay = present - days
-                if((past > commitsDay)):
-                    authorsCommits.append(commit['commit']['author']['email'])
-                    print(commit['commit']['author']['email'])
-                    if(len(set(authorsCommits)) >= NUMBER_AUTHORS):
-                        print(datetime.now() - startTime)
+        page_number = 1
+        while github_request:
+            github_request = requests.get(
+                'https://api.github.com/repos/' + owner + '/' + repo +
+                '/commits' + '?&per_page=100?page=' + str(page_number),
+                auth=(username, token))
+            github_data = github_request.json()
+            if (github_request.status_code >= 200 and
+                    github_request.status_code <= 299):
+                for commit in github_data:
+                    commit['commit']['committer']['date'].split('T')[0]
+                    past = datetime.strptime(
+                        commit['commit']['committer']['date'],
+                        "%Y-%m-%dT%H:%M:%SZ")
+                    commitsDay = present - days
+                    if((past > commitsDay)):
+                        authorsCommits.append(commit['commit']['author']
+                                                    ['email'])
+                        if(len(set(authorsCommits)) >= NUMBER_AUTHORS):
+                            return len(set(authorsCommits))
+                    else:
                         return len(set(authorsCommits))
-        print(datetime.now() - startTime)
+            page_number = page_number + 1
 
         return(len(set(authorsCommits)))

@@ -9,6 +9,7 @@ def get_metric(owner, repo, request_type):
     url_contributors = get_url('contributors/', owner, repo)
 
     if request_type == 'get':
+        response = r.get(url_commit_month)
         metric = {
             'total_commits': response['total_commits'],
             'commits_last_period': response['commits_last_period'],
@@ -18,6 +19,7 @@ def get_metric(owner, repo, request_type):
             ['differents_authors'],
         }
     elif request_type == 'post':
+        response = r.post(url_commit_month)
         metric = {
             'total_commits': response['total_commits'],
             'commits_last_period': response['commits_last_period'],
@@ -27,6 +29,7 @@ def get_metric(owner, repo, request_type):
             ['differents_authors'],
         }
     elif request_type == 'put':
+        response = r.put(url_commit_month)
         metric = {
             'total_commits': response['total_commits'],
             'commits_last_period': response['commits_last_period'],
