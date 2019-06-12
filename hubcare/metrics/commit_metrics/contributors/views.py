@@ -69,7 +69,7 @@ class DifferentsAuthorsView(APIView):
         )
         differents_authors_object.differents_authors = differents_authors
         differents_authors_object.save()
-        serializer = DifferentsAuthorsSerializers(differents_authors)
+        serializer = DifferentsAuthorsSerializers(differents_authors_object)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
