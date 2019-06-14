@@ -33,11 +33,10 @@ class PullRequestTemplateView(APIView):
             serializer = PullRequestTemplateSerializer(pr_template[0])
             return Response(serializer.data)
 
-        github_request = get_github_request(owner, repo)
-        status_code = github_request.status_code
-        if status_code >= 200 and status_code < 300:
+        github_status = get_github_request(owner, repo)
+        if github_status >= 200 and github_status < 300:
             response = create_pull_request_template(owner, repo, True)
-        elif status_code == 404:
+        elif github_status == 404:
             response = create_pull_request_template(owner, repo, False)
         else:
             return Response('Error on requesting GitHubAPI',
@@ -48,11 +47,10 @@ class PullRequestTemplateView(APIView):
         '''
         Update pull request template object
         '''
-        github_request = get_github_request(owner, repo)
-        status_code = github_request.status_code
-        if status_code >= 200 and status_code < 300:
+        github_status = get_github_request(owner, repo)
+        if github_status >= 200 and github_status < 300:
             response = update_pull_request_template(owner, repo, True)
-        elif status_code == 404:
+        elif github_status == 404:
             response = update_pull_request_template(owner, repo, False)
         else:
             return Response('Error on requesting GitHubAPI',
@@ -100,4 +98,10 @@ def get_github_request(owner, repo):
         owner,
         repo
     )
-    return requests.get(url, auth=(username, token))
+    request_status = requests.get(url, auth=(username, token)).status_code
+    if request_status >= 200 and request_status < 300:
+        return request_status
+    elif request_status == 404:
+        url = url.replace('.github/', '')
+        request_status = requests.get(url, auth=(username, token)).status_code
+    return request_status
