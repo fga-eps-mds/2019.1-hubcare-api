@@ -37,25 +37,15 @@ class CodeOfConductView(APIView):
             serializer = CodeOfConductSerializer(code_of_conduct[0])
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        result = '{0}{1}/{2}/contents/.github/CODE_OF_CONDUCT.md'.format(
-            URL_API,
-            owner,
-            repo
-        )
-
-        github_request = requests.get(
-            result,
-            auth=(username, token)
-        )
-        status_code = github_request.status_code
-        if status_code >= 200 and status_code < 300:
-            response = create_object(owner, repo, True)
-        elif status_code == 404:
-            response = create_object(owner, repo, False)
+        github_status = get_github_request(owner, repo)
+        if github_status >= 200 and github_status < 300:
+            response = create_code_of_conduct(owner, repo, True)
+        elif github_status == 404:
+            response = create_code_of_conduct(owner, repo, False)
         else:
             return Response('Error on requesting GitHubAPI',
                             status=status.HTTP_400_BAD_REQUEST)
-        return Response(response, status=status.HTTP_200_OK)
+        return Response(response)
 
     def put(self, request, owner, repo):
         '''
@@ -64,27 +54,18 @@ class CodeOfConductView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        result = '{0}{1}/{2}/contents/.github/CODE_OF_CONDUCT.md'.format(
-            URL_API,
-            owner,
-            repo
-        )
-        github_request = requests.get(
-            result,
-            auth=(username, token)
-        )
-        status_code = github_request.status_code
-        if status_code >= 200 and status_code < 300:
-            response = update_object(owner, repo, True)
-        elif status_code == 404:
-            response = update_object(owner, repo, False)
+        github_status = get_github_request(owner, repo)
+        if github_status >= 200 and github_status < 300:
+            response = update_code_of_conduct(owner, repo, True)
+        elif github_status == 404:
+            response = update_code_of_conduct(owner, repo, False)
         else:
             return Response('Error on requesting GitHubAPI',
                             status=status.HTTP_400_BAD_REQUEST)
-        return Response(response, status=status.HTTP_201_CREATED)
+        return Response(response)
 
 
-def create_object(owner, repo, code_of_conduct):
+def create_code_of_conduct(owner, repo, code_of_conduct):
     '''
     Create code of conduct object in database
     '''
@@ -97,7 +78,7 @@ def create_object(owner, repo, code_of_conduct):
     return serializer.data
 
 
-def update_object(owner, repo, code_of_conduct):
+def update_code_of_conduct(owner, repo, code_of_conduct):
     '''
     Update code of conduct object in database
     '''
@@ -109,3 +90,24 @@ def update_object(owner, repo, code_of_conduct):
     code_of_conduct_object.save()
     serializer = CodeOfConductSerializer(code_of_conduct_object)
     return serializer.data
+
+
+def get_github_request(owner, repo):
+    '''
+    Request Github data
+    '''
+    username = os.environ['NAME']
+    token = os.environ['TOKEN']
+
+    url = '{0}{1}/{2}/contents/.github/CODE_OF_CONDUCT.md'.format(
+        URL_API,
+        owner,
+        repo
+    )
+    request_status = requests.get(url, auth=(username, token)).status_code
+    if request_status >= 200 and request_status < 300:
+        return request_status
+    elif request_status == 404:
+        url = url.replace('.github/', '')
+        request_status = requests.get(url, auth=(username, token)).status_code
+    return request_status
