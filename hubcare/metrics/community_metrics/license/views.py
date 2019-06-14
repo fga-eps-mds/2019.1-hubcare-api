@@ -42,7 +42,6 @@ class LicenseView(APIView):
         Update license object
         '''
         github_data = get_github_request(owner, repo)
-
         if (github_data['license'] is not None):
             response = update_license(owner, repo, True)
         else:
@@ -68,7 +67,7 @@ def update_license(owner, repo, value):
     Update license object
     '''
     license = License.objects.get(owner=owner, repo=repo)
-    license.has_license = value
+    license.license = value
     license.save()
     serializer = LicenseSerializer(license)
     return serializer.data

@@ -85,6 +85,7 @@ def update_contribution_guide(owner, repo, value):
     serializer = ContributionGuideSerializer(contribution_guide)
     return serializer.data
 
+
 def get_github_request(owner, repo):
     '''
     Request Github data
