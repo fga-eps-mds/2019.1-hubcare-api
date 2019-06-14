@@ -26,9 +26,6 @@ class CodeOfConductView(APIView):
         '''
         Post a new object in database
         '''
-        username = os.environ['NAME']
-        token = os.environ['TOKEN']
-
         code_of_conduct = CodeOfConduct.objects.filter(
             owner=owner,
             repo=repo
@@ -51,9 +48,6 @@ class CodeOfConductView(APIView):
         '''
         Update object values in database
         '''
-        username = os.environ['NAME']
-        token = os.environ['TOKEN']
-
         github_status = get_github_request(owner, repo)
         if github_status >= 200 and github_status < 300:
             response = update_code_of_conduct(owner, repo, True)
