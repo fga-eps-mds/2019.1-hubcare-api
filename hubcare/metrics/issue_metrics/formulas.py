@@ -3,6 +3,7 @@ File to contain all formulas that
 estimate each given score.
 '''
 
+
 def issue_activity_score(active_issues, open_issues):
     """
     Receive two numbers:
@@ -20,8 +21,8 @@ def issue_activity_score(active_issues, open_issues):
 
     if rate >= 0.75:
         return 1
-    
-    return rate / 0.75;
+
+    return rate / 0.75
 
 
 def good_first_issue_score(labeled_issues, total_issues):
@@ -40,9 +41,9 @@ def good_first_issue_score(labeled_issues, total_issues):
     rate = labeled_issues / total_issues
 
     if rate >= 0.04:
-        return 1;
+        return 1
 
-    return labeled_issues / 0.04;
+    return labeled_issues / 0.04
 
 
 def help_wanted_score(labeled_issues, total_issues):
@@ -61,6 +62,6 @@ def help_wanted_score(labeled_issues, total_issues):
     rate = labeled_issues / total_issues
 
     if rate >= 0.04:
-        return 1;
+        return 1
 
-    return labeled_issues / 0.04;
+    return labeled_issues / 0.04

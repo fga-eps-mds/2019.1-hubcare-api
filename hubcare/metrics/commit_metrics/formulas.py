@@ -3,6 +3,7 @@ File to contain all formulas that
 estimate each given score.
 '''
 
+
 def commit_score(commit_qtd):
     """
     Receive a number of commits
@@ -14,7 +15,7 @@ def commit_score(commit_qtd):
     if commit_qtd > 9:
         return 1
     
-    return commit_qtd * 0.1;
+    return commit_qtd * 0.1
 
 
 def contributors_score(contributors_qtd):
@@ -28,4 +29,4 @@ def contributors_score(contributors_qtd):
     if contributors_qtd > 3:
         return 1
 
-    return contributors_qtd * 0.25;
+    return contributors_qtd * 0.25
