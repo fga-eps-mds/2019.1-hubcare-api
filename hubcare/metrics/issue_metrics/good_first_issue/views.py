@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 
 
 class GoodFirstIssueView(APIView):
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
         Returns good first issue data
         '''
@@ -25,7 +25,7 @@ class GoodFirstIssueView(APIView):
         serializer = GoodFirstIssueSerializer(good_first_issue)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, owner, repo):
+    def post(self, request, owner, repo, token_auth):
         '''
         Creates good first issue data for repository
         '''
@@ -59,7 +59,7 @@ class GoodFirstIssueView(APIView):
         serializer = GoodFirstIssueSerializer(data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def put(self, request, owner, repo):
+    def put(self, request, owner, repo, token_auth):
         '''
         Updates good first issue data for repository
         '''

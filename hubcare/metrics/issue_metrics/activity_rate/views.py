@@ -14,7 +14,7 @@ from datetime import datetime, timezone, timedelta
 
 
 class ActivityRateIssueView(APIView):
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
         Return activity rate to repo issues
         '''
@@ -31,7 +31,7 @@ class ActivityRateIssueView(APIView):
             status=status.HTTP_200_OK
         )
 
-    def post(self, request, owner, repo):
+    def post(self, request, owner, repo, token_auth):
         '''
         Creates new activity rate object
         '''
@@ -44,7 +44,7 @@ class ActivityRateIssueView(APIView):
             serializer = ActivityRateIssueSerializer(activity_object[0])
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        open_issues, active_issues = get_number_issues(owner, repo)
+        open_issues, active_issues = get_number_issues(owner, repo, token_auth)
         metric = calculate_metric(open_issues, active_issues)
         dead_issues = open_issues - active_issues
 
@@ -60,7 +60,7 @@ class ActivityRateIssueView(APIView):
         serializer = ActivityRateIssueSerializer(activity_object)
         return Response(serializer.data)
 
-    def put(self, request, owner, repo):
+    def put(self, request, owner, repo, token_auth):
         '''
         Updates activity rate object
         '''
@@ -70,7 +70,7 @@ class ActivityRateIssueView(APIView):
             repo=repo
         )
 
-        open_issues, active_issues = get_number_issues(owner, repo)
+        open_issues, active_issues = get_number_issues(owner, repo, token_auth)
         metric = calculate_metric(open_issues, active_issues)
         dead_issues = open_issues - active_issues
 
@@ -84,7 +84,7 @@ class ActivityRateIssueView(APIView):
         return Response(serializer.data)
 
 
-def get_number_issues(owner, repo):
+def get_number_issues(owner, repo, token_auth):
     interval = timedelta(days=TOTAL_DAYS)
     date = str(datetime.now() - interval).split(' ')[0]
 
@@ -109,7 +109,7 @@ def get_number_issues(owner, repo):
 def request_issues(url):
     username = os.environ['NAME']
     token = os.environ['TOKEN']
-    issues = requests.get(url, auth=(username, token)).json()
+    issues = requests.get(url, headers={'Authorization': 'token ' + token_auth}).json()
     return issues
 
 
