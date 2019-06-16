@@ -32,7 +32,8 @@ class HubcareApiView(APIView):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        repo_request = requests.get(URL_REPOSITORY + owner + '/' + repo).json()
+        repo_request = requests.get(URL_REPOSITORY + owner + '/' + repo + '/' +
+                                    token_auth + '/').json()
         response = []
         metrics = {}
         if repo_request['status'] == 0:
