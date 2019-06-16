@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from hubcare_api.views import HubcareApiView
-hubcare_indicators = 'hubcare_indicators/<str:owner>/<str:repo>/'
+hubcare_indicators = 'hubcare_indicators/<str:owner>/<str:repo>/<str:token_auth>/'
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -2,10 +2,10 @@ from hubcare_api.constants import *
 from hubcare_api.services.request import Request
 
 
-def get_metric(owner, repo, request_type):
+def get_metric(owner, repo, token_auth, request_type):
 
     r = Request()
-    url_acceptance_quality = get_url('acceptance_quality/', owner, repo)
+    url_acceptance_quality = get_url('acceptance_quality/', owner, repo, token_auth)
 
     if request_type == 'get':
         metric = r.get(url_acceptance_quality)
@@ -21,5 +21,5 @@ def get_metric(owner, repo, request_type):
     return pull_request_metric
 
 
-def get_url(url_app, owner, repo):
-    return URL_PR + url_app + owner + '/' + repo + '/'
+def get_url(url_app, owner, repo, token_auth):
+    return URL_PR + url_app + owner + '/' + repo + '/' + token_auth + '/'

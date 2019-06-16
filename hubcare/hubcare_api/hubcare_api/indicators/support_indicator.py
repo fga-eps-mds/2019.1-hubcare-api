@@ -3,7 +3,7 @@ import requests
 import os
 
 
-def get_support_indicator(owner, repo, metric):
+def get_support_indicator(owner, repo, token_auth, metric):
     metric_community = metric['community_metric']
     metric_issue = metric['issue_metric']
 

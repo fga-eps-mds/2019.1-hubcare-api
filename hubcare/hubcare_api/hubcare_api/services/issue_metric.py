@@ -2,12 +2,12 @@ from hubcare_api.constants import *
 from hubcare_api.services.request import Request
 
 
-def get_metric(owner, repo, request_type):
+def get_metric(owner, repo, token_auth, request_type):
 
     r = Request()
-    url_activity = get_url('activity_rate/', owner, repo)
-    url_help_wanted = get_url('help_wanted/', owner, repo)
-    url_good_first_issue = get_url('good_first_issue/', owner, repo)
+    url_activity = get_url('activity_rate/', owner, repo, token_auth)
+    url_help_wanted = get_url('help_wanted/', owner, repo, token_auth)
+    url_good_first_issue = get_url('good_first_issue/', owner, repo, token_auth)
 
     if request_type == 'get':
         activity_rate = r.get(url_activity)
@@ -45,5 +45,5 @@ def get_metric(owner, repo, request_type):
     return issue_metric
 
 
-def get_url(url_app, owner, repo):
-    return URL_ISSUE + url_app + owner + '/' + repo + '/'
+def get_url(url_app, owner, repo, token_auth):
+    return URL_ISSUE + url_app + owner + '/' + repo + '/' + token_auth + '/'
