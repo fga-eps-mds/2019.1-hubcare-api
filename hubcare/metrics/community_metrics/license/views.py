@@ -81,6 +81,7 @@ def get_github_request(owner, repo, token_auth):
     token = os.environ['TOKEN']
 
     url = '{0}{1}/{2}'.format(URL_API, owner, repo, token_auth)
-    result = requests.get(url, headers={'Authorization': 'token ' + token_auth})
+    result = requests.get(url, headers={'Authorization': 'token ' +
+                          token_auth})
 
     return result.json()

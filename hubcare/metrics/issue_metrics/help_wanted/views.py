@@ -67,7 +67,9 @@ class HelpWantedView(APIView):
             owner,
             repo
         )
-        total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+        total_issues, help_wanted_issues = (
+            self.get_total_helpwanted(url, token_auth)
+        )
         if total_issues == 0:
             rate = 0
         else:
@@ -85,7 +87,7 @@ class HelpWantedView(APIView):
         serializer = HelpWantedSerializer(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get_total_helpwanted(self, url):
+    def get_total_helpwanted(self, url, token_auth):
         '''
         returns the number of all issues and the issues with
         help wanted label
@@ -95,12 +97,13 @@ class HelpWantedView(APIView):
 
         total_issues = 0
         help_wanted_issues = 0
-        info_repo = requests.get(url, headers={'Authorization': 'token ' + token_auth}).json()
+        info_repo = requests.get(url, headers={'Authorization': 'token ' +
+                                 token_auth}).json()
         total_issues = info_repo["open_issues_count"]
         page = '&page=1'
         label_url = url + constants.LABEL_HELP_ESPACE_WANTED
-        result = requests.get(label_url + page,
-                              headers={'Authorization': 'token ' + token_auth}).json()
+        result = requests.get(label_url + page, headers={'Authorization':
+                              'token ' + token_auth}).json()
 
         '''
         checks possibilities for different aliases of help wanted
@@ -109,8 +112,8 @@ class HelpWantedView(APIView):
             help_wanted_issues = count_all_label(label_url, result)
         else:
             label_url = url + constants.LABEL_HELPWANTED
-            result = requests.get(label_url + page,
-                                  headers={'Authorization': 'token ' + token_auth}).json()
+            result = requests.get(label_url + page, headers={'Authorization':
+                                  'token ' + token_auth}).json()
             if result:
                 help_wanted_issues = count_all_label(
                     label_url,
@@ -118,8 +121,9 @@ class HelpWantedView(APIView):
                 )
             else:
                 label_url = url + constants.LABEL_HELP_WANTED
-                result = requests.get(label_url + page,
-                                      headers={'Authorization': 'token ' + token_auth}).json()
+                result = requests.get(label_url + page, headers={
+                                      'Authorization': 'token ' +
+                                      token_auth}).json()
                 if result:
                     help_wanted_issues = count_all_label(
                         label_url,

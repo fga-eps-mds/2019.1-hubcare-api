@@ -38,7 +38,8 @@ class DescriptionView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         url = '{0}{1}/{2}'.format(URL_API, owner, repo, token_auth)
-        github_request = requests.get(url, headers={'Authorization': 'token ' + token_auth})
+        github_request = requests.get(url, headers={'Authorization': 'token ' +
+                                      token_auth})
         status_code = github_request.status_code
         if status_code >= 200 and status_code < 300:
             github_data = github_request.json()
@@ -59,7 +60,8 @@ class DescriptionView(APIView):
         token = os.environ['TOKEN']
 
         url = '{0}{1}/{2}'.format(URL_API, owner, repo, token_auth)
-        github_request = requests.get(url, headers={'Authorization': 'token ' + token_auth})
+        github_request = requests.get(url, headers={'Authorization': 'token ' +
+                                      token_auth})
         status_code = github_request.status_code
         if status_code >= 200 and status_code < 300:
             github_data = github_request.json()

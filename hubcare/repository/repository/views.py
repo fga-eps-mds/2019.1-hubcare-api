@@ -31,7 +31,8 @@ class RepositoryView(APIView):
         if not repository:
             username = os.environ['NAME']
             token = os.environ['TOKEN']
-            data = requests.get(url, headers={'Authorization': 'token ' + token_auth})
+            data = requests.get(url, headers={'Authorization': 'token ' +
+                                token_auth})
 
             '''
             Executes if repository exists

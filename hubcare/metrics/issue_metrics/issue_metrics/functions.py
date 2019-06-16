@@ -21,6 +21,7 @@ def count_all_label(url, result):
         count += 1
         labels += len(result)
         result = requests.get(url + page + str(count),
-                              headers={'Authorization': 'token ' + token_auth}).json()
+                              headers={'Authorization': 'token ' +
+                              token_auth}).json()
 
     return labels

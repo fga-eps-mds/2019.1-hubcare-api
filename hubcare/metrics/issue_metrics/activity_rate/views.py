@@ -109,7 +109,8 @@ def get_number_issues(owner, repo, token_auth):
 def request_issues(url):
     username = os.environ['NAME']
     token = os.environ['TOKEN']
-    issues = requests.get(url, headers={'Authorization': 'token ' + token_auth}).json()
+    issues = requests.get(url, headers={'Authorization': 'token ' +
+                          token_auth}).json()
     return issues
 
 

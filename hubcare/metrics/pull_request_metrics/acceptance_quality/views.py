@@ -96,11 +96,13 @@ def get_pull_requests(owner, repo, token_auth):
     url_updated = URL_PR + '+updated:>=' + date + \
         '+repo:' + owner + '/' + repo + \
         '&per_page=100'
-    updated_request = requests.get(url_updated, headers={'Authorization': 'token ' + token_auth})
+    updated_request = requests.get(url_updated, headers={'Authorization':
+                                   'token ' + token_auth})
     updated_status = updated_request.status_code
 
     url_merged = url_updated.replace('updated', 'merged')
-    merged_request = requests.get(url_merged, headers={'Authorization': 'token ' + token_auth})
+    merged_request = requests.get(url_merged, headers={'Authorization':
+                                  'token ' + token_auth})
     merged_status = merged_request.status_code
 
     updated = []

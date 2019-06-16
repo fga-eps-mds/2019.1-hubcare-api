@@ -95,10 +95,12 @@ def get_github_request(owner, repo, token_auth):
         owner,
         repo
     )
-    request_status = requests.get(url, headers={'Authorization': 'token ' + token_auth}).status_code
+    request_status = requests.get(url, headers={'Authorization': 'token ' +
+                                  token_auth}).status_code
     if request_status >= 200 and request_status < 300:
         return request_status
     elif request_status == 404:
         url = url.replace('.github/', '')
-        request_status = requests.get(url, headers={'Authorization': 'token ' + token_auth}).status_code
+        request_status = requests.get(url, headers={'Authorization': 'token ' +
+                                      token_auth}).status_code
     return request_status

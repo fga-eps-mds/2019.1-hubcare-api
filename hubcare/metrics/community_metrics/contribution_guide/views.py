@@ -38,7 +38,8 @@ class ContributionGuideView(APIView):
         if github_status >= 200 and github_status < 300:
             response = create_contribution_guide(owner, repo, token_auth, True)
         elif github_status == 404:
-            response = create_contribution_guide(owner, repo, token_auth, False)
+            response = create_contribution_guide(owner, repo, token_auth,
+                                                 False)
         else:
             return Response('Error on requesting GitHubAPI',
                             status=status.HTTP_400_BAD_REQUEST)
@@ -52,7 +53,8 @@ class ContributionGuideView(APIView):
         if github_status >= 200 and github_status < 300:
             response = update_contribution_guide(owner, repo, token_auth, True)
         elif github_status == 404:
-            response = update_contribution_guide(owner, repo, token_auth, False)
+            response = update_contribution_guide(owner, repo, token_auth,
+                                                 False)
         else:
             return Response('Error on requesting GitHubAPI',
                             status=status.HTTP_400_BAD_REQUEST)
@@ -98,10 +100,12 @@ def get_github_request(owner, repo, token_auth):
         owner,
         repo
     )
-    request_status = requests.get(url, headers={'Authorization': 'token ' + token_auth}).status_code
+    request_status = requests.get(url, headers={'Authorization': 'token ' +
+                                  token_auth}).status_code
     if request_status >= 200 and request_status < 300:
         return request_status
     elif request_status == 404:
         url = url.replace('.github/', '')
-        request_status = requests.get(url, headers={'Authorization': 'token ' + token_auth}).status_code
+        request_status = requests.get(url, headers={'Authorization': 'token ' +
+                                      token_auth}).status_code
     return request_status

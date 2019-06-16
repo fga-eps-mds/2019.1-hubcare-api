@@ -63,7 +63,8 @@ def get_github_request(owner, repo, token_auth):
         owner,
         repo
     )
-    github_request = requests.get(url, headers={'Authorization': 'token ' + token_auth})
+    github_request = requests.get(url, headers={'Authorization': 'token ' +
+                                  token_auth})
     return github_request.json()
 
 

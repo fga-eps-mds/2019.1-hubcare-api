@@ -45,8 +45,8 @@ class HubcareApiView(APIView):
             print('###################################')
 
             metrics = get_metric(owner, repo, token_auth, 'post')
-            hubcare_indicators = get_hubcare_indicators(owner, repo, token_auth,
-                                                        metrics)
+            hubcare_indicators = get_hubcare_indicators(owner, repo,
+                                                        token_auth, metrics)
             response = create_response(
                 metrics,
                 hubcare_indicators,
@@ -71,8 +71,8 @@ class HubcareApiView(APIView):
             print('#######################################')
 
             metrics = get_metric(owner, repo, token_auth, 'put')
-            hubcare_indicators = get_hubcare_indicators(owner, repo, token_auth,
-                                                        metrics)
+            hubcare_indicators = get_hubcare_indicators(owner, repo,
+                                                        token_auth, metrics)
             response = create_response(
                 metrics,
                 hubcare_indicators,
@@ -96,8 +96,8 @@ class HubcareApiView(APIView):
             print('###################################')
 
             metrics = get_metric(owner, repo, token_auth, 'get')
-            hubcare_indicators = get_hubcare_indicators(owner, repo, token_auth,
-                                                        metrics)
+            hubcare_indicators = get_hubcare_indicators(owner, repo,
+                                                        token_auth, metrics)
 
             response = create_response(
                 metrics,
@@ -129,8 +129,10 @@ def create_response(metrics, indicators, commit_graph, pull_request_graph):
 
 def get_metric(owner, repo, token_auth, request_type):
     metrics = issue_metric.get_metric(owner, repo, token_auth, request_type)
-    metrics.update(community_metric.get_metric(owner, repo, token_auth, request_type))
-    metrics.update(commit_metric.get_metric(owner, repo, token_auth, request_type))
+    metrics.update(community_metric.get_metric(owner, repo, token_auth,
+                                               request_type))
+    metrics.update(commit_metric.get_metric(owner, repo, token_auth,
+                                            request_type))
     metrics.update(pull_request_metric.get_metric(owner, repo, token_auth,
                                                   request_type))
 
@@ -138,14 +140,15 @@ def get_metric(owner, repo, token_auth, request_type):
 
 
 def get_hubcare_indicators(owner, repo, token_auth, metrics):
-    active_data = active_indicator.get_active_indicator(owner, repo, token_auth, metrics)
+    active_data = active_indicator.get_active_indicator(owner, repo,
+                                                        token_auth, metrics)
     welcoming_data = welcoming_indicator.get_welcoming_indicator(
         owner,
         repo,
         metrics
     )
-    support_data = support_indicator.get_support_indicator(owner, repo, token_auth,
-                                                           metrics)
+    support_data = support_indicator.get_support_indicator(owner, repo,
+                                                           token_auth, metrics)
     hubcare_indicators = {
         'active_indicator': float(
             '{0:.2f}'.format(active_data*100)),
