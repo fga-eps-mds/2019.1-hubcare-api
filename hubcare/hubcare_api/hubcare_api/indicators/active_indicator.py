@@ -3,7 +3,7 @@ import requests
 import os
 
 
-def get_active_indicator(owner, repo, token_auth, metric):
+def get_active_indicator(owner, repo, metric):
     community_metric = metric['community_metric']
     pull_request_metric = metric['pull_request_metric']
     issue_metric = metric['issue_metric']
