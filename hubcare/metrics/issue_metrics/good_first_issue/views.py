@@ -42,7 +42,8 @@ class GoodFirstIssueView(APIView):
             owner,
             repo
         )
-        total_issues, good_first_issue = self.get_total_goodfirstissue(url)
+        total_issues, good_first_issue = self.get_total_goodfirstissue(
+                                         url, token_auth)
         if total_issues == 0:
             rate = 0
         else:
@@ -69,7 +70,8 @@ class GoodFirstIssueView(APIView):
             owner,
             repo
         )
-        total_issues, good_first_issue = self.get_total_goodfirstissue(url)
+        total_issues, good_first_issue = self.get_total_goodfirstissue(
+                                         url, token_auth)
         if total_issues == 0:
             rate = 0
         else:
@@ -87,7 +89,7 @@ class GoodFirstIssueView(APIView):
         serializer = GoodFirstIssueSerializer(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get_total_goodfirstissue(self, url):
+    def get_total_goodfirstissue(self, url, token_auth):
         '''
         returns the number of all issues and the issues with
         good first issue label
@@ -97,14 +99,14 @@ class GoodFirstIssueView(APIView):
 
         total_issues = 0
         good_first_issue = 0
-        info_repo = requests.get(url, auth=(username,
-                                            token)).json()
+        info_repo = requests.get(url, headers={'Authorization': 'token ' +
+                                               token_auth}).json()
         total_issues = info_repo["open_issues_count"]
         page = '&page=1'
         label_url = url + constants.LABEL_GOOD_FIRST_ISSUE_SPACES
         result = requests.get(label_url + page,
-                              auth=(username,
-                                    token)).json()
+                              headers={'Authorization': 'token ' +
+                                       token_auth}).json()
 
         '''
         checks possibilities for different aliases of good first issue
@@ -112,26 +114,29 @@ class GoodFirstIssueView(APIView):
         if result:
             good_first_issue = count_all_label(
                 label_url,
-                result
+                result,
+                token_auth
             )
         else:
             label_url = url + constants.LABEL_GOODFIRSTISSUE
             result = requests.get(label_url + page,
-                                  auth=(username,
-                                        token)).json()
+                                  headers={'Authorization': 'token ' +
+                                           token_auth}).json()
             if result:
                 good_first_issue = count_all_label(
                     label_url,
-                    result
+                    result,
+                    token_auth
                 )
             else:
                 label_url = url + constants.LABEL_GOOD_FIRST_ISSUE
                 result = requests.get(label_url + page,
-                                      auth=(username,
-                                            token)).json()
+                                      headers={'Authorization': 'token ' +
+                                               token_auth}).json()
                 if result:
                     good_first_issue = count_all_label(
                         label_url,
-                        result
+                        result,
+                        token_auth
                     )
         return total_issues, good_first_issue
