@@ -41,7 +41,8 @@ class HelpWantedView(APIView):
             owner,
             repo
         )
-        total_issues, help_wanted_issues = self.get_total_helpwanted(url)
+        total_issues, help_wanted_issues = self.get_total_helpwanted(
+                                           token_auth, url)
         if total_issues == 0:
             rate = 0
         else:
@@ -109,7 +110,7 @@ class HelpWantedView(APIView):
         checks possibilities for different aliases of help wanted
         '''
         if result:
-            help_wanted_issues = count_all_label(label_url, result)
+            help_wanted_issues = count_all_label(label_url, result, token_auth)
         else:
             label_url = url + constants.LABEL_HELPWANTED
             result = requests.get(label_url + page, headers={'Authorization':
@@ -117,7 +118,8 @@ class HelpWantedView(APIView):
             if result:
                 help_wanted_issues = count_all_label(
                     label_url,
-                    result
+                    result,
+                    token_auth
                 )
             else:
                 label_url = url + constants.LABEL_HELP_WANTED
@@ -127,6 +129,7 @@ class HelpWantedView(APIView):
                 if result:
                     help_wanted_issues = count_all_label(
                         label_url,
-                        result
+                        result,
+                        token_auth
                     )
         return total_issues, help_wanted_issues

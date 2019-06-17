@@ -8,7 +8,7 @@ import os
 import re
 
 
-def count_all_label(url, result):
+def count_all_label(url, result, token_auth):
     '''
     returns the number of good first issue in all pages
     '''

@@ -89,13 +89,13 @@ def get_number_issues(owner, repo, token_auth):
     date = str(datetime.now() - interval).split(' ')[0]
 
     open_url = ISSUE_URL + '+repo:' + owner + '/' + repo
-    open_issues = request_issues(open_url)
+    open_issues = request_issues(open_url, token_auth)
 
     active_url = open_url + '+created:<=' + date + '+updated:>=' + date
-    active_issues = request_issues(active_url)
+    active_issues = request_issues(active_url, token_auth)
 
     new_url = open_url + '+created:>=' + date
-    new_issues = request_issues(new_url)
+    new_issues = request_issues(new_url, token_auth)
 
     open_issues = open_issues['total_count']
     active_issues = active_issues['total_count']
@@ -106,7 +106,7 @@ def get_number_issues(owner, repo, token_auth):
     return open_issues, active_issues
 
 
-def request_issues(url):
+def request_issues(url, token_auth):
     username = os.environ['NAME']
     token = os.environ['TOKEN']
     issues = requests.get(url, headers={'Authorization': 'token ' +
