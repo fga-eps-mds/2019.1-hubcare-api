@@ -42,7 +42,7 @@ class HelpWantedView(APIView):
             repo
         )
         total_issues, help_wanted_issues = self.get_total_helpwanted(
-                                           token_auth, url)
+                                           url, token_auth)
         if total_issues == 0:
             rate = 0
         else:

@@ -141,14 +141,14 @@ def get_metric(owner, repo, token_auth, request_type):
 
 def get_hubcare_indicators(owner, repo, token_auth, metrics):
     active_data = active_indicator.get_active_indicator(owner, repo,
-                                                        token_auth, metrics)
+                                                        metrics)
     welcoming_data = welcoming_indicator.get_welcoming_indicator(
         owner,
         repo,
         metrics
     )
     support_data = support_indicator.get_support_indicator(owner, repo,
-                                                           token_auth, metrics)
+                                                           metrics)
     hubcare_indicators = {
         'active_indicator': float(
             '{0:.2f}'.format(active_data*100)),
