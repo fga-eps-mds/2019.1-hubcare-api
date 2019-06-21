@@ -4,7 +4,7 @@ from readme.views import ReadmeView
 
 urlpatterns = [
     path(
-        '<str:owner>/<str:repo>/',
+        '<str:owner>/<str:repo>/<str:token_auth>/',
         ReadmeView.as_view()
     ),
 ]

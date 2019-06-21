@@ -3,5 +3,6 @@ from django.urls import path
 from good_first_issue.views import GoodFirstIssueView
 
 urlpatterns = [
-    path('<str:owner>/<str:repo>/', GoodFirstIssueView.as_view()),
+    path('<str:owner>/<str:repo>/<str:token_auth>/',
+         GoodFirstIssueView.as_view()),
 ]

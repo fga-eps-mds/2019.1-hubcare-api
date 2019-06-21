@@ -10,7 +10,7 @@ from community_metrics.constants import URL_API, HTTP_OK
 
 
 class ContributionGuideView(APIView):
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
         Return if a repository have a contribution guide
         or not
@@ -22,7 +22,7 @@ class ContributionGuideView(APIView):
         serializer = ContributionGuideSerializer(contribution_guide)
         return Response(serializer.data)
 
-    def post(self, request, owner, repo):
+    def post(self, request, owner, repo, token_auth):
         '''
         Post a new object in database
         '''
@@ -34,32 +34,34 @@ class ContributionGuideView(APIView):
             serializer = ContributionGuideSerializer(contribution_guide[0])
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        github_status = get_github_request(owner, repo)
+        github_status = get_github_request(owner, repo, token_auth)
         if github_status >= 200 and github_status < 300:
-            response = create_contribution_guide(owner, repo, True)
+            response = create_contribution_guide(owner, repo, token_auth, True)
         elif github_status == 404:
-            response = create_contribution_guide(owner, repo, False)
+            response = create_contribution_guide(owner, repo, token_auth,
+                                                 False)
         else:
             return Response('Error on requesting GitHubAPI',
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(response)
 
-    def put(self, request, owner, repo):
+    def put(self, request, owner, repo, token_auth):
         '''
         Update contribution guide object
         '''
-        github_status = get_github_request(owner, repo)
+        github_status = get_github_request(owner, repo, token_auth)
         if github_status >= 200 and github_status < 300:
-            response = update_contribution_guide(owner, repo, True)
+            response = update_contribution_guide(owner, repo, token_auth, True)
         elif github_status == 404:
-            response = update_contribution_guide(owner, repo, False)
+            response = update_contribution_guide(owner, repo, token_auth,
+                                                 False)
         else:
             return Response('Error on requesting GitHubAPI',
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(response)
 
 
-def create_contribution_guide(owner, repo, value):
+def create_contribution_guide(owner, repo, token_auth, value):
     '''
     Create a contribution guide object
     '''
@@ -72,7 +74,7 @@ def create_contribution_guide(owner, repo, value):
     return serializer.data
 
 
-def update_contribution_guide(owner, repo, value):
+def update_contribution_guide(owner, repo, token_auth, value):
     '''
     Update a contribution guide object
     '''
@@ -86,7 +88,7 @@ def update_contribution_guide(owner, repo, value):
     return serializer.data
 
 
-def get_github_request(owner, repo):
+def get_github_request(owner, repo, token_auth):
     '''
     Request Github data
     '''
@@ -98,10 +100,12 @@ def get_github_request(owner, repo):
         owner,
         repo
     )
-    request_status = requests.get(url, auth=(username, token)).status_code
+    request_status = requests.get(url, headers={'Authorization': 'token ' +
+                                  token_auth}).status_code
     if request_status >= 200 and request_status < 300:
         return request_status
     elif request_status == 404:
         url = url.replace('.github/', '')
-        request_status = requests.get(url, auth=(username, token)).status_code
+        request_status = requests.get(url, headers={'Authorization': 'token ' +
+                                      token_auth}).status_code
     return request_status

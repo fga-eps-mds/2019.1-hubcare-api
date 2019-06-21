@@ -20,19 +20,20 @@ from datetime import datetime, timezone
 class HubcareApiView(APIView):
     '''
         This is the main class view of the project, it gets data from a repo
-        Input: owner, repo
+        Input: owner, repo, token_auth
         Output: indicators
     '''
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
             Getting data from a repo and indicate parameters
-            Input: owner, repo
+            Input: owner, repo, token_auth
             Output: indicators
         '''
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
-        repo_request = requests.get(URL_REPOSITORY + owner + '/' + repo).json()
+        repo_request = requests.get(URL_REPOSITORY + owner + '/' + repo + '/' +
+                                    token_auth + '/').json()
         response = []
         metrics = {}
         if repo_request['status'] == 0:
@@ -43,9 +44,9 @@ class HubcareApiView(APIView):
             print(now)
             print('###################################')
 
-            metrics = get_metric(owner, repo, 'post')
+            metrics = get_metric(owner, repo, token_auth, 'post')
             hubcare_indicators = get_hubcare_indicators(owner, repo,
-                                                        metrics)
+                                                        token_auth, metrics)
             response = create_response(
                 metrics,
                 hubcare_indicators,
@@ -54,7 +55,7 @@ class HubcareApiView(APIView):
             )
 
             repo_request = requests.post(
-                URL_REPOSITORY + owner + '/' + repo + '/'
+                URL_REPOSITORY + owner + '/' + repo + '/' + token_auth + '/'
             )
 
             print('############FINAL TIME#############')
@@ -69,9 +70,9 @@ class HubcareApiView(APIView):
             print(now)
             print('#######################################')
 
-            metrics = get_metric(owner, repo, 'put')
+            metrics = get_metric(owner, repo, token_auth, 'put')
             hubcare_indicators = get_hubcare_indicators(owner, repo,
-                                                        metrics)
+                                                        token_auth, metrics)
             response = create_response(
                 metrics,
                 hubcare_indicators,
@@ -80,7 +81,7 @@ class HubcareApiView(APIView):
             )
 
             repo_request = requests.put(
-                URL_REPOSITORY + owner + '/' + repo + '/'
+                URL_REPOSITORY + owner + '/' + repo + '/' + token_auth + '/'
             )
 
             print('############FINAL TIME#############')
@@ -94,9 +95,9 @@ class HubcareApiView(APIView):
             print(now)
             print('###################################')
 
-            metrics = get_metric(owner, repo, 'get')
+            metrics = get_metric(owner, repo, token_auth, 'get')
             hubcare_indicators = get_hubcare_indicators(owner, repo,
-                                                        metrics)
+                                                        token_auth, metrics)
 
             response = create_response(
                 metrics,
@@ -126,18 +127,21 @@ def create_response(metrics, indicators, commit_graph, pull_request_graph):
     return response
 
 
-def get_metric(owner, repo, request_type):
-    metrics = issue_metric.get_metric(owner, repo, request_type)
-    metrics.update(community_metric.get_metric(owner, repo, request_type))
-    metrics.update(commit_metric.get_metric(owner, repo, request_type))
-    metrics.update(pull_request_metric.get_metric(owner, repo,
+def get_metric(owner, repo, token_auth, request_type):
+    metrics = issue_metric.get_metric(owner, repo, token_auth, request_type)
+    metrics.update(community_metric.get_metric(owner, repo, token_auth,
+                                               request_type))
+    metrics.update(commit_metric.get_metric(owner, repo, token_auth,
+                                            request_type))
+    metrics.update(pull_request_metric.get_metric(owner, repo, token_auth,
                                                   request_type))
 
     return metrics
 
 
-def get_hubcare_indicators(owner, repo, metrics):
-    active_data = active_indicator.get_active_indicator(owner, repo, metrics)
+def get_hubcare_indicators(owner, repo, token_auth, metrics):
+    active_data = active_indicator.get_active_indicator(owner, repo,
+                                                        metrics)
     welcoming_data = welcoming_indicator.get_welcoming_indicator(
         owner,
         repo,

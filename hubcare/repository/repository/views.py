@@ -18,7 +18,7 @@ STATUS = {
 
 
 class RepositoryView(APIView):
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
         Checks the existence of a repository and the last time it was updated
         '''
@@ -31,7 +31,8 @@ class RepositoryView(APIView):
         if not repository:
             username = os.environ['NAME']
             token = os.environ['TOKEN']
-            data = requests.get(url, auth=(username, token))
+            data = requests.get(url, headers={'Authorization': 'token ' +
+                                token_auth})
 
             '''
             Executes if repository exists
@@ -49,7 +50,7 @@ class RepositoryView(APIView):
             response = create_response(3)
             return Response(response, status=status.HTTP_200_OK)
 
-    def post(self, request, owner, repo):
+    def post(self, request, owner, repo, token_auth):
         repository = Repository.objects.create(
             owner=owner,
             repo=repo,
@@ -58,7 +59,7 @@ class RepositoryView(APIView):
         serializer = RepositorySerializer(repository)
         return Response('Repository added', status=status.HTTP_201_CREATED)
 
-    def put(self, request, owner, repo):
+    def put(self, request, owner, repo, token_auth):
         repository = Repository.objects.get(owner=owner, repo=repo)
         repository.date = datetime.now(timezone.utc)
         repository.save()
