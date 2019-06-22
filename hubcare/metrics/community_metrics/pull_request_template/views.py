@@ -10,7 +10,7 @@ from community_metrics.constants import URL_API, HTTP_OK
 
 
 class PullRequestTemplateView(APIView):
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
         Return if a repository have a pull request template or not
         '''
@@ -21,7 +21,7 @@ class PullRequestTemplateView(APIView):
         serializer = PullRequestTemplateSerializer(pull_request_template)
         return Response(serializer.data)
 
-    def post(self, request, owner, repo):
+    def post(self, request, owner, repo, token_auth):
         '''
         Post pull  request template object
         '''
@@ -33,34 +33,36 @@ class PullRequestTemplateView(APIView):
             serializer = PullRequestTemplateSerializer(pr_template[0])
             return Response(serializer.data)
 
-        github_request = get_github_request(owner, repo)
-        status_code = github_request.status_code
-        if status_code >= 200 and status_code < 300:
-            response = create_pull_request_template(owner, repo, True)
-        elif status_code == 404:
-            response = create_pull_request_template(owner, repo, False)
+        github_status = get_github_request(owner, repo, token_auth)
+        if github_status >= 200 and github_status < 300:
+            response = create_pull_request_template(owner, repo, token_auth,
+                                                    True)
+        elif github_status == 404:
+            response = create_pull_request_template(owner, repo, token_auth,
+                                                    False)
         else:
             return Response('Error on requesting GitHubAPI',
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(response)
 
-    def put(self, request, owner, repo):
+    def put(self, request, owner, repo, token_auth):
         '''
         Update pull request template object
         '''
-        github_request = get_github_request(owner, repo)
-        status_code = github_request.status_code
-        if status_code >= 200 and status_code < 300:
-            response = update_pull_request_template(owner, repo, True)
-        elif status_code == 404:
-            response = update_pull_request_template(owner, repo, False)
+        github_status = get_github_request(owner, repo, token_auth)
+        if github_status >= 200 and github_status < 300:
+            response = update_pull_request_template(owner, repo, token_auth,
+                                                    True)
+        elif github_status == 404:
+            response = update_pull_request_template(owner, repo, token_auth,
+                                                    False)
         else:
             return Response('Error on requesting GitHubAPI',
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(response)
 
 
-def create_pull_request_template(owner, repo, value):
+def create_pull_request_template(owner, repo, token_auth, value):
     '''
     Create pull request template object in database
     '''
@@ -73,7 +75,7 @@ def create_pull_request_template(owner, repo, value):
     return serializer.data
 
 
-def update_pull_request_template(owner, repo, value):
+def update_pull_request_template(owner, repo, token_auth, value):
     '''
     Update pull request template object in database
     '''
@@ -88,7 +90,7 @@ def update_pull_request_template(owner, repo, value):
     return serializer.data
 
 
-def get_github_request(owner, repo):
+def get_github_request(owner, repo, token_auth):
     '''
     Request Github data
     '''
@@ -100,4 +102,12 @@ def get_github_request(owner, repo):
         owner,
         repo
     )
-    return requests.get(url, auth=(username, token))
+    request_status = requests.get(url, headers={'Authorization': 'token ' +
+                                  token_auth}).status_code
+    if request_status >= 200 and request_status < 300:
+        return request_status
+    elif request_status == 404:
+        url = url.replace('.github/', '')
+        request_status = requests.get(url, headers={'Authorization': 'token ' +
+                                      token_auth}).status_code
+    return request_status

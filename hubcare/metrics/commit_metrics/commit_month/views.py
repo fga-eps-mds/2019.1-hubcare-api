@@ -13,12 +13,12 @@ import os
 class CommitMonthView(APIView):
     '''
         Get commits of the last month from GitHub Api and return the total sum
-        Input: owner, repo
+        Input: owner, repo, token_auth
         Output: the sum of commits
     '''
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
-            Input: owner, repo
+            Input: owner, repo, token_auth
             Output: the sum of commits
         '''
 
@@ -30,7 +30,7 @@ class CommitMonthView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, owner, repo):
+    def post(self, request, owner, repo, token_auth):
 
         commit = CommitMonth.objects.filter(
             owner=owner,
@@ -42,7 +42,7 @@ class CommitMonthView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         commits_week, total_commits, commits_last_period = \
-            self.get_commits_by_week(owner, repo)
+            self.get_commits_by_week(owner, repo, token_auth)
 
         commit = CommitMonth.objects.create(
             owner=owner,
@@ -56,10 +56,10 @@ class CommitMonthView(APIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def put(self, request, owner, repo):
+    def put(self, request, owner, repo, token_auth):
 
         commits_week, total_commits, commits_last_period = \
-            self.get_commits_by_week(owner, repo)
+            self.get_commits_by_week(owner, repo, token_auth)
 
         commit_month_object = CommitMonth.objects.get(
             owner=owner,
@@ -74,7 +74,7 @@ class CommitMonthView(APIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def get_commits_by_week(self, owner, repo):
+    def get_commits_by_week(self, owner, repo, token_auth):
         '''
         Returns an array with the number of commits per week in the last 4
         weeks and the total sum of commits in this period
@@ -85,7 +85,7 @@ class CommitMonthView(APIView):
 
         github_request = requests.get(
             MAIN_URL + owner + '/' + repo + WEEKLY_COMMITS,
-            auth=(username, token)
+            headers={'Authorization': 'token ' + token_auth}
         )
 
         status_code = github_request.status_code

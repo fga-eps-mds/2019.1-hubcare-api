@@ -2,11 +2,11 @@ from hubcare_api.constants import *
 from hubcare_api.services.request import Request
 
 
-def get_metric(owner, repo, request_type):
+def get_metric(owner, repo, token_auth, request_type):
 
     r = Request()
-    url_commit_month = get_url('commit_month/', owner, repo)
-    url_contributors = get_url('contributors/', owner, repo)
+    url_commit_month = get_url('commit_month/', owner, repo, token_auth)
+    url_contributors = get_url('contributors/', owner, repo, token_auth)
 
     if request_type == 'get':
         response = r.get(url_commit_month)
@@ -46,5 +46,5 @@ def get_metric(owner, repo, request_type):
     return commit_metric
 
 
-def get_url(url_app, owner, repo):
-    return URL_COMMIT + url_app + owner + '/' + repo + '/'
+def get_url(url_app, owner, repo, token_auth):
+    return URL_COMMIT + url_app + owner + '/' + repo + '/' + token_auth + '/'

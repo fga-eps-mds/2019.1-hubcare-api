@@ -12,7 +12,7 @@ import os
 
 
 class PullRequestQualityView(APIView):
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
         Returns the quality of the pull
         requests from the repository
@@ -22,7 +22,7 @@ class PullRequestQualityView(APIView):
         custom_serializer = customize_serializer(serializer.data)
         return Response(custom_serializer)
 
-    def post(self, request, owner, repo):
+    def post(self, request, owner, repo, token_auth):
         '''
         Post a new quality of the pull
         requests from the repository
@@ -37,7 +37,7 @@ class PullRequestQualityView(APIView):
             custom_serializer = customize_serializer(serializer.data)
             return Response(custom_serializer)
 
-        updated, merged = get_pull_requests(owner, repo)
+        updated, merged = get_pull_requests(owner, repo, token_auth)
         if updated is not None:
             metric = get_metric(updated, merged)
         else:
@@ -55,13 +55,13 @@ class PullRequestQualityView(APIView):
         custom_serializer = customize_serializer(serializer.data)
         return Response(custom_serializer)
 
-    def put(self, request, owner, repo):
+    def put(self, request, owner, repo, token_auth):
         '''
         Update a quality of the pull requests
         from the repository
         '''
 
-        updated, merged = get_pull_requests(owner, repo)
+        updated, merged = get_pull_requests(owner, repo, token_auth)
         if updated is not None:
             metric = get_metric(updated, merged)
         else:
@@ -87,7 +87,7 @@ def customize_serializer(data):
     return custom_serializer
 
 
-def get_pull_requests(owner, repo):
+def get_pull_requests(owner, repo, token_auth):
     username = os.environ['NAME']
     token = os.environ['TOKEN']
     interval = timedelta(days=TOTAL_DAYS)
@@ -96,11 +96,13 @@ def get_pull_requests(owner, repo):
     url_updated = URL_PR + '+updated:>=' + date + \
         '+repo:' + owner + '/' + repo + \
         '&per_page=100'
-    updated_request = requests.get(url_updated, auth=(username, token))
+    updated_request = requests.get(url_updated, headers={'Authorization':
+                                   'token ' + token_auth})
     updated_status = updated_request.status_code
 
     url_merged = url_updated.replace('updated', 'merged')
-    merged_request = requests.get(url_merged, auth=(username, token))
+    merged_request = requests.get(url_merged, headers={'Authorization':
+                                  'token ' + token_auth})
     merged_status = merged_request.status_code
 
     updated = []

@@ -14,7 +14,7 @@ from datetime import datetime, timezone, timedelta
 
 
 class ActivityRateIssueView(APIView):
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
         Return activity rate to repo issues
         '''
@@ -31,7 +31,7 @@ class ActivityRateIssueView(APIView):
             status=status.HTTP_200_OK
         )
 
-    def post(self, request, owner, repo):
+    def post(self, request, owner, repo, token_auth):
         '''
         Creates new activity rate object
         '''
@@ -44,7 +44,7 @@ class ActivityRateIssueView(APIView):
             serializer = ActivityRateIssueSerializer(activity_object[0])
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        open_issues, active_issues = get_number_issues(owner, repo)
+        open_issues, active_issues = get_number_issues(owner, repo, token_auth)
         metric = calculate_metric(open_issues, active_issues)
         dead_issues = open_issues - active_issues
 
@@ -60,7 +60,7 @@ class ActivityRateIssueView(APIView):
         serializer = ActivityRateIssueSerializer(activity_object)
         return Response(serializer.data)
 
-    def put(self, request, owner, repo):
+    def put(self, request, owner, repo, token_auth):
         '''
         Updates activity rate object
         '''
@@ -70,7 +70,7 @@ class ActivityRateIssueView(APIView):
             repo=repo
         )
 
-        open_issues, active_issues = get_number_issues(owner, repo)
+        open_issues, active_issues = get_number_issues(owner, repo, token_auth)
         metric = calculate_metric(open_issues, active_issues)
         dead_issues = open_issues - active_issues
 
@@ -84,18 +84,18 @@ class ActivityRateIssueView(APIView):
         return Response(serializer.data)
 
 
-def get_number_issues(owner, repo):
+def get_number_issues(owner, repo, token_auth):
     interval = timedelta(days=TOTAL_DAYS)
     date = str(datetime.now() - interval).split(' ')[0]
 
     open_url = ISSUE_URL + '+repo:' + owner + '/' + repo
-    open_issues = request_issues(open_url)
+    open_issues = request_issues(open_url, token_auth)
 
     active_url = open_url + '+created:<=' + date + '+updated:>=' + date
-    active_issues = request_issues(active_url)
+    active_issues = request_issues(active_url, token_auth)
 
     new_url = open_url + '+created:>=' + date
-    new_issues = request_issues(new_url)
+    new_issues = request_issues(new_url, token_auth)
 
     open_issues = open_issues['total_count']
     active_issues = active_issues['total_count']
@@ -106,10 +106,11 @@ def get_number_issues(owner, repo):
     return open_issues, active_issues
 
 
-def request_issues(url):
+def request_issues(url, token_auth):
     username = os.environ['NAME']
     token = os.environ['TOKEN']
-    issues = requests.get(url, auth=(username, token)).json()
+    issues = requests.get(url, headers={'Authorization': 'token ' +
+                          token_auth}).json()
     return issues
 
 

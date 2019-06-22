@@ -15,16 +15,16 @@ class DifferentsAuthorsView(APIView):
         Get the number of different authors from a repo
         using GitHub Api of the
         last 14 days and return the total sum
-        Input: owner, repo
+        Input: owner, repo, token_auth
         Output: Number of different authors in the last 14 days
         if the number is less than 4 if more than 4 and save data
     '''
 
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
             Check the existence of the repo, if so get the number different
             authors of the last 14 days and save the data.
-            Input: owner, repo
+            Input: owner, repo, token_auth
             Output: A list with the different authors o the last 14 days
             if the number is less than 4 if more than 4 and save data
         '''
@@ -36,7 +36,7 @@ class DifferentsAuthorsView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, owner, repo):
+    def post(self, request, owner, repo, token_auth):
 
         differents_authors_object = DifferentsAuthors.objects.filter(
             owner=owner,
@@ -48,7 +48,7 @@ class DifferentsAuthorsView(APIView):
                 differents_authors_object[0])
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        differents_authors = self.get_contributors(owner, repo)
+        differents_authors = self.get_contributors(owner, repo, token_auth)
 
         differents_authors = DifferentsAuthors.objects.create(
             owner=owner,
@@ -59,9 +59,9 @@ class DifferentsAuthorsView(APIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def put(self, request, owner, repo):
+    def put(self, request, owner, repo, token_auth):
 
-        differents_authors = self.get_contributors(owner, repo)
+        differents_authors = self.get_contributors(owner, repo, token_auth)
 
         differents_authors_object = DifferentsAuthors.objects.get(
             owner=owner,
@@ -73,7 +73,7 @@ class DifferentsAuthorsView(APIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def get_contributors(self, owner, repo):
+    def get_contributors(self, owner, repo, token_auth):
         username = os.environ['NAME']
         token = os.environ['TOKEN']
 
@@ -87,7 +87,7 @@ class DifferentsAuthorsView(APIView):
             github_request = requests.get(
                 'https://api.github.com/repos/' + owner + '/' + repo +
                 '/commits' + '?&per_page=100?page=' + str(page_number),
-                auth=(username, token))
+                headers={'Authorization': 'token ' + token_auth})
             github_data = github_request.json()
             if (github_request.status_code >= 200 and
                     github_request.status_code <= 299):

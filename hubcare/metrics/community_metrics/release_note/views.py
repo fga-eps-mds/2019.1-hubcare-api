@@ -11,7 +11,7 @@ import os
 
 class ReleaseNoteView(APIView):
 
-    def get(self, request, owner, repo):
+    def get(self, request, owner, repo, token_auth):
         '''
         Return if a repository have a release note or not
         '''
@@ -19,7 +19,7 @@ class ReleaseNoteView(APIView):
         serializer = ReleaseNoteSerializer(release_note)
         return Response(serializer.data)
 
-    def post(self, request, owner, repo):
+    def post(self, request, owner, repo, token_auth):
         '''
         Post release note object object
         '''
@@ -34,24 +34,24 @@ class ReleaseNoteView(APIView):
         release_note = ReleaseNote.objects.create(
             owner=owner,
             repo=repo,
-            release_note=check_release_note(owner, repo),
+            release_note=check_release_note(owner, repo, token_auth),
         )
         serializer = ReleaseNoteSerializer(release_note)
         return Response(serializer.data)
 
-    def put(self, request, owner, repo):
+    def put(self, request, owner, repo, token_auth):
         '''
         Update release note object
         '''
         release_note = ReleaseNote.objects.get(owner=owner, repo=repo)
-        release_note.release_note = check_release_note(owner, repo)
+        release_note.release_note = check_release_note(owner, repo, token_auth)
         release_note.save()
 
         serializer = ReleaseNoteSerializer(release_note)
         return Response(serializer.data)
 
 
-def get_github_request(owner, repo):
+def get_github_request(owner, repo, token_auth):
     '''
     Request Github release notes
     '''
@@ -63,15 +63,16 @@ def get_github_request(owner, repo):
         owner,
         repo
     )
-    github_request = requests.get(url, auth=(username, token))
+    github_request = requests.get(url, headers={'Authorization': 'token ' +
+                                  token_auth})
     return github_request.json()
 
 
-def check_release_note(owner, repo):
+def check_release_note(owner, repo, token_auth):
     '''
     Verify if repository have or not release note
     '''
-    github_data = get_github_request(owner, repo)
+    github_data = get_github_request(owner, repo, token_auth)
     present = datetime.today()
     days = timedelta(days=NINETY_DAYS)
     releaseDays = present - days
