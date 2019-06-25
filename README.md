@@ -19,7 +19,7 @@ This repository, in special, is fully dedicated to the maintain API details. Fee
 
 ### Installing from Chrome Store
 
-Just go to HubCare's page on [Chrome Store](https://chrome.google.com/webstore/detail/hubcare/oilkenamijbelpchecmfpllponcmlcbm) and be happy :wink:
+Just go to HubCare's page on [Chrome Store](https://chrome.google.com/webstore/detail/hubcare-check-github-repo/jaalemmhbmjojoppdncnekgnjgfbfbda?hl=pt-PT) and be happy :wink:
 
 ### Running things locally
 
